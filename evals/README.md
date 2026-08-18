@@ -75,3 +75,24 @@ three-meal holdout, single evaluator, limited cuisines,
 USDA-centered canonical coverage, single-view portion inference, external-model nondeterminism, and no
 clinical validation. Fine-tuning is not justified before repeated systematic errors are measured and
 prompt/retrieval improvements plateau with enough separated training data.
+
+## Optional SNAPMe phone-photo recognition queue
+
+`scripts/build_snapme_recognition_subset.py` creates a deterministic 40-photo private intake queue
+from the USDA SNAPMe archive: one “before” photo per participant, 30 development and 10 participant-
+disjoint holdout cases. The source archive is CC BY-SA 4.0 and belongs under ignored
+`evals/private/snapme/`; do not commit it or the extracted photos.
+
+SNAPMe links phone photos to same-day ASA24 food records. Its `FoodAmt` and nutrition fields are
+dietary-record-derived, not kitchen-scale measurements, and record lines may describe visually hidden
+recipe components. The builder therefore marks recognition labels pending manual visible-label review,
+canonical truth unverified, and portion/hidden-ingredient truth ineligible. It must not be used to
+claim measured portion accuracy.
+
+```powershell
+.\backend\.venv\Scripts\python.exe evals\scripts\build_snapme_recognition_subset.py `
+  --archive evals\private\snapme\source\snapme_db_09Dec2022.tar.gz `
+  --link-file evals\private\snapme\metadata\snapme_db_09Dec2022\snapme_cs_db\master_SNAPME_linkfile.csv `
+  --output evals\private\snapme\subset_v1 `
+  --count 40
+```
