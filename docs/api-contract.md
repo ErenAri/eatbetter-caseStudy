@@ -14,6 +14,7 @@ UUID; production must replace it with verified Supabase JWT claims.
 | `PATCH` | `/api/v1/meals/{meal_id}/items/{item_id}` | Candidate, portion, preparation correction |
 | `DELETE` | `/api/v1/meals/{meal_id}/items/{item_id}` | Logical removal preserving prediction evidence |
 | `POST` | `/api/v1/meals/{meal_id}/items` | Record a missing item pending canonical grounding |
+| `POST` | `/api/v1/meals/{meal_id}/items/{item_id}/replacement` | Atomically replace an unresolved identity and preserve its audit |
 | `POST` | `/api/v1/meals/{meal_id}/clarifications/{clarification_id}/answer` | Validated answer |
 | `POST` | `/api/v1/meals/{meal_id}/confirm` | Deterministic confirmation |
 | `DELETE` | `/api/v1/meals/{meal_id}` | Delete aggregate and private image |
@@ -26,7 +27,14 @@ server-side.
 For `PATCH .../items/{item_id}` with `candidate_rank`, the application verifies the rank against the
 stored candidate set, fetches USDA details through `NutritionProvider`, stores the returned per-100g
 snapshot and retrieval time, then recalculates the item. User-added text similarly triggers candidate
-retrieval; it cannot directly supply calories.
+retrieval; it cannot directly supply calories. Candidate representations include a concise
+`display_name` assembled from sanitized data type, brand, and serving metadata so distinct choices do
+not render as identical buttons.
+
+Manual identity recovery accepts only a replacement query and explicit grams. It mutates the same
+item, records `food_replacement`, supersedes pending item clarifications, reruns constrained
+canonicalization, and creates a new blocker if the replacement still cannot be grounded. It never
+silently appends a duplicate item.
 
 ## State behavior
 

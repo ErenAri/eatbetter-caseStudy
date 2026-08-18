@@ -15,10 +15,12 @@ import {
   createDemoMeal,
   createCanonicalDemoMeal,
   createMeal,
+  deleteMeal,
   getDailySummary,
   getMeal,
   listMeals,
   removeMealItem,
+  replaceMealItem,
   updateMealItem,
   uploadMealImage,
 } from "./services/api";
@@ -114,6 +116,7 @@ export default function App() {
   const update = (item: MealItem, value: { candidate_rank?: number; portion_g?: number; preparation_method?: string | null }) => { if (meal) void mutate(item.id, async () => { const next = await updateMealItem(meal.id, item.id, value); track("meal_item_corrected", { mealId: meal.id }); return next; }); };
   const remove = (item: MealItem) => { if (meal) void mutate(item.id, async () => { const next = await removeMealItem(meal.id, item.id); track("meal_item_corrected", { mealId: meal.id }); return next; }); };
   const add = (query: string, grams: number) => { if (meal) void mutate("add", () => addMealItem(meal.id, query, grams)); };
+  const replace = (item: MealItem, query: string, grams: number) => { if (meal) void mutate(item.id, () => replaceMealItem(meal.id, item.id, query, grams)); };
 
   const confirm = async () => {
     if (!meal || busyKey) return;
@@ -129,6 +132,23 @@ export default function App() {
     setMeal(selected); setError(null); setRoute(selected.status === "NEEDS_REVIEW" ? "review" : "detail");
     if (selected.status === "NEEDS_REVIEW") { track("meal_review_opened", { mealId: selected.id }); try { setMeal(await getMeal(selected.id)); } catch { /* preserve list snapshot */ } }
   };
+  const resumeIncomplete = async () => {
+    if (!meal || !meal.image_attached || busyKey) return;
+    const token = ++operation.current;
+    setBusyKey("analysis"); setError(null); setRoute("analysis");
+    try {
+      const analyzed = await analyzeMeal(meal.id);
+      if (operation.current !== token) return;
+      setMeal(analyzed); setRoute(analyzed.status === "NEEDS_REVIEW" ? "review" : "detail");
+    } catch (reason) { if (operation.current === token) { setRoute("detail"); setError(message(reason, "We couldn't resume this analysis.")); } }
+    finally { if (operation.current === token) setBusyKey(null); }
+  };
+  const discardIncomplete = async () => {
+    if (!meal || busyKey) return;
+    setBusyKey("discard"); setError(null);
+    try { await deleteMeal(meal.id); beginCapture(); }
+    catch (reason) { setError(message(reason, "This incomplete meal couldn't be discarded.")); setBusyKey(null); }
+  };
   const home = () => { operation.current += 1; setRoute("today"); setError(null); setBusyKey(null); void refreshToday(); };
   const chooseAnother = () => { operation.current += 1; setAttempt({ requestId: uuid(), mealId: null, imageAttached: false }); setImage(null); setError(null); setRoute("capture"); };
   const demo = async (canonical = false) => { if (busyKey) return; setBusyKey("demo"); setError(null); try { const fixture = canonical ? await createCanonicalDemoMeal() : await createDemoMeal(); setMeal(fixture); setRoute("review"); track("meal_review_opened", { mealId: fixture.id }); } catch (reason) { setError(message(reason, "The development demo is unavailable.")); } finally { setBusyKey(null); } };
@@ -137,7 +157,7 @@ export default function App() {
     {route === "today" ? <TodayScreen meals={meals} totals={totals} loading={todayLoading} error={todayError} healthStatus={healthStatus} onRetry={() => void refreshToday()} onLog={beginCapture} onOpen={(selected) => void openMeal(selected)} /> : null}
     {route === "capture" ? <CaptureScreen image={image} context={context} busy={busyKey !== null} error={error} onImage={setImage} onContext={setContext} onAnalyze={() => void submitAnalysis()} onDemo={() => void demo()} onCanonicalDemo={() => void demo(true)} onBack={home} /> : null}
     {route === "analysis" ? <AnalysisScreen error={error} onRetry={() => void submitAnalysis()} onChooseAnother={chooseAnother} onCancel={() => { track("meal_abandoned", { mealId: attempt?.mealId ?? undefined }); home(); }} /> : null}
-    {route === "review" && meal ? <ReviewScreen meal={meal} busyKey={busyKey} error={error} onAnswer={answer} onUpdate={update} onRemove={remove} onAdd={add} onConfirm={() => void confirm()} onBack={home} /> : null}
-    {route === "detail" && meal ? <MealDetailScreen meal={meal} onBack={home} /> : null}
+    {route === "review" && meal ? <ReviewScreen meal={meal} busyKey={busyKey} error={error} onAnswer={answer} onUpdate={update} onRemove={remove} onAdd={add} onReplace={replace} onConfirm={() => void confirm()} onBack={home} /> : null}
+    {route === "detail" && meal ? <MealDetailScreen meal={meal} busy={busyKey !== null} error={error} onResume={meal.status !== "CONFIRMED" && meal.status !== "FAILED_PERMANENT" && meal.image_attached ? () => void resumeIncomplete() : undefined} onDiscard={meal.status !== "CONFIRMED" ? () => void discardIncomplete() : undefined} onBack={home} /> : null}
   </>;
 }

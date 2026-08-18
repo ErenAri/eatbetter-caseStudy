@@ -2,7 +2,7 @@ export type MealStatus = "UPLOADED" | "ANALYZING" | "NEEDS_REVIEW" | "CONFIRMED"
 export type ReviewStatus = "NOT_READY" | "READY" | "REMOVED" | "NEEDS_REVIEW" | "NEEDS_IDENTITY" | "NEEDS_PORTION" | "NEEDS_HIDDEN_INGREDIENT";
 
 export type NutritionTotals = { calories_kcal: number; protein_g: number; carbs_g: number; fat_g: number };
-export type Candidate = { rank: number; source: string; food_id: string; name: string };
+export type Candidate = { rank: number; source: string; food_id: string; name: string; display_name: string };
 
 export type MealItem = {
   id: string;

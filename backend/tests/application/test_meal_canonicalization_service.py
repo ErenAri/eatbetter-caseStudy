@@ -151,6 +151,8 @@ def test_preparation_aware_query_is_deterministic_without_duplicates() -> None:
     assert build_grounding_query("grilled chicken breast", "grilled") == "chicken breast grilled"
     assert build_grounding_query("white rice", "cooked with garlic") == "white rice cooked"
     assert build_grounding_query("chicken breast", "with skin") == "chicken breast with skin"
+    assert build_grounding_query("spaghetti", None) == "pasta cooked"
+    assert build_grounding_query("tomato sauce", None) == "tomato products canned sauce"
 
 
 @pytest.mark.asyncio

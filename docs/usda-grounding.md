@@ -19,17 +19,19 @@ Observed or user-entered food
 → immutable per-100g snapshot on MealItem
 ```
 
-Candidate ranks are contiguous and preserved for audit and future Recall@1/3/5 evaluation. Selection
+Candidate ranks are contiguous and preserved for audit and future Recall@1/3/5 evaluation. Results
+that have the same normalized name, data type, brand, and serving description are deduplicated before
+ranking is exposed. Display labels add sanitized data type, brand, and serving context. Selection
 must reference that retrieved set. The final snapshot always comes from detail retrieval, even when a
 search response also contains complete nutrients.
 
 ## Data-type strategy
 
-Generic meal-photo queries favor Survey (FNDDS), Foundation, and SR Legacy data. Branded records stay
-eligible but receive an isolated deterministic penalty, including a brand-owner penalty, so packaged
-products do not dominate searches such as cooked rice. USDA relevance, normalized token overlap,
-preparation overlap, and data type are the only ranking factors. A future barcode workflow can use a
-separate strategy that prefers Branded foods.
+Generic meal-photo searches are constrained to Survey (FNDDS), Foundation, and SR Legacy data, so
+packaged products cannot dominate queries such as cooked rice. Small deterministic aliases bridge
+known observation/database vocabulary gaps (`spaghetti` → `pasta cooked`, for example). USDA
+relevance, normalized token overlap, preparation overlap, and data type determine ordering inside the
+reference set. A future barcode or brand-confirmed workflow can use a separate Branded strategy.
 
 ## Nutrition and energy policy
 

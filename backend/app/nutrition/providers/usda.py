@@ -123,6 +123,7 @@ class USDAFoodDataCentralProvider:
             json_body={
                 "query": normalized_query,
                 "pageSize": max(self._search_pool_size, min(limit * 2, 20)),
+                "dataType": ["Foundation", "Survey (FNDDS)", "SR Legacy"],
             },
         )
         try:

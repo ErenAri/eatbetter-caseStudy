@@ -34,6 +34,7 @@ class CandidateResponse(BaseModel):
     source: str
     food_id: str
     name: str
+    display_name: str
 
 
 class CanonicalResponse(BaseModel):
@@ -137,6 +138,13 @@ class UpdateMealItemRequest(BaseModel):
 
 
 class AddMealItemRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    query: str = Field(min_length=1, max_length=200)
+    portion_g: Decimal = Field(ge=0, max_digits=10, decimal_places=3)
+
+
+class ReplaceMealItemRequest(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
     query: str = Field(min_length=1, max_length=200)

@@ -18,3 +18,12 @@ test("shows confirmed meal nutrition and pending meals", async () => {
   expect(view.getByText("Needs review")).toBeTruthy();
   expect(view.getByText(/quick checks remaining/)).toBeTruthy();
 });
+
+test("renders an uploaded shell as incomplete instead of zero-calorie saved food", async () => {
+  const incomplete = { ...baseMeal, id: "incomplete", status: "UPLOADED" as const, confirmed_at: null, image_attached: false, items: [], totals: { calories_kcal: 0, protein_g: 0, carbs_g: 0, fat_g: 0 } };
+  const view = await render(<TodayScreen meals={[incomplete]} totals={totals} loading={false} onLog={jest.fn()} onOpen={jest.fn()} />);
+
+  expect(view.getByText("Incomplete")).toBeTruthy();
+  expect(view.getByText(/Photo still needed/)).toBeTruthy();
+  expect(view.queryByText(/0 kcal/)).toBeNull();
+});

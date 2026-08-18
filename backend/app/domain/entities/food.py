@@ -31,3 +31,24 @@ class CanonicalFoodCandidate:
     def __post_init__(self) -> None:
         if self.rank < 1:
             raise ValueError("candidate rank must be at least 1")
+
+    def display_name(self) -> str:
+        """Return a user-facing label that distinguishes materially different results."""
+        data = self.data if isinstance(self.data, dict) else {}
+        details: list[str] = []
+        brand = data.get("brand_owner")
+        data_type = data.get("data_type")
+        serving = data.get("household_serving_full_text")
+        if brand:
+            details.append(str(brand))
+        elif data_type:
+            friendly_types = {
+                "foundation": "USDA foundation food",
+                "survey (fndds)": "USDA survey food",
+                "sr legacy": "USDA reference food",
+                "branded": "Branded food",
+            }
+            details.append(friendly_types.get(str(data_type).lower(), str(data_type)))
+        if serving:
+            details.append(str(serving))
+        return self.name if not details else f"{self.name} · {' · '.join(details)}"

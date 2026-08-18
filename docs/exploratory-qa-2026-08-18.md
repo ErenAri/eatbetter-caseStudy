@@ -2,7 +2,7 @@
 
 ## Release recommendation
 
-**NO-GO for a polished live-provider case-study demonstration until the P1 findings below are fixed.**
+**P1 REMEDIATION VERIFIED — GO for the scoped case-study demonstration, with the P2/P3 backlog below disclosed.**
 
 The core photo upload, real OpenAI recognition, USDA requests, review, confirmation, Today totals,
 and meal-detail navigation work. The pass nevertheless found user-visible dead ends and misleading
@@ -15,7 +15,33 @@ Severity definitions used here:
 - **P2:** important defect with a workaround or a narrower scope.
 - **P3:** polish, consistency, or low-impact usability issue.
 
-No P0 issue was observed. Five P1 issues were reproduced.
+No P0 issue was observed. Five P1 issues were reproduced in the original pass and fixed in the
+follow-up described below.
+
+## P1 remediation verification — 2026-08-18
+
+All five original P1 findings are resolved in the current revision:
+
+- `EB-QA-001`: USDA searches now use generic reference datasets, deterministic query aliases for
+  common observation/database vocabulary gaps, deduplication, and user-facing data-type/brand/serving
+  labels. A fresh real-provider run on the same pasta image returned distinguishable candidates.
+  When USDA has no defensible generic exact match (notably meatballs), the app still abstains and
+  exposes the manual replacement path rather than inventing a match.
+- `EB-QA-002`: removing an item now dismisses and satisfies its pending clarifications. The mobile
+  client independently filters to pending blockers associated with active items.
+- `EB-QA-003`: non-confirmed shells render as `Incomplete`, never as saved zero-calorie meals. Detail
+  copy is lifecycle-aware; attached recoverable attempts can resume analysis, and incomplete attempts
+  expose an explicit discard/start-over action.
+- `EB-QA-004`: `None of these` opens a replacement editor for the original item. The server replaces
+  that item atomically, preserves the correction audit, supersedes the old clarification, and creates
+  a new clarification if the replacement still cannot be grounded.
+- `EB-QA-005`: deterministic fixture candidates carry embedded snapshots and are grounded without the
+  configured live nutrition provider. The Android emulator advanced from `Cream sauce` to portion
+  review while the backend remained configured for live USDA.
+
+Verification evidence: backend `122 passed`, evaluation `40 passed`, mobile `19 passed`, TypeScript
+clean, Expo Doctor `21/21`, real-provider pasta rerun completed in `NEEDS_REVIEW`, and targeted Android
+emulator checks passed for incomplete-state copy, manual-replacement routing, and fixture selection.
 
 ## Scope and environment
 
@@ -202,15 +228,12 @@ loading layout from stale meal state accidentally.
 - Destructive meal-item removal was exercised through the local API; the UI button uses the same
   endpoint, but a full confirmation-dialog usability pass was not performed.
 
-## Recommended fix order
+## Remaining fix order
 
-1. Fix lifecycle/blocker filtering and incomplete-meal routing (`EB-QA-002`, `EB-QA-003`).
-2. Deduplicate and enrich USDA candidates (`EB-QA-001`).
-3. Make manual identity recovery atomic (`EB-QA-004`).
-4. Make development fixtures provider-independent (`EB-QA-005`).
-5. Correct provenance, zero-item, and error-message behavior (`EB-QA-006`–`008`).
-6. Close/reset mutation editors and harden numeric validation (`EB-QA-010`, `EB-QA-011`).
-7. Recheck camera cancellation in a standalone build and improve live progress messaging.
+1. Finish provider-status labeling and zero-gram semantics (`EB-QA-006`, `EB-QA-007`).
+2. Close/reset mutation editors and finish positive-number validation (`EB-QA-010`, `EB-QA-011`).
+3. Suppress overlapping hidden-ingredient questions (`EB-QA-012`).
+4. Recheck camera cancellation in a standalone build and improve live progress messaging.
 
-After P1 fixes, rerun this matrix with the same unseen image as a regression case, then add a second
-unseen owned/consented image with weighed portions for true end-to-end accuracy evaluation.
+The same unseen image has been rerun as a P1 regression case. A second unseen owned/consented image
+with weighed portions is still required for true end-to-end accuracy evaluation.

@@ -34,6 +34,36 @@ class DetailAuthoritativeProvider:
         )
 
 
+class DuplicateProvider:
+    source = "USDA"
+
+    async def search_foods(self, query: str, *, meal_item_id: UUID, limit: int = 5):
+        return [
+            CanonicalFoodCandidate(
+                meal_item_id=meal_item_id,
+                rank=rank,
+                source=self.source,
+                source_food_id=str(100 + rank),
+                name="SPAGHETTI",
+                data={"data_type": "Survey (FNDDS)"},
+            )
+            for rank in range(1, 4)
+        ]
+
+    async def get_food(self, source_food_id: str):
+        raise AssertionError("not used")
+
+
+class ExplodingDetailProvider:
+    source = "USDA"
+
+    async def search_foods(self, query: str, *, meal_item_id: UUID, limit: int = 5):
+        return []
+
+    async def get_food(self, source_food_id: str):
+        raise AssertionError("fixture selection must not call the configured provider")
+
+
 @pytest.mark.asyncio
 async def test_selection_fetches_details_before_storing_snapshot() -> None:
     provider = DetailAuthoritativeProvider()
@@ -63,3 +93,41 @@ async def test_unretrieved_candidate_rank_is_rejected() -> None:
 
     with pytest.raises(CanonicalFoodNotFoundError):
         await service.ground_selected_candidate(item, 1)
+
+
+@pytest.mark.asyncio
+async def test_retrieval_deduplicates_indistinguishable_candidate_rows() -> None:
+    service = FoodGroundingService(DuplicateProvider())
+    item = MealItem(meal_id=UUID(int=1), position=0, observed_name="spaghetti")
+
+    candidates = await service.retrieve_candidates(item)
+
+    assert len(candidates) == 1
+    assert candidates[0].rank == 1
+    assert candidates[0].display_name() == "SPAGHETTI · USDA survey food"
+
+
+@pytest.mark.asyncio
+async def test_embedded_demo_candidate_is_provider_independent() -> None:
+    service = FoodGroundingService(ExplodingDetailProvider())
+    item = MealItem(
+        meal_id=UUID(int=1),
+        position=0,
+        observed_name="cream sauce",
+        confirmed_portion_g=Decimal("50"),
+    )
+    item.candidates = [CanonicalFoodCandidate(
+        meal_item_id=item.id,
+        rank=1,
+        source="TEST_DEMO_DATA",
+        source_food_id="fixture-cream-sauce",
+        name="Cream sauce",
+        data={"fixture": True},
+        nutrition_per_100g=NutritionPer100g(190, 3, 8, 16),
+    )]
+
+    await service.ground_selected_candidate(item, 1)
+
+    assert item.canonical_food_name == "Cream sauce"
+    assert item.final_nutrition is not None
+    assert item.final_nutrition.calories_kcal == Decimal("95")

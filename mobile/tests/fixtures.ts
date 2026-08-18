@@ -3,7 +3,7 @@ import { Clarification, Meal, MealItem } from "../types/api";
 export const readyItem: MealItem = {
   id: "item-1", position: 0, observed_name: "chicken breast", normalized_name: "chicken breast", preparation_method: "grilled",
   canonical: { source: "USDA", food_id: "1", name: "Chicken breast, grilled" },
-  candidates: [{ rank: 1, source: "USDA", food_id: "1", name: "Chicken breast, grilled" }],
+  candidates: [{ rank: 1, source: "USDA", food_id: "1", name: "Chicken breast, grilled", display_name: "Chicken breast, grilled · USDA foundation food" }],
   portion: { min_g: 140, max_g: 180, confirmed_g: 160, resolution_source: "AUTO_ESTIMATE" },
   confidence: { canonical: null }, requires_clarification: false, clarification_resolved: true, is_removed: false, is_user_added: false,
   nutrition: { calories_kcal: 264, protein_g: 49.6, carbs_g: 0, fat_g: 5.8 }, review_status: "READY",

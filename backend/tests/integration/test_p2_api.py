@@ -151,6 +151,45 @@ def test_logical_item_removal_preserves_evidence_and_delete_removes_aggregate(cl
     assert client.get(f"/api/v1/meals/{fixture['id']}", headers=auth(USER_A)).status_code == 404
 
 
+def test_removing_unresolved_item_satisfies_its_stale_clarification(client):
+    fixture = client.post("/api/v1/dev/fixtures/review-meal", headers=auth(USER_A)).json()["meal"]
+    oil = fixture["items"][-1]
+
+    removed = client.delete(
+        f"/api/v1/meals/{fixture['id']}/items/{oil['id']}", headers=auth(USER_A)
+    ).json()["meal"]
+
+    clarification = next(value for value in removed["clarifications"] if value["meal_item_id"] == oil["id"])
+    assert clarification["status"] == "DISMISSED"
+    assert clarification["resolution_satisfied"] is True
+    assert removed["review_status"] == "READY"
+
+
+def test_manual_identity_replacement_updates_same_item_atomically(client):
+    fixture = client.post(
+        "/api/v1/dev/fixtures/canonical-review-meal", headers=auth(USER_A)
+    ).json()["meal"]
+    original = fixture["items"][0]
+
+    replaced = client.post(
+        f"/api/v1/meals/{fixture['id']}/items/{original['id']}/replacement",
+        headers=auth(USER_A),
+        json={"query": "white rice", "portion_g": 125},
+    )
+
+    assert replaced.status_code == 200
+    meal = replaced.json()["meal"]
+    assert len(meal["items"]) == 1
+    assert meal["items"][0]["id"] == original["id"]
+    assert meal["items"][0]["observed_name"] == "white rice"
+    assert meal["items"][0]["canonical"]["name"] == "Rice, white, cooked"
+    assert meal["items"][0]["portion"]["confirmed_g"] == 125
+    old = next(value for value in meal["clarifications"] if value["id"] == fixture["clarifications"][0]["id"])
+    assert old["status"] == "DISMISSED"
+    assert old["resolution_satisfied"] is True
+    assert any(value["field_name"] == "food_replacement" for value in meal["corrections"])
+
+
 def test_openapi_contains_authoritative_versioned_contract(client):
     schema = client.get("/openapi.json").json()
     expected = {

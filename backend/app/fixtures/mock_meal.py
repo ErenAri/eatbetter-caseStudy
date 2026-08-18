@@ -50,7 +50,7 @@ def build_review_fixture(user_id: UUID) -> Meal:
             source_food_id=source_id,
             name=name,
             nutrition_per_100g=snapshot,
-            data={"fixture": True},
+            data={"fixture": True, "data_type": "TEST/DEMO DATA — NOT USDA RESULTS"},
         )
         item.candidates.append(candidate)
         item.select_candidate(1)
@@ -108,7 +108,7 @@ def build_canonical_review_fixture(user_id: UUID) -> Meal:
             source_food_id=source_id,
             name=name,
             nutrition_per_100g=NutritionPer100g(*nutrition),
-            data={"data_type": "TEST/DEMO DATA — NOT USDA RESULTS"},
+            data={"fixture": True, "data_type": "TEST/DEMO DATA — NOT USDA RESULTS"},
         ))
     meal.items.append(item)
     meal.clarifications.append(Clarification(

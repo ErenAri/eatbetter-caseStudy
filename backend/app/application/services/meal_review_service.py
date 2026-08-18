@@ -204,7 +204,7 @@ class MealReviewService:
             return
         if item.candidates:
             options = tuple(
-                {"id": f"candidate-{candidate.rank}", "label": candidate.name, "value": {"candidate_rank": candidate.rank}}
+                {"id": f"candidate-{candidate.rank}", "label": candidate.display_name(), "value": {"candidate_rank": candidate.rank}}
                 for candidate in item.candidates
             )
             clarification_type = "CANONICAL_SELECTION"

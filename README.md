@@ -46,10 +46,9 @@ rejected. This is secondary rig-captured evidence, not a product-specific smartp
 See [project status and owner inputs](docs/project-status.md) for the exact boundary between working,
 demonstrated, and deferred behavior.
 
-The latest real-provider Android exploratory pass is documented in
-[the 2026-08-18 QA report](docs/exploratory-qa-2026-08-18.md). It records five P1 workflow findings;
-the repository is therefore not currently recommended for a polished live-provider demonstration
-until those findings are resolved.
+The latest real-provider Android exploratory pass and follow-up are documented in
+[the 2026-08-18 QA report](docs/exploratory-qa-2026-08-18.md). All five original P1 workflow findings
+are fixed and regression-tested; the remaining P2/P3 limitations are disclosed in that report.
 
 ## Repository structure
 
@@ -93,6 +92,7 @@ No calibrated numeric confidence exists, so `canonical_confidence` remains null.
 | `POST` | `/api/v1/meals/{meal_id}/analysis` |
 | `PATCH`, `DELETE` | `/api/v1/meals/{meal_id}/items/{item_id}` |
 | `POST` | `/api/v1/meals/{meal_id}/items` |
+| `POST` | `/api/v1/meals/{meal_id}/items/{item_id}/replacement` |
 | `POST` | `/api/v1/meals/{meal_id}/clarifications/{clarification_id}/answer` |
 | `POST` | `/api/v1/meals/{meal_id}/confirm` |
 | `GET` | `/api/v1/daily-summary?date=YYYY-MM-DD&timezone=Europe/Istanbul` |

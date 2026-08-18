@@ -29,6 +29,14 @@ SAFE_PREPARATION_PHRASES = (
     "steamed",
 )
 
+GROUNDING_QUERY_ALIASES = {
+    # USDA reference datasets index the generic cooked noodle under pasta, not
+    # the branded-heavy exact term returned by meal observation.
+    "spaghetti": "pasta cooked",
+    # The reference entry is indexed under the full commodity description.
+    "tomato sauce": "tomato products canned sauce",
+}
+
 
 def normalize_food_query(value: str) -> str:
     normalized = unicodedata.normalize("NFKC", value).lower()
@@ -40,6 +48,7 @@ def normalize_food_query(value: str) -> str:
 
 def build_grounding_query(observed_name: str, preparation_method: str | None) -> str:
     base = normalize_food_query(observed_name)
+    base = GROUNDING_QUERY_ALIASES.get(base, base)
     if not preparation_method:
         return base
     normalized_preparation = " ".join(

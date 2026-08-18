@@ -48,12 +48,13 @@ class MealCanonicalizationService:
         *,
         request_id: UUID | None,
         user_context: str | None,
+        force: bool = False,
     ) -> None:
         if item.is_removed or (
             item.canonical_food_id is not None and item.nutrition_snapshot is not None
         ):
             return
-        if self._has_successful_attempt(meal, item.id):
+        if not force and self._has_successful_attempt(meal, item.id):
             return
 
         run = AIRun(

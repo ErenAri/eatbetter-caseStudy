@@ -60,6 +60,7 @@ async def test_search_normalizes_query_ranks_and_sanitizes_metadata() -> None:
     assert seen["query"] == "secret-test-key"
     assert seen["body"]["query"] == "chicken breast grilled"
     assert seen["body"]["pageSize"] == 15
+    assert seen["body"]["dataType"] == ["Foundation", "Survey (FNDDS)", "SR Legacy"]
     assert [candidate.source_food_id for candidate in candidates] == ["1001", "1002"]
     assert [candidate.rank for candidate in candidates] == [1, 2]
     assert candidates[0].source == "USDA_FDC"

@@ -15,6 +15,7 @@ const FRIENDLY_ERRORS: Record<string, string> = {
   VISION_UNSUPPORTED_IMAGE: "We couldn't read this photo. Try another one.",
   VISION_TIMEOUT: "Meal analysis took too long. Please try again.",
   USDA_UNAVAILABLE: "Nutrition matching is temporarily unavailable.",
+  USDA_INVALID_RESPONSE: "Nutrition data could not be verified. Try a different food match.",
 };
 
 export class ApiError extends Error {
@@ -82,6 +83,24 @@ export async function removeMealItem(mealId: string, itemId: string): Promise<Me
 
 export async function addMealItem(mealId: string, query: string, portionG: number): Promise<Meal> {
   return (await request<MealEnvelope>(`/api/v1/meals/${mealId}/items`, { method: "POST", headers: jsonHeaders, body: JSON.stringify({ query, portion_g: portionG }) })).meal;
+}
+
+export async function replaceMealItem(mealId: string, itemId: string, query: string, portionG: number): Promise<Meal> {
+  return (await request<MealEnvelope>(`/api/v1/meals/${mealId}/items/${itemId}/replacement`, { method: "POST", headers: jsonHeaders, body: JSON.stringify({ query, portion_g: portionG }) })).meal;
+}
+
+export async function deleteMeal(mealId: string): Promise<void> {
+  let response: Response;
+  try {
+    response = await fetch(`${API_BASE_URL}/api/v1/meals/${mealId}`, { method: "DELETE", headers: authorization });
+  } catch {
+    throw new ApiError("OFFLINE", 0, "You're offline. Reconnect to continue.");
+  }
+  if (!response.ok) {
+    const body = (await response.json().catch(() => ({}))) as ApiErrorBody;
+    const code = body.error?.code ?? "REQUEST_FAILED";
+    throw new ApiError(code, response.status, FRIENDLY_ERRORS[code] ?? "Something went wrong. Please try again.");
+  }
 }
 
 export async function confirmMeal(mealId: string): Promise<Meal> {

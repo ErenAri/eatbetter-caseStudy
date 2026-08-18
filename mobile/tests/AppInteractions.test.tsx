@@ -11,7 +11,7 @@ jest.mock("../services/api", () => {
     listMeals: jest.fn(), getDailySummary: jest.fn(), getMeal: jest.fn(),
     answerClarification: jest.fn(), confirmMeal: jest.fn(),
     createMeal: jest.fn(), uploadMealImage: jest.fn(), analyzeMeal: jest.fn(),
-    updateMealItem: jest.fn(), removeMealItem: jest.fn(), addMealItem: jest.fn(), createDemoMeal: jest.fn(), createCanonicalDemoMeal: jest.fn(),
+    updateMealItem: jest.fn(), removeMealItem: jest.fn(), addMealItem: jest.fn(), replaceMealItem: jest.fn(), deleteMeal: jest.fn(), createDemoMeal: jest.fn(), createCanonicalDemoMeal: jest.fn(),
   };
 });
 const mocked = api as jest.Mocked<typeof api>;
@@ -68,4 +68,20 @@ test("remove action calls the item delete API method", async () => {
   await waitFor(() => expect(mocked.getMeal).toHaveBeenCalledWith("meal-1"));
   await act(async () => { fireEvent.press(await view.findByRole("button", { name: "Remove" })); });
   await waitFor(() => expect(mocked.removeMealItem).toHaveBeenCalledWith("meal-1", "item-1"));
+});
+
+test("opens an uploaded shell as incomplete and resumes an attached image", async () => {
+  const incomplete = { ...baseMeal, status: "UPLOADED" as const, confirmed_at: null, image_attached: true, items: [], totals: { calories_kcal: 0, protein_g: 0, carbs_g: 0, fat_g: 0 } };
+  const reviewed = reviewMeal(portionClarification);
+  mocked.listMeals.mockResolvedValue([incomplete]);
+  mocked.analyzeMeal.mockResolvedValue(reviewed);
+  const view = await render(<App />);
+
+  await act(async () => { fireEvent.press(await view.findByRole("button", { name: /Meal photo.*Incomplete/ })); });
+  expect(await view.findByText("Incomplete meal")).toBeTruthy();
+  expect(view.queryByText("Meal saved")).toBeNull();
+  await act(async () => { fireEvent.press(view.getByRole("button", { name: "Resume analysis" })); });
+
+  await waitFor(() => expect(mocked.analyzeMeal).toHaveBeenCalledWith("meal-1"));
+  expect(await view.findByText("Review meal")).toBeTruthy();
 });

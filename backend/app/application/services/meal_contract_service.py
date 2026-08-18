@@ -192,8 +192,73 @@ class MealContractService:
                     and clarification.status == ClarificationStatus.PENDING
                 ):
                     clarification.status = ClarificationStatus.DISMISSED
+                    clarification.resolution_satisfied = True
         await self.repository.save(meal)
         return await self.review.assess_meal(meal)
+
+    async def replace_item(
+        self,
+        *,
+        meal_id: UUID,
+        item_id: UUID,
+        user_id: UUID,
+        query: str,
+        portion_g: Decimal,
+        request_id: UUID | None = None,
+    ) -> Meal:
+        meal = await self._reviewable_meal(meal_id, user_id)
+        item = self._item(meal, item_id)
+        normalized = query.strip().lower()
+        if not normalized:
+            raise ValidationError("query cannot be blank")
+        before = {
+            "observed_name": item.observed_name,
+            "canonical_food": self._canonical_value(item),
+            "portion_g": item.confirmed_portion_g,
+        }
+        for clarification in meal.clarifications:
+            if (
+                clarification.meal_item_id == item.id
+                and clarification.status == ClarificationStatus.PENDING
+            ):
+                clarification.status = ClarificationStatus.DISMISSED
+                clarification.resolution_satisfied = True
+                clarification.stable_key = (
+                    f"{clarification.stable_key}:superseded:{clarification.id}"
+                )
+        item.observed_name = query.strip()
+        item.normalized_name = normalized
+        item.canonical_food_id = None
+        item.canonical_food_name = None
+        item.canonical_source = None
+        item.canonical_candidate_rank = None
+        item.canonical_confidence = None
+        item.nutrition_snapshot = None
+        item.nutrition_retrieved_at = None
+        item.final_nutrition = None
+        item.candidates = []
+        item.confirmed_portion_g = Decimal(str(portion_g))
+        item.portion_resolution_source = PortionResolutionSource.USER
+        item.observation_certainty = "HIGH"
+        item.requires_clarification = True
+        item.clarification_resolved = False
+        item.is_user_added = True
+        self._record(
+            meal,
+            item,
+            "food_replacement",
+            before,
+            {"query": item.observed_name, "portion_g": item.confirmed_portion_g},
+        )
+        await self.canonicalization.canonicalize_item(
+            meal,
+            item,
+            request_id=request_id,
+            user_context=meal.user_context,
+            force=True,
+        )
+        await self.repository.save(meal)
+        return await self.review.assess_meal(meal, request_id=request_id)
 
     async def add_missing_item(
         self,

@@ -29,6 +29,7 @@ from ..schemas import (
     MealResponse,
     NutritionTotalsResponse,
     PortionResponse,
+    ReplaceMealItemRequest,
     UpdateMealItemRequest,
 )
 
@@ -69,6 +70,7 @@ def item_response(item: MealItem) -> MealItemResponse:
                 source=value.source,
                 food_id=value.source_food_id,
                 name=value.name,
+                display_name=value.display_name(),
             )
             for value in sorted(item.candidates, key=lambda candidate: candidate.rank)
         ],
@@ -308,6 +310,28 @@ def create_router(service: MealContractService, *, enable_dev_fixtures: bool) ->
     ) -> MealEnvelope:
         meal = await service.add_missing_item(
             meal_id=meal_id,
+            user_id=user_id,
+            query=request.query,
+            portion_g=request.portion_g,
+            request_id=UUID(http_request.state.request_id),
+        )
+        return MealEnvelope(meal=meal_response(meal))
+
+    @router.post(
+        "/meals/{meal_id}/items/{item_id}/replacement",
+        response_model=MealEnvelope,
+        summary="Atomically replace an unresolved predicted food",
+    )
+    async def replace_item(
+        meal_id: UUID,
+        item_id: UUID,
+        request: ReplaceMealItemRequest,
+        http_request: Request,
+        user_id: UUID = Depends(authenticated_user),
+    ) -> MealEnvelope:
+        meal = await service.replace_item(
+            meal_id=meal_id,
+            item_id=item_id,
             user_id=user_id,
             query=request.query,
             portion_g=request.portion_g,
