@@ -96,3 +96,31 @@ claim measured portion accuracy.
   --output evals\private\snapme\subset_v1 `
   --count 40
 ```
+
+After an independent human has accepted or corrected every proposed development label in
+`human_signoff.csv`, promote only those reviewed visible identities into a strict private manifest:
+
+```powershell
+.\backend\.venv\Scripts\python.exe evals\scripts\promote_snapme_recognition_manifest.py `
+  --selection evals\private\snapme\subset_v1\selection.json `
+  --provisional evals\private\snapme\subset_v1\provisional_visible_labels.json `
+  --signoff evals\private\snapme\subset_v1\human_signoff.csv `
+  --output evals\private\snapme\subset_v1\manifest.recognition.json
+```
+
+The promotion command rejects missing decisions, mismatched proposals, duplicate cases, and partial
+case sets. Its manifest includes no portion, hidden-ingredient, nutrition, preparation, or verified
+canonical truth. Unreviewed holdout cases remain excluded.
+
+Run that manifest with the recognition-only runner. It deliberately stops before USDA retrieval and
+canonicalization so unrelated downstream failures cannot erase a valid vision result:
+
+```powershell
+.\backend\.venv\Scripts\python.exe -m evals.run_recognition_benchmark `
+  --manifest evals\private\snapme\subset_v1\manifest.recognition.json `
+  --split development `
+  --output evals\private\snapme\subset_v1\reports\recognition_development_v1.json
+```
+
+The scorer uses strict normalized exact labels or aliases approved in the manifest. Semantically
+reasonable wording differences count as errors unless an independent reviewer adds them as aliases.

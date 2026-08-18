@@ -4,7 +4,8 @@ Status date: 2026-08-18.
 
 This is a public, time-boxed engineering case study. The repository is runnable in deterministic demo
 mode and contains live provider adapters, but it is not deployed or clinically validated. A small
-public Nutrition5k secondary benchmark is measured; product-specific phone-photo accuracy is not.
+public Nutrition5k secondary benchmark and a licensed SNAPMe phone-photo development recognition run
+are measured; product-specific owned-capture accuracy is not.
 
 ## Implemented and verified
 
@@ -23,6 +24,8 @@ public Nutrition5k secondary benchmark is measured; product-specific phone-photo
 - Automated backend, evaluation, and mobile tests.
 - Licensed 12-dish Nutrition5k secondary subset, frozen split, real-provider development iteration,
   threshold simulation, and one untouched three-dish holdout run.
+- Licensed SNAPMe intake builder, independent visible-label sign-off workflow, recognition-only
+  manifest promotion, and a 30-case development run with zero vision infrastructure failures.
 
 ## Implemented but not product-validated here
 
@@ -50,6 +53,13 @@ with measured portions. It has 34 visible item labels, 30 reviewed USDA mappings
 (n=3), hybrid auto-accept coverage was 0%, and every meal required clarification. See
 `docs/measured-evaluation.md` for denominators and limitations. No numerical comparison with EatBetter
 is claimed.
+
+The private licensed SNAPMe subset contains 30 human-reviewed development phone photos with 77 visible
+labels plus 10 visually unreviewed participant-disjoint holdout photos. The development-only strict
+lexical recognition result was precision 0.225 (71 predictions), recall 0.208 (77 labels), and F1
+0.216, with zero vision infrastructure failures. It does not measure portion, nutrition, hidden
+ingredients, USDA grounding, canonical selection, preparation, holdout performance, or owned-product
+captures. Aggregate results are in `evals/reports/snapme_recognition_development.json`.
 
 ## What the repository owner must provide
 

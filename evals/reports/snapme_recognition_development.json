@@ -1,0 +1,50 @@
+{
+  "status": "Measured licensed phone-photo development benchmark",
+  "measured_at_utc": "2026-08-18",
+  "dataset": {
+    "name": "SNAPMe",
+    "version": "snapme-phone-recognition-human-reviewed-development-v1",
+    "license": "CC BY-SA 4.0",
+    "split": "development",
+    "requested_cases": 30,
+    "completed_cases": 30,
+    "infrastructure_failures": 0,
+    "human_reviewed_visible_labels": 77,
+    "limitation": "Licensed external phone photos, not owned product captures; development only; holdout not reviewed or run."
+  },
+  "configuration": {
+    "provider": "openai",
+    "model": "gpt-5.6-terra",
+    "prompt_version": "meal_recognition_v2",
+    "image_detail": "high",
+    "reasoning_effort": "low",
+    "grading": "strict normalized exact label or pre-approved alias match"
+  },
+  "recognition": {
+    "food_precision": 0.22535211267605634,
+    "precision_n_predictions": 71,
+    "food_recall": 0.2077922077922078,
+    "recall_n_labels": 77,
+    "food_f1": 0.21621621621621626,
+    "missed_food_count": 61,
+    "hallucinated_food_count": 55
+  },
+  "latency_ms": {
+    "vision_p50": 5723,
+    "vision_p95": 9792,
+    "n": 30
+  },
+  "token_usage": {
+    "input": 61292,
+    "output": 10286
+  },
+  "not_measured": [
+    "portion accuracy",
+    "hidden-ingredient accuracy",
+    "nutrition accuracy",
+    "USDA retrieval accuracy",
+    "canonical selection accuracy",
+    "preparation accuracy"
+  ],
+  "interpretation": "This is a strict lexical lower-bound recognition result. Semantically related wording is still counted wrong unless independently approved as an alias. No development tuning or holdout claim follows from this run."
+}

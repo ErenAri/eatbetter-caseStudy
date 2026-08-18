@@ -133,6 +133,36 @@ not make the run safe: both accepted meals were materially wrong because verifie
 or incorrect. The hybrid made the safer choice—no automatic acceptance—but failed usability and
 completion: every meal required review and no complete nutrition total was available.
 
+## Licensed SNAPMe phone-photo development recognition
+
+A separate private intake used the USDA SNAPMe archive under CC BY-SA 4.0. One before-photo per
+participant was selected deterministically: 30 development cases and 10 participant-disjoint holdout
+cases. A provisional visual pass deliberately removed diary-only details such as cooking oil, sugar,
+milk fat percentage, brands, and hidden recipe ingredients. An independent human then accepted all 30
+development decisions and their uncertainty exclusions. The holdout photos were not visually reviewed
+and were not run.
+
+The final runner stopped after vision recognition, preventing ineligible USDA or canonicalization
+failures from erasing recognition results. All 30 development cases completed with 77 visible labels.
+Strict normalized exact-label-or-approved-alias grading produced:
+
+| Metric | Result |
+|---|---:|
+| Food precision | 0.225 (16/71 predictions) |
+| Food recall | 0.208 (16/77 labels) |
+| Food F1 | 0.216 (n=77 labels) |
+| Missed / hallucinated foods | 61 / 55 |
+| Vision p50 / p95 latency | 5.723 / 9.792 s (n=30) |
+| Input / output tokens | 61,292 / 10,286 |
+| Vision infrastructure failures | 0/30 |
+
+This result is a strict lexical lower bound, not a semantic recognition score: predictions such as
+`pistachio kernels` for `pistachios` are counted wrong unless the alias is independently approved in
+advance. The development set was not used for a new prompt iteration. SNAPMe amounts and nutrients are
+ASA24 dietary-record outputs rather than weighed truth, so portion, hidden-ingredient, nutrition,
+USDA retrieval, canonical selection, and preparation metrics remain unmeasured. These are licensed
+external phone photos, not owned product captures, and there is no phone-photo holdout claim.
+
 ## Next improvements and limitations
 
 1. Improve and diagnose USDA retrieval: Recall@5 was 0.333 on three verified holdout matches and
@@ -142,7 +172,8 @@ completion: every meal required review and no complete nutrition total was avail
 3. Make clarification options resolvable: 0/5 holdout questions could be answered from ground truth,
    so oracle assistance could not complete a meal.
 
-The evidence is limited by 12 rig-captured dishes, only three holdout meals, strict lexical recognition
-matching, incomplete canonical denominators, external model nondeterminism, USDA-centered ground
-truth, and no product-specific phone-photo data. It does not establish clinical accuracy,
+The evidence is limited by 12 rig-captured dishes, only three measured holdout meals, one 30-case
+licensed phone-photo development run, no phone-photo holdout run, strict lexical recognition matching,
+incomplete canonical denominators, external model nondeterminism, USDA-centered ground truth, and no
+product-specific owned-capture data. It does not establish clinical accuracy,
 production-level generalization, or superiority to another product.

@@ -8,8 +8,8 @@ authoritative.
 
 This repository is a time-boxed full-stack case study, not a production nutrition or medical product.
 It demonstrates the architecture, native workflow, safety policy, provider boundaries, and evaluation
-harness. It includes a small measured public secondary benchmark, but not product-specific phone-photo
-accuracy evidence.
+harness. It includes a small measured public secondary benchmark and a licensed external phone-photo
+development benchmark, but not product-specific owned-capture accuracy evidence.
 
 ## Current state — P8.5 measured evidence complete on a public secondary subset
 
@@ -40,7 +40,7 @@ rejected. This is secondary rig-captured evidence, not a product-specific smartp
 | OpenAI vision and constrained selector adapters | Implemented; live execution requires a private key |
 | USDA FoodData Central adapter | Implemented; live execution requires a private key |
 | PostgreSQL/Supabase schema and RLS | Defined in migrations; runtime persistence adapter is deferred |
-| Accuracy benchmark | Measured on 12 public Nutrition5k dishes; private phone-photo dataset still 0 cases |
+| Accuracy benchmark | 12 Nutrition5k dishes plus 30 human-reviewed licensed SNAPMe development photos; no phone-photo holdout result |
 | Production authentication/deployment | Not implemented |
 
 See [project status and owner inputs](docs/project-status.md) for the exact boundary between working,
@@ -183,10 +183,10 @@ npx expo-doctor
 
 ## Accuracy evaluation
 
-The measured dataset is a fixed, licensed 12-dish Nutrition5k secondary subset: nine development meals
+The measured portion/nutrition dataset is a fixed, licensed 12-dish Nutrition5k secondary subset: nine development meals
 and a three-meal untouched holdout. All 12 have published measured portions; 30/34 visible item labels
 have independently reviewed USDA mappings and four are explicitly `UNMAPPABLE`. Nutrition5k uses a
-custom scanning rig, and the private product-specific phone-photo dataset remains at 0 cases.
+custom scanning rig, and the private product-specific owned-capture dataset remains at 0 cases.
 
 On the three-meal case-study holdout, food F1 was 0.353 (9 labeled items) and USDA Recall@5 was 0.333
 (3 verified recognized items). Rank-1 produced nutrition totals for two meals, with 20.177 kcal MAE,
@@ -201,6 +201,14 @@ end-to-end nutrition improvement. See [measured evaluation](docs/measured-evalua
 denominators, before/after results, error attribution, threshold simulation, latency, and limitations;
 see [`evals/README.md`](evals/README.md) for the reproducible protocol. No clinical, production-level,
 or competitor-comparison claim is made.
+
+A separate recognition-only run used 30 licensed SNAPMe phone photos and 77 visible labels accepted by
+an independent human reviewer. All 30 development cases completed. Under strict exact normalized
+label matching, precision was 0.225 (n=71 predictions), recall 0.208 (n=77 labels), and F1 0.216;
+there were 55 hallucinated and 61 missed labels. This is a lexical lower bound: reasonable synonyms
+still count as errors unless independently approved as aliases. The 10 participant-disjoint holdout
+photos remain visually unreviewed and were not run. No portion, hidden-ingredient, nutrition, USDA,
+canonicalization, preparation, product-validation, or holdout claim is supported by SNAPMe.
 
 Raw benchmark directories and private meal photos are ignored by Git. Only deliberately reviewed,
 aggregate, non-sensitive reports should ever be committed to this public repository.
