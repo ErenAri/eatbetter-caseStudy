@@ -1,0 +1,216 @@
+# Exploratory Android QA — 2026-08-18
+
+## Release recommendation
+
+**NO-GO for a polished live-provider case-study demonstration until the P1 findings below are fixed.**
+
+The core photo upload, real OpenAI recognition, USDA requests, review, confirmation, Today totals,
+and meal-detail navigation work. The pass nevertheless found user-visible dead ends and misleading
+lifecycle/provenance states that the automated suite does not cover.
+
+Severity definitions used here:
+
+- **P0:** safety, security, privacy, irreversible data loss, or materially dangerous nutrition output.
+- **P1:** release blocker for a core workflow or the planned case-study demonstration.
+- **P2:** important defect with a workaround or a narrower scope.
+- **P3:** polish, consistency, or low-impact usability issue.
+
+No P0 issue was observed. Five P1 issues were reproduced.
+
+## Scope and environment
+
+- Android SDK emulator `boyama_test`, Expo Go, Expo SDK 57.
+- FastAPI local runtime with the real OpenAI vision/canonicalization and USDA providers.
+- One previously unused, user-supplied pasta-and-meatballs image.
+- Deterministic portion-review and food-choice fixtures.
+- Backend, evaluation, and mobile regression suites were green before this exploratory pass.
+
+The unseen image had no weighed ground truth. It was suitable for qualitative visible-food recognition
+only, not portion, calorie, hidden-ingredient, or end-to-end nutrition accuracy claims.
+
+## Findings
+
+### EB-QA-001 — P1 — Canonical choices can be indistinguishable
+
+**Observed:** Real recognition returned `spaghetti`, `meatballs`, `tomato sauce`, `Parmesan cheese`,
+and `parsley`. USDA retrieval returned five different FDC IDs for each item, but every displayed
+candidate had the same label. The user saw five `SPAGHETTI` buttons, five `MEATBALLS` buttons, and so
+on. The constrained selector safely abstained on all five items.
+
+**Impact:** The app correctly avoids guessing, but gives the user no information with which to finish
+the required review. The live-provider happy path is blocked.
+
+**Expected:** Deduplicate equivalent candidates, prefer appropriate generic/reference foods, and show
+distinguishing attributes such as cooked/dry state, data type, brand, or a concise description.
+
+### EB-QA-002 — P1 — Removing an unresolved item leaves a permanent mobile blocker
+
+**Reproduction:** Create an item with a pending identity clarification, then remove that item. The API
+marks its clarification `DISMISSED`, but leaves `resolution_satisfied=false`. The mobile client counts
+every blocking clarification with `resolution_satisfied=false` without checking status or whether its
+item remains active.
+
+**Observed:** The removed `oil` item disappeared, but Today still said `2 quick checks`; reopening the
+meal continued to ask `How should we resolve oil?`. The mobile Save button remained disabled.
+
+**Impact:** A normal correction can make a meal impossible to save from the app.
+
+**Expected:** Removal should satisfy/dismiss associated blockers consistently. Mobile blocker
+selection should include only pending blockers for active items, matching the domain confirmation
+rule.
+
+### EB-QA-003 — P1 — Incomplete meals are presented as saved and cannot be resumed
+
+**Reproduction:** Create a meal but interrupt before attaching an image or completing analysis, then
+open Today.
+
+**Observed:** An `UPLOADED` meal with no image appeared as `Meal photo · 0 kcal` without a pending or
+failed badge. Opening it showed `Meal saved`, `Review pending`, `Nutrition data: USDA FoodData
+Central`, and `Analyzed from your photo`. There was no resume, retry, attach-photo, or discard action.
+
+**Impact:** Cancellation, process death, or an interrupted upload strands misleading records in meal
+history.
+
+**Expected:** Render each lifecycle state explicitly. Resume recoverable attempts, offer retry/discard
+for failures, and reserve saved/provenance claims for confirmed meals with matching evidence.
+
+### EB-QA-004 — P1 — “None of these” opens an add flow instead of resolving/replacing the item
+
+**Observed:** Choosing `None of these` or `Search manually` opens an editor titled `Add a missing food`
+with the original query prefilled. The service behind that editor appends a new item; it does not
+replace the unresolved item or resolve its existing clarification.
+
+**Impact:** Following the apparent recovery path can create a duplicate food while leaving the
+original blocker in place. The user must discover an additional remove operation to recover.
+
+**Expected:** A manual-search action launched from an identity clarification should replace/resolve
+that specific item, or clearly explain and atomically perform any remove-and-add behavior.
+
+### EB-QA-005 — P1 — Food-choice development demo breaks under live-provider configuration
+
+**Reproduction:** Start the app with `NUTRITION_PROVIDER=usda`, open `Open food-choice demo`, and choose
+`Cream sauce`.
+
+**Observed:** The answer endpoint returned HTTP 502 with `USDA_INVALID_RESPONSE` because the fixture's
+non-numeric candidate identifier was sent to the real USDA adapter. The UI displayed only `Something
+went wrong. Please try again.`
+
+**Impact:** The fixture intended for the submission walkthrough is unusable when the app is configured
+for real providers.
+
+**Expected:** Fixtures should carry deterministic nutrition snapshots or use fixture-bound adapters,
+independent of live-provider configuration.
+
+### EB-QA-006 — P2 — Provider and evidence labels are not truthful
+
+**Observed:** Today displayed `Demo API` whenever `/health` was reachable, even while real OpenAI and
+USDA providers were active. Meal Detail always displayed `Nutrition data: USDA FoodData Central` and
+`Analyzed from your photo`, including for deterministic fixtures and an incomplete meal with no image.
+
+**Expected:** Derive labels from actual provider/evidence metadata, or use neutral copy when that
+metadata is unavailable.
+
+### EB-QA-007 — P2 — A “None” portion remains as an active zero-gram food
+
+**Observed:** Selecting `None · About 0 g` for fixture olive oil produced an active, ready `Olive oil`
+card with `0 g · 0 kcal`. The header still counted four foods, Meal Detail listed the zero-gram item,
+and the correction count increased.
+
+**Expected:** A semantic `None` answer should remove or exclude the item from active food counts and
+saved detail, while preserving the correction in the audit trail.
+
+### EB-QA-008 — P2 — Stable provider failures fall back to generic UI copy
+
+**Observed:** `USDA_INVALID_RESPONSE` reached the mobile client but is absent from `FRIENDLY_ERRORS`, so
+the user saw the generic `Something went wrong. Please try again.` message.
+
+**Expected:** Map every documented stable provider error to an actionable message and a retry or
+alternate-selection path where appropriate.
+
+### EB-QA-009 — P2 — Canceling an emulator camera capture resets the app to Today
+
+**Observed:** Camera permission, launch, shutter, and preview worked. Canceling the captured frame
+showed the app splash and returned to Today instead of the existing Capture screen.
+
+**Impact:** Photo context and capture progress can be lost. This was observed in Expo Go and must be
+rechecked in a standalone Android build before assigning production scope.
+
+### EB-QA-010 — P2 — Successful edit/add forms are not closed or reset
+
+**Code-confirmed:** `ReviewScreen` keeps `editor`, `adding`, `query`, and gram input state locally. The
+successful `onUpdate` and `onAdd` paths update the meal but never clear those states. The user can see
+stale forms or accidentally submit the same addition again.
+
+**Expected:** Close and reset the relevant editor only after a successful mutation; retain it with the
+entered data after an error.
+
+### EB-QA-011 — P2 — Review numeric validation permits non-finite and zero-value edge cases
+
+**Code-confirmed:** The regular Change amount and Add food forms check blank/negative values but do not
+use `Number.isFinite`, unlike the clarification amount form. Zero grams is accepted for ordinary food
+edits/additions and creates active zero-value items.
+
+**Expected:** Require a finite positive amount for ordinary active foods. Treat zero as remove/none
+only in flows where that meaning is explicit.
+
+### EB-QA-012 — P2 — Hidden-ingredient wording can invite double counting
+
+**Observed:** The unseen image visibly contained Parmesan, which was already recognized as a food, but
+the app later asked `Did this meal include additional cheese?` alongside oil and butter questions.
+
+**Impact:** `Yes` can add a second cheese item without explaining whether the visible topping is
+already counted.
+
+**Expected:** Suppress or clarify hidden-ingredient questions that overlap observed foods; explicitly
+say `in addition to the visible Parmesan` when that is the intended question.
+
+### EB-QA-013 — P2 — Live analysis has a long undifferentiated wait
+
+**Observed:** Vision completed in approximately 12.7 seconds and the complete five-item analysis in
+approximately 24.8 seconds. The UI remained on a generic `Identifying foods` message throughout.
+
+**Expected:** Show truthful staged progress and preserve a recoverable attempt if the user cancels.
+
+### EB-QA-014 — P3 — Loading can display a stale Log meal action
+
+**Observed:** During Today refresh, the loading state sometimes displayed the fixed `Log meal` button
+from the previous non-empty meal list.
+
+**Expected:** Decide deliberately whether capture remains available during refresh; do not derive the
+loading layout from stale meal state accidentally.
+
+## Passed checks
+
+- Android photo-library picker and local image preview.
+- Standards-compliant multipart image upload.
+- Real OpenAI image usability and visible-food observation.
+- Real USDA connectivity, rate-limit parsing, and food detail retrieval for valid numeric IDs.
+- Hidden-ingredient `No` progression.
+- Portion option selection, confirmation, deterministic totals, and Today aggregation.
+- Resume of an ordinary `NEEDS_REVIEW` meal from Today.
+- Confirmed meal reopening and back navigation.
+- Camera permission, camera launch, shutter, and captured-frame preview.
+- Change-amount mutation and real-provider Add food service calls.
+- Unsupported image upload returns stable `UNSUPPORTED_IMAGE`.
+- Offline Today and analysis retry states were exercised earlier in the same emulator session.
+
+## Coverage limitations
+
+- No standalone release APK, physical Android phone, iOS device, or screen-reader pass.
+- No measured ground truth for the unseen photo, so no portion/calorie accuracy score.
+- No background/foreground, process-death recovery, slow-network shaping, or concurrent-tap stress.
+- Destructive meal-item removal was exercised through the local API; the UI button uses the same
+  endpoint, but a full confirmation-dialog usability pass was not performed.
+
+## Recommended fix order
+
+1. Fix lifecycle/blocker filtering and incomplete-meal routing (`EB-QA-002`, `EB-QA-003`).
+2. Deduplicate and enrich USDA candidates (`EB-QA-001`).
+3. Make manual identity recovery atomic (`EB-QA-004`).
+4. Make development fixtures provider-independent (`EB-QA-005`).
+5. Correct provenance, zero-item, and error-message behavior (`EB-QA-006`–`008`).
+6. Close/reset mutation editors and harden numeric validation (`EB-QA-010`, `EB-QA-011`).
+7. Recheck camera cancellation in a standalone build and improve live progress messaging.
+
+After P1 fixes, rerun this matrix with the same unseen image as a regression case, then add a second
+unseen owned/consented image with weighed portions for true end-to-end accuracy evaluation.

@@ -46,6 +46,11 @@ rejected. This is secondary rig-captured evidence, not a product-specific smartp
 See [project status and owner inputs](docs/project-status.md) for the exact boundary between working,
 demonstrated, and deferred behavior.
 
+The latest real-provider Android exploratory pass is documented in
+[the 2026-08-18 QA report](docs/exploratory-qa-2026-08-18.md). It records five P1 workflow findings;
+the repository is therefore not currently recommended for a polished live-provider demonstration
+until those findings are resolved.
+
 ## Repository structure
 
 ```text

@@ -39,6 +39,14 @@ are measured; product-specific owned-capture accuracy is not.
 - The 100 kcal / 20% auto-accept thresholds survived a seven-item conditional development simulation,
   but are not calibrated for a product population.
 
+## Exploratory QA status
+
+An Android emulator pass with real OpenAI/USDA providers on 2026-08-18 found five P1 workflow issues.
+The current recommendation is no-go for a polished live-provider demonstration until those findings
+are fixed. See [`docs/exploratory-qa-2026-08-18.md`](exploratory-qa-2026-08-18.md) for reproduction
+steps, passed checks, limitations, and fix order. This does not invalidate the automated test results;
+it identifies integration and state combinations that the current suite does not cover.
+
 ## Explicitly deferred
 
 - Runtime PostgreSQL/Supabase repository and object-storage adapters; the current runtime uses memory.
