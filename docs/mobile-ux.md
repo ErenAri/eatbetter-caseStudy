@@ -32,6 +32,7 @@ with the returned authoritative meal.
 Ordinary edit, add, and replacement forms require finite positive grams. They close and clear their
 local fields only after the mutation succeeds; failed requests preserve the user's input for retry.
 Only an explicit clarification choice may use zero grams, where the server interprets it as `None`.
+Removing a food requires a destructive confirmation that explains its effect on saved totals.
 
 ## Backend interaction
 
@@ -43,6 +44,10 @@ the app refetches the meal and remains on Review.
 Today derives its provider badge from `/health`: live, demo, unconfigured, offline, and connecting are
 distinct states. Meal Detail derives nutrition/photo provenance from the meal's actual nutrition source
 and `image_attached` flag; fixture data is never labeled as USDA evidence.
+
+Permanently discarding an incomplete meal and uploaded photo requires a destructive confirmation.
+Daily nutrition exposes calories and all three macros as a single assistive label; busy item actions
+and canonical candidate choices expose their disabled state.
 
 The smallest supported missing-food/manual-search path asks for a food query and grams, then uses the
 existing add-item endpoint. Changing an existing food is limited to its already retrieved candidates;

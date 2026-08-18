@@ -50,6 +50,9 @@ The latest real-provider Android exploratory pass and follow-up are documented i
 [the 2026-08-18 QA report](docs/exploratory-qa-2026-08-18.md). All original P1 and P2 workflow
 findings are fixed and regression-tested, along with the stale-loading P3 finding. The report keeps
 the original observations and records the remediation evidence and remaining device-test boundary.
+The follow-up [P0/P3 closeout](docs/qa-closeout-2026-08-19.md) records production fail-closed
+hardening, dependency-audit results, destructive-action confirmation, accessibility polish, and the
+remaining Expo build-tool advisory boundary.
 
 ## Repository structure
 

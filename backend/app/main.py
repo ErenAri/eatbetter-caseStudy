@@ -36,6 +36,14 @@ from app.nutrition.providers import (
 
 def create_app(settings: Settings | None = None) -> FastAPI:
     application_settings = settings or Settings.from_env()
+    if application_settings.app_env in {
+        AppEnvironment.STAGING,
+        AppEnvironment.PRODUCTION,
+    }:
+        raise RuntimeError(
+            "Staging/production startup is blocked until verified authentication, "
+            "persistent repository, and private object-storage adapters are implemented."
+        )
 
     repository = InMemoryMealRepository()
     storage = InMemoryPrivateStorage()

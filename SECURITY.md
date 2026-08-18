@@ -5,6 +5,10 @@
 This is an undeployed case-study repository, not a supported production service. The local bearer-token
 path and in-memory adapters are development fixtures.
 
+`APP_ENV=staging` and `APP_ENV=production` fail closed while those development adapters are the only
+runtime implementation. Do not remove that guard until verified JWT authentication, persistent
+repository, and private object-storage adapters are composed and tested.
+
 ## Reporting
 
 Do not place vulnerabilities, API keys, access tokens, Supabase credentials, private meal photos, or
@@ -22,3 +26,11 @@ that owns this repository and provide only the minimum reproduction data require
 
 If a secret is committed, revoke and rotate it immediately; deleting the file in a later commit does
 not remove it from Git history.
+
+## Dependency status
+
+The 2026-08-19 Python runtime audit reports no known vulnerabilities after upgrading FastAPI,
+Starlette, and python-multipart. The Expo dependency graph still reports transitive advisories in local
+Metro/CLI/Xcode build tooling for which npm proposes an incompatible SDK downgrade. Do not expose
+Metro to untrusted networks or process untrusted project assets; update the Expo SDK when a compatible
+patched graph is available. See `docs/qa-closeout-2026-08-19.md` for exact scope and counts.

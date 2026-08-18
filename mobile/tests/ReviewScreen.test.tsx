@@ -1,4 +1,5 @@
 import { act, fireEvent, render } from "@testing-library/react-native";
+import { Alert } from "react-native";
 import { ReviewScreen } from "../features/meal-review/ReviewScreen";
 import { baseMeal, canonicalClarification, hiddenClarification, portionClarification, readyItem, reviewMeal } from "./fixtures";
 
@@ -34,12 +35,22 @@ test("hidden ingredient clarification uses simple product language", async () =>
   expect(view.getByRole("button", { name: "Not sure" })).toBeTruthy();
 });
 
-test("remove food delegates the item action", async () => {
+test("remove food requires confirmation before delegating the item action", async () => {
   const onRemove = jest.fn();
+  const alert = jest.spyOn(Alert, "alert").mockImplementation(() => undefined);
   const meal = { ...baseMeal, status: "NEEDS_REVIEW" as const, confirmed_at: null };
   const view = await render(<ReviewScreen meal={meal} {...props} onRemove={onRemove} />);
   fireEvent.press(view.getByRole("button", { name: "Remove" }));
+  expect(onRemove).not.toHaveBeenCalled();
+  expect(alert).toHaveBeenCalledWith(
+    "Remove this food?",
+    expect.stringContaining("excluded from the saved meal"),
+    expect.any(Array),
+  );
+  const buttons = alert.mock.calls[0]?.[2];
+  buttons?.find((button) => button.text === "Remove")?.onPress?.();
   expect(onRemove).toHaveBeenCalledWith(meal.items[0]);
+  alert.mockRestore();
 });
 
 test("ignores pending blockers that belong to removed items", async () => {

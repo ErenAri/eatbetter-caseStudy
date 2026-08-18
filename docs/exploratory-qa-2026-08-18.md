@@ -268,3 +268,6 @@ loading layout from stale meal state accidentally.
 
 The same unseen image has been rerun as a P1 regression case. A second unseen owned/consented image
 with weighed portions is still required for true end-to-end accuracy evaluation.
+
+The subsequent P0 safety/security audit and P3 polish closeout are recorded in
+[`qa-closeout-2026-08-19.md`](qa-closeout-2026-08-19.md).

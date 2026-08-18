@@ -13,9 +13,9 @@ export function FoodReviewCard({ item, busy, onEditAmount, onEditFood, onRemove 
     {item.nutrition ? <Text style={styles.nutrition}>{Math.round(item.nutrition.calories_kcal)} kcal</Text> : <Text style={styles.note}>Calories calculated after amount is confirmed</Text>}
     <Text style={[styles.state, !ready && styles.pending]}>{ready ? "✓ Looks good" : item.review_status === "NEEDS_IDENTITY" ? "Food needs a quick check" : "Review needed"}</Text>
     <View style={styles.actions}>
-      <Pressable accessibilityRole="button" disabled={busy} onPress={onEditAmount}><Text style={styles.action}>Change amount</Text></Pressable>
-      {item.candidates.length ? <Pressable accessibilityRole="button" disabled={busy} onPress={onEditFood}><Text style={styles.action}>Change food</Text></Pressable> : null}
-      <Pressable accessibilityRole="button" disabled={busy} onPress={onRemove}><Text style={styles.remove}>Remove</Text></Pressable>
+      <Pressable accessibilityRole="button" accessibilityState={{ disabled: busy }} disabled={busy} onPress={onEditAmount}><Text style={styles.action}>Change amount</Text></Pressable>
+      {item.candidates.length ? <Pressable accessibilityRole="button" accessibilityState={{ disabled: busy }} disabled={busy} onPress={onEditFood}><Text style={styles.action}>Change food</Text></Pressable> : null}
+      <Pressable accessibilityRole="button" accessibilityState={{ disabled: busy }} disabled={busy} onPress={onRemove}><Text style={styles.remove}>Remove</Text></Pressable>
     </View>
   </View>;
 }

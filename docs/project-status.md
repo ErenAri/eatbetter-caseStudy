@@ -1,6 +1,6 @@
 # Project status and owner inputs
 
-Status date: 2026-08-18.
+Status date: 2026-08-19.
 
 This is a public, time-boxed engineering case study. The repository is runnable in deterministic demo
 mode and contains live provider adapters, but it is not deployed or clinically validated. A small
@@ -24,6 +24,10 @@ are measured; product-specific owned-capture accuracy is not.
 - Private real-world dataset schema, baseline/hybrid/oracle benchmark modes, stage metrics, immutable
   report artifacts, error attribution, provider gates, and holdout configuration checks.
 - Automated backend, evaluation, and mobile tests.
+- A standalone Android debug APK built, installed, and cold-launched on the SDK emulator.
+- P0 hardening blocks staging/production startup while only development authentication, repository,
+  and storage adapters exist; the backend dependency audit is clean after upgrading the HTTP/upload
+  stack.
 - Licensed 12-dish Nutrition5k secondary subset, frozen split, real-provider development iteration,
   threshold simulation, and one untouched three-dish holdout run.
 - Licensed SNAPMe intake builder, independent visible-label sign-off workflow, recognition-only
@@ -41,16 +45,17 @@ are measured; product-specific owned-capture accuracy is not.
 
 ## Exploratory QA status
 
-An Android emulator pass with real OpenAI/USDA providers on 2026-08-18 found five P1 workflow issues.
-The current recommendation is no-go for a polished live-provider demonstration until those findings
-are fixed. See [`docs/exploratory-qa-2026-08-18.md`](exploratory-qa-2026-08-18.md) for reproduction
-steps, passed checks, limitations, and fix order. This does not invalidate the automated test results;
-it identifies integration and state combinations that the current suite does not cover.
+An Android emulator pass with real OpenAI/USDA providers on 2026-08-18 found five P1 workflow issues,
+eight P2 issues, and one P3 issue. All are fixed and regression-tested. The scoped case-study
+demonstration is GO, subject to the documented physical-device, production-adapter, and accuracy
+boundaries. See [`docs/exploratory-qa-2026-08-18.md`](exploratory-qa-2026-08-18.md) for the original
+observations and [`docs/qa-closeout-2026-08-19.md`](qa-closeout-2026-08-19.md) for the P0/P3 audit.
 
 ## Explicitly deferred
 
 - Runtime PostgreSQL/Supabase repository and object-storage adapters; the current runtime uses memory.
 - Production Supabase JWT verification; local development tokens are fixtures.
+- Staging and production startup intentionally fail closed until those runtime adapters are present.
 - Deployment, monitoring backend integration, operational backups, and incident response.
 - Product-specific owned/consented phone-photo collection and benchmark.
 - Barcode/OCR, multi-angle capture, personalized retrieval, and learning from corrections.
