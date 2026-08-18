@@ -1,4 +1,4 @@
-import { fireEvent, render } from "@testing-library/react-native";
+import { act, fireEvent, render } from "@testing-library/react-native";
 import { AnalysisScreen } from "../features/meal-capture/AnalysisScreen";
 import { CaptureScreen } from "../features/meal-capture/CaptureScreen";
 
@@ -15,4 +15,15 @@ test("analysis error retains photo recovery actions", async () => {
   expect(view.getByText("Your photo is still available.")).toBeTruthy();
   fireEvent.press(view.getByRole("button", { name: "Try again" }));
   expect(retry).toHaveBeenCalledTimes(1);
+});
+
+test("analysis progress distinguishes upload from server analysis", async () => {
+  const props = { error: null, onRetry: jest.fn(), onChooseAnother: jest.fn(), onCancel: jest.fn() };
+  const view = await render(<AnalysisScreen phase="uploading" {...props} />);
+  expect(view.getByText("Uploading photo securely")).toBeTruthy();
+  expect(view.getByText("Preparing analysis")).toBeTruthy();
+
+  await act(async () => { view.rerender(<AnalysisScreen phase="analyzing" {...props} />); });
+  expect(view.getByText("Identifying visible foods")).toBeTruthy();
+  expect(view.getByText("Step 1 of 3")).toBeTruthy();
 });

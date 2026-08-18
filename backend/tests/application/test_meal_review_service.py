@@ -126,6 +126,32 @@ async def test_hidden_ingredients_are_material_only_and_deduplicated_before_port
 
 
 @pytest.mark.asyncio
+async def test_hidden_ingredient_overlapping_visible_food_is_suppressed():
+    repository = InMemoryMealRepository()
+    item = grounded_item("50", "150")
+    item.observed_name = "Parmesan cheese"
+    item.normalized_name = "parmesan cheese"
+    item.canonical_food_name = "Cheese, Parmesan, grated"
+    meal = meal_with(item)
+    run = AIRun(meal.id, "MEAL_RECOGNITION", "TEST", "TEST", "v1")
+    run.succeed(
+        latency_ms=1, input_tokens=None, output_tokens=None, retry_count=0,
+        structured_output={"possible_hidden_ingredients": [
+            {"name": "additional cheese", "reason": "possibly added", "potential_impact": "MATERIAL"},
+            {"name": "cooking oil", "reason": "possibly used", "potential_impact": "MATERIAL"},
+        ]},
+    )
+    meal.ai_runs.append(run)
+    await repository.create(meal)
+    service = MealReviewService(repository, UnusedDependency(), UnusedDependency(), UncertaintyPolicy())
+
+    await service.assess_meal(meal)
+
+    hidden_questions = [value.question for value in meal.clarifications if value.type == "HIDDEN_INGREDIENT"]
+    assert hidden_questions == ["Did this meal include cooking oil?"]
+
+
+@pytest.mark.asyncio
 async def test_human_candidate_answer_grounds_directly_without_rerunning_p4_or_p5():
     repository = InMemoryMealRepository()
     unresolved = MealItem(uuid4(), 0, "white rice", portion_estimate=PortionEstimate(90, 110), observation_certainty="HIGH")

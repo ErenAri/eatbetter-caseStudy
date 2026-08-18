@@ -6,6 +6,7 @@ UUID; production must replace it with verified Supabase JWT claims.
 
 | Method | Path | Purpose |
 |---|---|---|
+| `GET` | `/health` | Runtime status plus provider mode and configured provider names |
 | `POST` | `/api/v1/meals` | Create a meal; 201 new, 200 idempotent replay |
 | `GET` | `/api/v1/meals` | Stable owned list with `date`, `limit`, `cursor` |
 | `GET` | `/api/v1/meals/{meal_id}` | Review/detail representation |
@@ -66,6 +67,10 @@ USDA failures are sanitized into stable server-side categories such as `USDA_TIM
 `USDA_AUTHENTICATION_FAILED`, and `USDA_INCOMPLETE_NUTRITION`. Raw URLs, API keys, and provider
 response bodies are not returned.
 
+`GET /health` returns `status`, `mode`, and a `providers` object. `mode` is `demo`, `live`, or
+`unconfigured`; it is derived from the selected adapters and whether their required credentials are
+present. It does not expose credentials or imply that a provider request has succeeded.
+
 ## P4/P5 analysis behavior
 
 `POST /api/v1/meals/{meal_id}/analysis` reads the validated image, invokes `VisionProvider`, retrieves
@@ -104,6 +109,10 @@ through the stored structured `value`; the server never parses labels or trusts 
 for a predefined option. Custom grams are accepted only for `PORTION`. Replaying an identical answer
 is a no-op. A different answer to an answered clarification returns
 `409 CLARIFICATION_ALREADY_ANSWERED`; subsequent changes use the item correction endpoint.
+
+Ordinary item updates, additions, and manual replacements require finite positive grams. The explicit
+zero-gram clarification option is different: it means the item is absent, marks it removed, clears
+its confirmed portion and nutrition, and preserves both the portion answer and removal in the audit.
 
 Confirmation requires canonical identity, nutrition snapshot, resolved grams with provenance, final
 nutrition, and no unresolved blocking clarification for every non-removed item. It performs no AI or

@@ -106,6 +106,26 @@ def test_correction_preserves_prediction_and_recalculates(client):
     assert {"portion_g", "preparation_method"}.issubset(correction_fields)
 
 
+@pytest.mark.parametrize(
+    ("method", "path", "payload"),
+    [
+        ("patch", "/api/v1/meals/{meal}/items/{item}", {"portion_g": 0}),
+        ("post", "/api/v1/meals/{meal}/items", {"query": "rice", "portion_g": 0}),
+        ("post", "/api/v1/meals/{meal}/items/{item}/replacement", {"query": "rice", "portion_g": 0}),
+    ],
+)
+def test_ordinary_item_mutations_reject_zero_grams(client, method, path, payload):
+    fixture = client.post("/api/v1/dev/fixtures/review-meal", headers=auth(USER_A)).json()["meal"]
+    item = fixture["items"][0]
+    response = getattr(client, method)(
+        path.format(meal=fixture["id"], item=item["id"]),
+        headers=auth(USER_A),
+        json=payload,
+    )
+    assert response.status_code == 422
+    assert response.json()["error"]["code"] == "INVALID_REQUEST"
+
+
 def test_unresolved_clarification_blocks_then_answer_allows_confirmation(client):
     fixture = client.post("/api/v1/dev/fixtures/review-meal", headers=auth(USER_A)).json()["meal"]
     blocked = client.post(f"/api/v1/meals/{fixture['id']}/confirm", headers=auth(USER_A))

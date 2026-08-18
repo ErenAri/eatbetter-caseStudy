@@ -1,23 +1,23 @@
 import { useEffect, useState } from "react";
 
 import { getHealth } from "../services/api";
-import { BackendHealthStatus } from "../types/health";
+import { BackendHealth } from "../types/health";
 
 
-export function useBackendHealth(): BackendHealthStatus {
-  const [status, setStatus] = useState<BackendHealthStatus>("loading");
+export function useBackendHealth(): BackendHealth {
+  const [health, setHealth] = useState<BackendHealth>({ status: "loading", label: "Connecting" });
 
   useEffect(() => {
     let active = true;
     getHealth()
       .then((response) => {
-        if (active) setStatus(response.status === "ok" ? "connected" : "unavailable");
+        if (active) setHealth({ status: "connected", label: response.mode === "live" ? "Live providers" : response.mode === "demo" ? "Demo providers" : "Provider setup needed" });
       })
       .catch(() => {
-        if (active) setStatus("unavailable");
+        if (active) setHealth({ status: "unavailable", label: "API offline" });
       });
     return () => { active = false; };
   }, []);
 
-  return status;
+  return health;
 }

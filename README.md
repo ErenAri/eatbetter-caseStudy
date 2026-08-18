@@ -47,8 +47,9 @@ See [project status and owner inputs](docs/project-status.md) for the exact boun
 demonstrated, and deferred behavior.
 
 The latest real-provider Android exploratory pass and follow-up are documented in
-[the 2026-08-18 QA report](docs/exploratory-qa-2026-08-18.md). All five original P1 workflow findings
-are fixed and regression-tested; the remaining P2/P3 limitations are disclosed in that report.
+[the 2026-08-18 QA report](docs/exploratory-qa-2026-08-18.md). All original P1 and P2 workflow
+findings are fixed and regression-tested, along with the stale-loading P3 finding. The report keeps
+the original observations and records the remediation evidence and remaining device-test boundary.
 
 ## Repository structure
 

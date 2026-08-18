@@ -2,7 +2,7 @@
 
 ## Release recommendation
 
-**P1 REMEDIATION VERIFIED — GO for the scoped case-study demonstration, with the P2/P3 backlog below disclosed.**
+**P1/P2 REMEDIATION VERIFIED — GO for the scoped case-study demonstration, subject to the device and accuracy boundaries below.**
 
 The core photo upload, real OpenAI recognition, USDA requests, review, confirmation, Today totals,
 and meal-detail navigation work. The pass nevertheless found user-visible dead ends and misleading
@@ -42,6 +42,37 @@ All five original P1 findings are resolved in the current revision:
 Verification evidence: backend `122 passed`, evaluation `40 passed`, mobile `19 passed`, TypeScript
 clean, Expo Doctor `21/21`, real-provider pasta rerun completed in `NEEDS_REVIEW`, and targeted Android
 emulator checks passed for incomplete-state copy, manual-replacement routing, and fixture selection.
+
+## P2 remediation verification — 2026-08-18
+
+The current revision resolves `EB-QA-006` through `EB-QA-013` and the related P3 loading defect:
+
+- `EB-QA-006`: `/health` reports `demo`, `live`, or `unconfigured` from runtime adapter selection and
+  credential readiness. Today renders that status; Meal Detail derives nutrition and photo provenance
+  from stored meal evidence.
+- `EB-QA-007`: the explicit zero-gram `None` answer removes the item from active foods and totals while
+  retaining portion and removal corrections in the audit.
+- `EB-QA-008`: every documented stable vision, canonicalization, and USDA failure has actionable
+  mobile copy; provider internals remain hidden.
+- `EB-QA-009`: capture attempts persist request context, photo URI, and attached meal ID in the app's
+  document storage. They restore after an activity/process restart and remain resumable after cancel.
+- `EB-QA-010`: edit, add, and replacement forms reset only after a successful mutation and retain
+  their entered values after failure.
+- `EB-QA-011`: ordinary update/add/replacement paths require finite positive grams in both client and
+  API/service validation. Zero is reserved for the explicit clarification meaning `None`.
+- `EB-QA-012`: hidden-ingredient prompts whose normalized food tokens overlap an active visible food
+  are suppressed; materially distinct additions such as cooking oil remain eligible.
+- `EB-QA-013`: upload and analysis are separate phases, followed by monotonic coarse status messages;
+  no fabricated percentage or backwards-cycling stage is shown.
+- `EB-QA-014`: Today no longer renders a stale capture action from a previous list while loading or
+  displaying an error.
+
+Verification: backend `127 passed`, evaluation `40 passed`, mobile `26 passed`, TypeScript clean, and
+Expo Doctor `21/21`. Gradle produced a standalone Android debug APK (`assembleDebug`, 213 tasks) with
+package `com.erena.eatbetter`; ADB installed it on `boyama_test`, and a cold MainActivity launch
+completed with a live app process. Automated tests verify draft serialization/restoration and screen
+behavior. A physical-device OS interruption pass remains necessary before making a production
+reliability claim.
 
 ## Scope and environment
 
@@ -222,18 +253,18 @@ loading layout from stale meal state accidentally.
 
 ## Coverage limitations
 
-- No standalone release APK, physical Android phone, iOS device, or screen-reader pass.
+- No signed release APK, physical Android phone, iOS device, or screen-reader pass.
 - No measured ground truth for the unseen photo, so no portion/calorie accuracy score.
 - No background/foreground, process-death recovery, slow-network shaping, or concurrent-tap stress.
 - Destructive meal-item removal was exercised through the local API; the UI button uses the same
   endpoint, but a full confirmation-dialog usability pass was not performed.
 
-## Remaining fix order
+## Remaining validation order
 
-1. Finish provider-status labeling and zero-gram semantics (`EB-QA-006`, `EB-QA-007`).
-2. Close/reset mutation editors and finish positive-number validation (`EB-QA-010`, `EB-QA-011`).
-3. Suppress overlapping hidden-ingredient questions (`EB-QA-012`).
-4. Recheck camera cancellation in a standalone build and improve live progress messaging.
+1. Install the standalone build on a physical Android device and exercise camera cancel,
+   background/foreground, and process-death restoration.
+2. Run an iOS and screen-reader accessibility pass.
+3. Collect owned or consented smartphone meals with measured portions for product-specific accuracy.
 
 The same unseen image has been rerun as a P1 regression case. A second unseen owned/consented image
 with weighed portions is still required for true end-to-end accuracy evaluation.

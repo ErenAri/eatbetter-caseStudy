@@ -27,3 +27,9 @@ test("renders an uploaded shell as incomplete instead of zero-calorie saved food
   expect(view.getByText(/Photo still needed/)).toBeTruthy();
   expect(view.queryByText(/0 kcal/)).toBeNull();
 });
+
+test("shows the backend's real provider mode instead of assuming demo", async () => {
+  const view = await render(<TodayScreen meals={[]} totals={totals} loading={false} health={{ status: "connected", label: "Live providers" }} onLog={jest.fn()} onOpen={jest.fn()} />);
+  expect(view.getByText("Live providers")).toBeTruthy();
+  expect(view.queryByText("Demo API")).toBeNull();
+});

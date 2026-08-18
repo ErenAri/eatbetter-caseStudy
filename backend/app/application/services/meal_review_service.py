@@ -53,7 +53,11 @@ class MealReviewService:
             await self.repository.save(meal)
             return meal
 
-        hidden = self._hidden_ingredients(meal)
+        hidden = [
+            ingredient
+            for ingredient in self._hidden_ingredients(meal)
+            if not self._overlaps_active_food(active, str(ingredient["name"]))
+        ]
         for ingredient in hidden:
             if ingredient["potential_impact"] in {"MATERIAL", "UNKNOWN"}:
                 self._ensure_hidden(meal, ingredient)
@@ -141,11 +145,17 @@ class MealReviewService:
             assert item is not None
             grams = custom_grams if custom_grams is not None else Decimal(str(value["grams"]))
             self._record(meal, item, "portion_g", item.confirmed_portion_g, grams)
-            item.confirmed_portion_g = grams
-            item.portion_resolution_source = (
-                PortionResolutionSource.USER_HOUSEHOLD_UNIT
-                if value.get("household_unit") else PortionResolutionSource.USER
-            )
+            if grams == 0:
+                self._record(meal, item, "removed_item", False, True)
+                item.is_removed = True
+                item.confirmed_portion_g = None
+                item.portion_resolution_source = None
+            else:
+                item.confirmed_portion_g = grams
+                item.portion_resolution_source = (
+                    PortionResolutionSource.USER_HOUSEHOLD_UNIT
+                    if value.get("household_unit") else PortionResolutionSource.USER
+                )
             item.recalculate()
             log_event(
                 "portion_user_resolved",
@@ -297,6 +307,23 @@ class MealReviewService:
             if isinstance(value, dict) and value.get("name"):
                 found.setdefault(MealReviewService._normalize(str(value["name"])), value)
         return list(found.values())
+
+    @staticmethod
+    def _overlaps_active_food(items: list[MealItem], hidden_name: str) -> bool:
+        ignored = {"additional", "added", "extra", "hidden", "possible", "cooking"}
+        hidden_tokens = set(re.findall(r"[a-z0-9]+", hidden_name.lower())) - ignored
+        if not hidden_tokens:
+            return False
+        for item in items:
+            visible = " ".join(
+                value
+                for value in (item.observed_name, item.normalized_name, item.canonical_food_name)
+                if value
+            )
+            visible_tokens = set(re.findall(r"[a-z0-9]+", visible.lower()))
+            if hidden_tokens <= visible_tokens:
+                return True
+        return False
 
     @staticmethod
     def _validated_answer(clarification: Clarification, option_id: str | None, custom_grams: Decimal | None) -> tuple[dict[str, Any], dict[str, Any] | None]:

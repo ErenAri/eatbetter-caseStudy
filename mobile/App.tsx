@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { StatusBar } from "expo-status-bar";
-import { AnalysisScreen } from "./features/meal-capture/AnalysisScreen";
+import { AnalysisPhase, AnalysisScreen } from "./features/meal-capture/AnalysisScreen";
 import { CaptureScreen } from "./features/meal-capture/CaptureScreen";
 import { MealDetailScreen } from "./features/meal-history/MealDetailScreen";
 import { TodayScreen } from "./features/meal-history/TodayScreen";
@@ -25,6 +25,7 @@ import {
   uploadMealImage,
 } from "./services/api";
 import { track } from "./services/analytics";
+import { clearCaptureDraft, loadCaptureDraft, saveCaptureDraft } from "./services/captureDraft";
 import { Meal, MealItem, NutritionTotals } from "./types/api";
 import { LocalImage, MealAttempt } from "./types/meal";
 
@@ -46,8 +47,22 @@ export default function App() {
   const [error, setError] = useState<string | null>(null);
   const [todayLoading, setTodayLoading] = useState(true);
   const [todayError, setTodayError] = useState<string | null>(null);
+  const [draftReady, setDraftReady] = useState(false);
+  const [analysisPhase, setAnalysisPhase] = useState<AnalysisPhase>("uploading");
   const operation = useRef(0);
-  const healthStatus = useBackendHealth();
+  const health = useBackendHealth();
+
+  useEffect(() => {
+    let active = true;
+    void loadCaptureDraft().then((draft) => {
+      if (!active) return;
+      if (draft) {
+        setAttempt(draft.attempt); setContext(draft.context); setImage(draft.image); setRoute("capture");
+      }
+      setDraftReady(true);
+    });
+    return () => { active = false; };
+  }, []);
 
   const refreshToday = useCallback(async () => {
     setTodayLoading(true); setTodayError(null);
@@ -68,39 +83,51 @@ export default function App() {
 
   const beginCapture = () => {
     operation.current += 1;
-    setAttempt({ requestId: uuid(), mealId: null, imageAttached: false });
+    const next = { requestId: uuid(), mealId: null, imageAttached: false };
+    setAttempt(next);
     setImage(null); setContext(""); setMeal(null); setError(null); setRoute("capture");
+    void saveCaptureDraft({ attempt: next, context: "", image: null });
     track("meal_capture_started");
+  };
+
+  const updateCaptureImage = (nextImage: LocalImage | null) => {
+    setImage(nextImage);
+    if (attempt) void saveCaptureDraft({ attempt, context, image: nextImage });
+  };
+  const updateCaptureContext = (nextContext: string) => {
+    setContext(nextContext);
+    if (attempt) void saveCaptureDraft({ attempt, context: nextContext, image });
   };
 
   const submitAnalysis = async () => {
     if (!image || !attempt || busyKey === "analysis") return;
     const token = ++operation.current;
-    setBusyKey("analysis"); setError(null); setRoute("analysis"); track("meal_analysis_requested", { mealId: attempt.mealId ?? undefined });
+    setBusyKey("analysis"); setError(null); setAnalysisPhase("uploading"); setRoute("analysis"); track("meal_analysis_requested", { mealId: attempt.mealId ?? undefined });
     let active = attempt;
     try {
       if (!active.mealId) {
         const created = await createMeal({ meal_request_id: active.requestId, logged_at: new Date().toISOString(), user_context: context.trim() || null });
-        active = { ...active, mealId: created.id }; setAttempt(active);
+        active = { ...active, mealId: created.id }; setAttempt(active); void saveCaptureDraft({ attempt: active, context, image });
       }
       const mealId = active.mealId;
       if (!mealId) throw new Error("Meal creation did not return an identifier.");
       if (!active.imageAttached) {
         await uploadMealImage(mealId, image);
-        active = { ...active, imageAttached: true }; setAttempt(active);
+        active = { ...active, imageAttached: true }; setAttempt(active); void saveCaptureDraft({ attempt: active, context, image });
       }
+      setAnalysisPhase("analyzing");
       const analyzed = await analyzeMeal(mealId);
       if (operation.current !== token) return;
-      setMeal(analyzed); setRoute("review"); track("meal_review_opened", { mealId: analyzed.id });
+      setMeal(analyzed); setRoute("review"); void clearCaptureDraft(); track("meal_review_opened", { mealId: analyzed.id });
     } catch (reason) { if (operation.current === token) setError(message(reason, "We couldn't analyze this meal.")); }
     finally { if (operation.current === token) setBusyKey(null); }
   };
 
   const mutate = async (key: string, action: () => Promise<Meal>) => {
-    if (busyKey) return;
+    if (busyKey) return false;
     setBusyKey(key); setError(null);
-    try { setMeal(await action()); }
-    catch (reason) { setError(message(reason, "That change couldn't be saved. Try again.")); }
+    try { setMeal(await action()); return true; }
+    catch (reason) { setError(message(reason, "That change couldn't be saved. Try again.")); return false; }
     finally { setBusyKey(null); }
   };
 
@@ -113,10 +140,10 @@ export default function App() {
       return next;
     });
   };
-  const update = (item: MealItem, value: { candidate_rank?: number; portion_g?: number; preparation_method?: string | null }) => { if (meal) void mutate(item.id, async () => { const next = await updateMealItem(meal.id, item.id, value); track("meal_item_corrected", { mealId: meal.id }); return next; }); };
+  const update = (item: MealItem, value: { candidate_rank?: number; portion_g?: number; preparation_method?: string | null }) => meal ? mutate(item.id, async () => { const next = await updateMealItem(meal.id, item.id, value); track("meal_item_corrected", { mealId: meal.id }); return next; }) : Promise.resolve(false);
   const remove = (item: MealItem) => { if (meal) void mutate(item.id, async () => { const next = await removeMealItem(meal.id, item.id); track("meal_item_corrected", { mealId: meal.id }); return next; }); };
-  const add = (query: string, grams: number) => { if (meal) void mutate("add", () => addMealItem(meal.id, query, grams)); };
-  const replace = (item: MealItem, query: string, grams: number) => { if (meal) void mutate(item.id, () => replaceMealItem(meal.id, item.id, query, grams)); };
+  const add = (query: string, grams: number) => meal ? mutate("add", () => addMealItem(meal.id, query, grams)) : Promise.resolve(false);
+  const replace = (item: MealItem, query: string, grams: number) => meal ? mutate(item.id, () => replaceMealItem(meal.id, item.id, query, grams)) : Promise.resolve(false);
 
   const confirm = async () => {
     if (!meal || busyKey) return;
@@ -135,7 +162,7 @@ export default function App() {
   const resumeIncomplete = async () => {
     if (!meal || !meal.image_attached || busyKey) return;
     const token = ++operation.current;
-    setBusyKey("analysis"); setError(null); setRoute("analysis");
+    setBusyKey("analysis"); setError(null); setAnalysisPhase("analyzing"); setRoute("analysis");
     try {
       const analyzed = await analyzeMeal(meal.id);
       if (operation.current !== token) return;
@@ -150,13 +177,17 @@ export default function App() {
     catch (reason) { setError(message(reason, "This incomplete meal couldn't be discarded.")); setBusyKey(null); }
   };
   const home = () => { operation.current += 1; setRoute("today"); setError(null); setBusyKey(null); void refreshToday(); };
-  const chooseAnother = () => { operation.current += 1; setAttempt({ requestId: uuid(), mealId: null, imageAttached: false }); setImage(null); setError(null); setRoute("capture"); };
-  const demo = async (canonical = false) => { if (busyKey) return; setBusyKey("demo"); setError(null); try { const fixture = canonical ? await createCanonicalDemoMeal() : await createDemoMeal(); setMeal(fixture); setRoute("review"); track("meal_review_opened", { mealId: fixture.id }); } catch (reason) { setError(message(reason, "The development demo is unavailable.")); } finally { setBusyKey(null); } };
+  const abandonCapture = () => { void clearCaptureDraft(); home(); };
+  const cancelAnalysis = () => { track("meal_abandoned", { mealId: attempt?.mealId ?? undefined }); if (attempt?.imageAttached) { void clearCaptureDraft(); home(); } else { operation.current += 1; setBusyKey(null); setError(null); setRoute("capture"); } };
+  const chooseAnother = () => { operation.current += 1; const next = { requestId: uuid(), mealId: null, imageAttached: false }; setAttempt(next); setImage(null); setError(null); setRoute("capture"); void saveCaptureDraft({ attempt: next, context, image: null }); };
+  const demo = async (canonical = false) => { if (busyKey) return; setBusyKey("demo"); setError(null); try { const fixture = canonical ? await createCanonicalDemoMeal() : await createDemoMeal(); void clearCaptureDraft(); setMeal(fixture); setRoute("review"); track("meal_review_opened", { mealId: fixture.id }); } catch (reason) { setError(message(reason, "The development demo is unavailable.")); } finally { setBusyKey(null); } };
+
+  if (!draftReady) return <StatusBar style="dark" />;
 
   return <><StatusBar style="dark" />
-    {route === "today" ? <TodayScreen meals={meals} totals={totals} loading={todayLoading} error={todayError} healthStatus={healthStatus} onRetry={() => void refreshToday()} onLog={beginCapture} onOpen={(selected) => void openMeal(selected)} /> : null}
-    {route === "capture" ? <CaptureScreen image={image} context={context} busy={busyKey !== null} error={error} onImage={setImage} onContext={setContext} onAnalyze={() => void submitAnalysis()} onDemo={() => void demo()} onCanonicalDemo={() => void demo(true)} onBack={home} /> : null}
-    {route === "analysis" ? <AnalysisScreen error={error} onRetry={() => void submitAnalysis()} onChooseAnother={chooseAnother} onCancel={() => { track("meal_abandoned", { mealId: attempt?.mealId ?? undefined }); home(); }} /> : null}
+    {route === "today" ? <TodayScreen meals={meals} totals={totals} loading={todayLoading} error={todayError} health={health} onRetry={() => void refreshToday()} onLog={beginCapture} onOpen={(selected) => void openMeal(selected)} /> : null}
+    {route === "capture" ? <CaptureScreen image={image} context={context} busy={busyKey !== null} error={error} onImage={updateCaptureImage} onContext={updateCaptureContext} onAnalyze={() => void submitAnalysis()} onDemo={() => void demo()} onCanonicalDemo={() => void demo(true)} onBack={abandonCapture} /> : null}
+    {route === "analysis" ? <AnalysisScreen phase={analysisPhase} error={error} onRetry={() => void submitAnalysis()} onChooseAnother={chooseAnother} onCancel={cancelAnalysis} /> : null}
     {route === "review" && meal ? <ReviewScreen meal={meal} busyKey={busyKey} error={error} onAnswer={answer} onUpdate={update} onRemove={remove} onAdd={add} onReplace={replace} onConfirm={() => void confirm()} onBack={home} /> : null}
     {route === "detail" && meal ? <MealDetailScreen meal={meal} busy={busyKey !== null} error={error} onResume={meal.status !== "CONFIRMED" && meal.status !== "FAILED_PERMANENT" && meal.image_attached ? () => void resumeIncomplete() : undefined} onDiscard={meal.status !== "CONFIRMED" ? () => void discardIncomplete() : undefined} onBack={home} /> : null}
   </>;

@@ -7,9 +7,15 @@ Today → Capture → Analysis → Review → Confirm → Meal detail
 ```
 
 `App.tsx` retains the existing lightweight route-state approach. Beginning capture creates one
-`meal_request_id`; upload and analysis retries reuse the same request and meal IDs. The analysis screen
-uses indeterminate, coarse explanatory copy rather than invented percentages. A failed request keeps
-the selected photo and offers retry or a new-photo path.
+`meal_request_id`; upload and analysis retries reuse the same request and meal IDs. Capture context,
+selected image URI, request ID, and attached meal ID are persisted as a local draft and restored after
+an Expo/OS activity restart. The draft is cleared only after successful analysis or explicit
+abandonment. A server-side attached attempt can be resumed even if its local image is unavailable.
+
+Analysis progress is monotonic and evidence-based at the upload boundary: `Uploading photo securely`
+precedes `Identifying visible foods`, then coarse matching and uncertainty-review stages. The latter
+stages communicate work without fabricated percentages or claims that individual synchronous backend
+substeps have completed. Cancel returns to the recoverable draft or Today for a server-attached attempt.
 
 ## Review philosophy
 
@@ -23,12 +29,20 @@ and unresolved identity questions. It submits stored option IDs or explicit cust
 parses labels, converts household volume, or calculates nutrition. All mutations replace local state
 with the returned authoritative meal.
 
+Ordinary edit, add, and replacement forms require finite positive grams. They close and clear their
+local fields only after the mutation succeeds; failed requests preserve the user's input for retry.
+Only an explicit clarification choice may use zero grams, where the server interprets it as `None`.
+
 ## Backend interaction
 
 The centralized client covers create, private image upload, analysis, meal/list/daily-summary reads,
 clarification answers, item correction/removal/addition, and confirmation. Friendly copy maps stable
 backend failures without showing model/provider internals. If confirmation reports unresolved state,
 the app refetches the meal and remains on Review.
+
+Today derives its provider badge from `/health`: live, demo, unconfigured, offline, and connecting are
+distinct states. Meal Detail derives nutrition/photo provenance from the meal's actual nutrition source
+and `image_attached` flag; fixture data is never labeled as USDA evidence.
 
 The smallest supported missing-food/manual-search path asks for a food query and grams, then uses the
 existing add-item endpoint. Changing an existing food is limited to its already retrieved candidates;
@@ -54,5 +68,5 @@ presence clarification. The UI labels fixture access as development demo data.
 
 ## Remaining production work
 
-Production Supabase/JWT authentication, persistent route restoration across process death, a dedicated
-manual USDA search endpoint, and a selected analytics provider remain deferred.
+Production Supabase/JWT authentication, complete navigation restoration beyond the capture attempt, a
+dedicated manual USDA search endpoint, and a selected analytics provider remain deferred.

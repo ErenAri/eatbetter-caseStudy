@@ -3,14 +3,17 @@ import { StyleSheet, Text, View } from "react-native";
 import { Button, ErrorState, LoadingState, Screen } from "../../components/Primitives";
 import { colors, spacing } from "../../theme/tokens";
 
-const messages = ["Identifying foods", "Matching nutrition data", "Checking uncertain portions"];
-export function AnalysisScreen({ error, onRetry, onChooseAnother, onCancel }: { error: string | null; onRetry: () => void; onChooseAnother: () => void; onCancel: () => void }) {
+const messages = ["Identifying visible foods", "Matching verified nutrition", "Checking uncertain portions"];
+export type AnalysisPhase = "uploading" | "analyzing";
+export function AnalysisScreen({ phase = "analyzing", error, onRetry, onChooseAnother, onCancel }: { phase?: AnalysisPhase; error: string | null; onRetry: () => void; onChooseAnother: () => void; onCancel: () => void }) {
   const [message, setMessage] = useState(0);
   useEffect(() => {
-    if (error) return;
-    const timer = setInterval(() => setMessage((value) => (value + 1) % messages.length), 1800);
-    return () => clearInterval(timer);
-  }, [error]);
+    setMessage(0);
+    if (error || phase === "uploading") return;
+    const nutrition = setTimeout(() => setMessage(1), 8000);
+    const uncertainty = setTimeout(() => setMessage(2), 18000);
+    return () => { clearTimeout(nutrition); clearTimeout(uncertainty); };
+  }, [error, phase]);
   return <Screen>
     <View style={styles.center}>
       {error ? <>
@@ -21,11 +24,12 @@ export function AnalysisScreen({ error, onRetry, onChooseAnother, onCancel }: { 
         <Button label="Choose another photo" onPress={onChooseAnother} secondary />
       </> : <>
         <Text style={styles.title}>Analyzing your meal…</Text>
-        <LoadingState message={messages[message] ?? messages[0]} />
-        <Text style={styles.body}>This can take a few seconds. We'll only ask about details that could change your meal.</Text>
+        <LoadingState message={phase === "uploading" ? "Uploading photo securely" : messages[message] ?? messages[0]} />
+        <Text style={styles.progress}>{phase === "uploading" ? "Preparing analysis" : `Step ${message + 1} of 3`}</Text>
+        <Text style={styles.body}>Live analysis can take around 30 seconds. You can leave safely; the attempt remains recoverable.</Text>
         <Button label="Cancel" onPress={onCancel} secondary />
       </>}
     </View>
   </Screen>;
 }
-const styles = StyleSheet.create({ center: { flex: 1, justifyContent: "center", gap: spacing.md }, title: { color: colors.text, fontSize: 30, lineHeight: 37, fontWeight: "900" }, body: { color: colors.textMuted, lineHeight: 22, marginBottom: spacing.sm } });
+const styles = StyleSheet.create({ center: { flex: 1, justifyContent: "center", gap: spacing.md }, title: { color: colors.text, fontSize: 30, lineHeight: 37, fontWeight: "900" }, progress: { color: colors.primary, fontWeight: "800" }, body: { color: colors.textMuted, lineHeight: 22, marginBottom: spacing.sm } });

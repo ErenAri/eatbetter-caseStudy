@@ -1,2 +1,6 @@
-export type HealthResponse = { status: "ok" };
-export type BackendHealthStatus = "loading" | "connected" | "unavailable";
+export type HealthResponse = {
+  status: "ok";
+  mode: "demo" | "live" | "unconfigured";
+  providers: { vision: "demo" | "openai"; canonicalization: "demo" | "openai"; nutrition: "demo" | "usda" };
+};
+export type BackendHealth = { status: "loading" | "connected" | "unavailable"; label: string };

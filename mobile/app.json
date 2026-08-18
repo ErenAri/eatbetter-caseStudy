@@ -19,6 +19,7 @@
       "supportsTablet": true
     },
     "android": {
+      "package": "com.erena.eatbetter",
       "adaptiveIcon": {
         "backgroundColor": "#F7F4EC"
       }

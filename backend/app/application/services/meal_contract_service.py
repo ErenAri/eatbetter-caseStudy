@@ -151,8 +151,8 @@ class MealContractService:
 
         if "portion_g" in changes:
             grams = Decimal(str(changes["portion_g"]))
-            if grams < 0:
-                raise ValidationError("portion_g cannot be negative")
+            if grams <= 0:
+                raise ValidationError("portion_g must be positive")
             predicted: Any = item.confirmed_portion_g
             if predicted is None:
                 predicted = {
@@ -208,6 +208,8 @@ class MealContractService:
     ) -> Meal:
         meal = await self._reviewable_meal(meal_id, user_id)
         item = self._item(meal, item_id)
+        if portion_g <= 0:
+            raise ValidationError("portion_g must be positive")
         normalized = query.strip().lower()
         if not normalized:
             raise ValidationError("query cannot be blank")
@@ -270,8 +272,8 @@ class MealContractService:
         request_id: UUID | None = None,
     ) -> Meal:
         meal = await self._reviewable_meal(meal_id, user_id)
-        if portion_g < 0:
-            raise ValidationError("portion_g cannot be negative")
+        if portion_g <= 0:
+            raise ValidationError("portion_g must be positive")
         item = MealItem(
             meal_id=meal.id,
             position=max((value.position for value in meal.items), default=-1) + 1,

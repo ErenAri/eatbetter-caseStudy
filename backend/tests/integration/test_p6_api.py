@@ -43,6 +43,29 @@ def test_portion_answer_exposes_resolution_source_and_validates_stored_options()
         assert clarification_body["resolution_satisfied"] is True
 
 
+def test_none_portion_removes_zero_gram_food_and_preserves_audit():
+    with TestClient(create_app(Settings(_env_file=None, app_env=AppEnvironment.TEST))) as client:
+        meal = client.post("/api/v1/dev/fixtures/review-meal", headers=auth()).json()["meal"]
+        clarification = meal["clarifications"][0]
+
+        answered = client.post(
+            f"/api/v1/meals/{meal['id']}/clarifications/{clarification['id']}/answer",
+            headers=auth(),
+            json={"option_id": "none"},
+        )
+
+        assert answered.status_code == 200
+        body = answered.json()["meal"]
+        oil = body["items"][-1]
+        assert oil["is_removed"] is True
+        assert oil["review_status"] == "REMOVED"
+        assert oil["nutrition"] is None
+        assert any(value["field_name"] == "removed_item" for value in body["corrections"])
+        confirmed = client.post(f"/api/v1/meals/{meal['id']}/confirm", headers=auth())
+        assert confirmed.status_code == 200
+        assert confirmed.json()["meal"]["totals"]["calories_kcal"] == 504.75
+
+
 def test_canonical_ambiguity_demo_grounds_a_stored_candidate_then_requests_portion():
     with TestClient(create_app(Settings(_env_file=None, app_env=AppEnvironment.TEST))) as client:
         meal = client.post(

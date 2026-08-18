@@ -133,7 +133,7 @@ class UpdateMealItemRequest(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
     candidate_rank: int | None = Field(default=None, ge=1)
-    portion_g: Decimal | None = Field(default=None, ge=0, max_digits=10, decimal_places=3)
+    portion_g: Decimal | None = Field(default=None, gt=0, max_digits=10, decimal_places=3)
     preparation_method: str | None = Field(default=None, max_length=100)
 
 
@@ -141,14 +141,14 @@ class AddMealItemRequest(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
     query: str = Field(min_length=1, max_length=200)
-    portion_g: Decimal = Field(ge=0, max_digits=10, decimal_places=3)
+    portion_g: Decimal = Field(gt=0, max_digits=10, decimal_places=3)
 
 
 class ReplaceMealItemRequest(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
     query: str = Field(min_length=1, max_length=200)
-    portion_g: Decimal = Field(ge=0, max_digits=10, decimal_places=3)
+    portion_g: Decimal = Field(gt=0, max_digits=10, decimal_places=3)
 
 
 class AnswerClarificationRequest(BaseModel):

@@ -2,8 +2,9 @@ import { act, fireEvent, render, waitFor } from "@testing-library/react-native";
 import App from "../App";
 import * as api from "../services/api";
 import { baseMeal, canonicalClarification, portionClarification, reviewMeal } from "./fixtures";
+import { clearCaptureDraft, saveCaptureDraft } from "../services/captureDraft";
 
-jest.mock("../hooks/useBackendHealth", () => ({ useBackendHealth: () => "connected" }));
+jest.mock("../hooks/useBackendHealth", () => ({ useBackendHealth: () => ({ status: "connected", label: "Demo providers" }) }));
 jest.mock("../services/api", () => {
   const actual = jest.requireActual("../services/api");
   return {
@@ -16,9 +17,24 @@ jest.mock("../services/api", () => {
 });
 const mocked = api as jest.Mocked<typeof api>;
 
-beforeEach(() => {
+beforeEach(async () => {
   jest.clearAllMocks();
+  await clearCaptureDraft();
   mocked.getDailySummary.mockResolvedValue({ date: "2026-08-18", timezone: "UTC", totals: baseMeal.totals, meals: [baseMeal] });
+});
+
+test("restores a persisted capture draft after an app restart", async () => {
+  await saveCaptureDraft({
+    attempt: { requestId: "draft-request", mealId: null, imageAttached: false },
+    context: "home-cooked with olive oil",
+    image: null,
+  });
+  mocked.listMeals.mockResolvedValue([]);
+
+  const view = await render(<App />);
+
+  expect(await view.findByText("Log a meal")).toBeTruthy();
+  expect(view.getByDisplayValue("home-cooked with olive oil")).toBeTruthy();
 });
 
 test("candidate tap calls the clarification answer API", async () => {

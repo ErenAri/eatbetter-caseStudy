@@ -130,6 +130,28 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     application.state.nutrition_provider = nutrition_provider
     application.state.vision_provider = vision_provider
     application.state.canonicalization_provider = canonicalization_provider
+    application.state.provider_configuration = {
+        "vision": application_settings.vision_provider,
+        "canonicalization": application_settings.canonicalization_provider,
+        "nutrition": application_settings.nutrition_provider,
+    }
+    selected_openai = (
+        application_settings.vision_provider == "openai"
+        or application_settings.canonicalization_provider == "openai"
+    )
+    missing_provider_key = (
+        selected_openai and application_settings.openai_api_key is None
+    ) or (
+        application_settings.nutrition_provider == "usda"
+        and application_settings.usda_api_key is None
+    )
+    application.state.provider_mode = (
+        "unconfigured"
+        if missing_provider_key
+        else "demo"
+        if set(application.state.provider_configuration.values()) == {"demo"}
+        else "live"
+    )
     install_error_handlers(application)
     application.include_router(health_router)
     application.include_router(

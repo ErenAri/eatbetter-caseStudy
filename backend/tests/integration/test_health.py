@@ -12,7 +12,10 @@ def test_health_contract_and_request_correlation():
     request_id = str(uuid4())
     response = client.get("/health", headers={"X-Request-ID": request_id})
     assert response.status_code == 200
-    assert response.json() == {"status": "ok"}
+    body = response.json()
+    assert body["status"] == "ok"
+    assert body["mode"] in {"demo", "live", "unconfigured"}
+    assert set(body["providers"]) == {"vision", "canonicalization", "nutrition"}
     assert response.headers["X-Request-ID"] == request_id
 
 
