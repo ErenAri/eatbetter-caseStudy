@@ -1,0 +1,49 @@
+{
+  "schema_version": 1,
+  "dataset_version": "replace-with-version-before-collection",
+  "cases": [
+    {
+      "case_id": "meal_001",
+      "split": "development",
+      "categories": ["MULTI_COMPONENT", "PORTION_SENSITIVE"],
+      "image": "images/meal_001.jpg",
+      "items": [
+        {
+          "item_id": "chicken",
+          "label": "chicken breast",
+          "acceptable_aliases": ["grilled chicken breast"],
+          "preparation": "grilled",
+          "portion_truth_g": "146",
+          "expected_fdc_id": null,
+          "expected_fdc_name": null,
+          "acceptable_fdc_ids": [],
+          "canonical_ground_truth_status": "UNVERIFIED",
+          "notes": "Set VERIFIED only after independent manual USDA inspection."
+        }
+      ],
+      "hidden_ingredients": [
+        {
+          "name": "olive oil",
+          "present": true,
+          "portion_truth_g": "12",
+          "measurement_method": "Bottle weighed before and after cooking."
+        }
+      ],
+      "nutrition_truth": {
+        "calories_kcal": null,
+        "protein_g": null,
+        "carbs_g": null,
+        "fat_g": null,
+        "measurement_method": "Populate from independently verified ingredients and measured mass."
+      },
+      "provenance": {
+        "captured_by": "pseudonymous-owner-id",
+        "capture_device": "optional device family",
+        "capture_date": "2026-08-18",
+        "ground_truth_method": "Components weighed on a kitchen scale; USDA labels manually reviewed.",
+        "consent_or_ownership": "OWNER_CAPTURED"
+      },
+      "notes": "Illustrative schema record only; no image or metric is included."
+    }
+  ]
+}

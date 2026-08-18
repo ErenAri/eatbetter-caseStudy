@@ -1,0 +1,26 @@
+{
+  "status": "Not measured yet",
+  "configuration": {
+    "provider": "openai",
+    "model": "gpt-5.6-terra",
+    "reasoning_effort": "low",
+    "prompt_version": "canonicalization_v1"
+  },
+  "frozen_case_count": 3,
+  "verified_case_count": 0,
+  "baselines": {
+    "USDA_TOP_1": {
+      "selection_accuracy": null
+    }
+  },
+  "metrics": {
+    "selection_accuracy": null,
+    "selective_accuracy": null,
+    "coverage": null,
+    "abstention_rate": null,
+    "wrong_selection_rate": null,
+    "invalid_rank_rate": null,
+    "wrong_strong_selection_rate": null
+  },
+  "cases": []
+}

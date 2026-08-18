@@ -1,0 +1,27 @@
+{
+  "expo": {
+    "name": "EatBetter",
+    "slug": "eatbetter-accuracy-lab",
+    "version": "0.1.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "light",
+    "plugins": [
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "Choose a meal photo for private nutrition analysis.",
+          "cameraPermission": "Take a meal photo for private nutrition analysis."
+        }
+      ],
+      "expo-status-bar"
+    ],
+    "ios": {
+      "supportsTablet": true
+    },
+    "android": {
+      "adaptiveIcon": {
+        "backgroundColor": "#F7F4EC"
+      }
+    }
+  }
+}

@@ -1,0 +1,22 @@
+[
+  {
+    "query": "white rice cooked",
+    "expected_terms": ["rice", "cooked"],
+    "expected_fdc_id": null
+  },
+  {
+    "query": "chicken breast grilled",
+    "expected_terms": ["chicken", "breast"],
+    "expected_fdc_id": null
+  },
+  {
+    "query": "broccoli cooked",
+    "expected_terms": ["broccoli", "cooked"],
+    "expected_fdc_id": null
+  },
+  {
+    "query": "olive oil",
+    "expected_terms": ["olive", "oil"],
+    "expected_fdc_id": null
+  }
+]

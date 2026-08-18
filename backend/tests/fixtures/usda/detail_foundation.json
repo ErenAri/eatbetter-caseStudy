@@ -1,0 +1,13 @@
+{
+  "fdcId": 2001,
+  "description": "Foundation energy precedence fixture",
+  "dataType": "Foundation",
+  "foodNutrients": [
+    {"nutrient": {"id": 1008, "unitName": "KCAL"}, "amount": 100},
+    {"nutrient": {"id": 2047, "unitName": "KCAL"}, "amount": 110},
+    {"nutrient": {"id": 2048, "unitName": "KCAL"}, "amount": 120},
+    {"nutrient": {"id": 1003, "unitName": "G"}, "amount": 10},
+    {"nutrient": {"id": 1004, "unitName": "G"}, "amount": 4},
+    {"nutrient": {"id": 1005, "unitName": "G"}, "amount": 6}
+  ]
+}

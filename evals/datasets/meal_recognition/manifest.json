@@ -1,0 +1,15 @@
+{
+  "schema_version": 1,
+  "supported_categories": [
+    "SIMPLE",
+    "MULTI_COMPONENT",
+    "PORTION_SENSITIVE",
+    "SAUCE_OR_OIL",
+    "COMPOSITE_FOOD",
+    "PACKAGED_FOOD",
+    "DIFFICULT_CUISINE",
+    "LOW_QUALITY_IMAGE",
+    "NON_MEAL"
+  ],
+  "cases": []
+}

@@ -1,0 +1,10 @@
+{
+  "schema_version": "p6-v1",
+  "case_count": 0,
+  "portion_interval_coverage": null,
+  "calorie_interval_coverage": null,
+  "unsafe_auto_accept_rate": null,
+  "clarification_rate": null,
+  "correction_rate": null,
+  "note": "No verified uncertainty labels are checked in; no metric is claimed."
+}

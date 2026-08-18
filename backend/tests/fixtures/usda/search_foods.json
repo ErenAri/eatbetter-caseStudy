@@ -1,0 +1,29 @@
+{
+  "foods": [
+    {
+      "fdcId": 1002,
+      "description": "CHICKEN BREAST GRILLED WITH SEASONING",
+      "dataType": "Branded",
+      "brandOwner": "Fixture Foods Inc.",
+      "score": 50.0,
+      "foodNutrients": [
+        {"nutrientId": 1008, "unitName": "KCAL", "value": 180},
+        {"nutrientId": 1003, "unitName": "G", "value": 28},
+        {"nutrientId": 1005, "unitName": "G", "value": 2},
+        {"nutrientId": 1004, "unitName": "G", "value": 6}
+      ]
+    },
+    {
+      "fdcId": 1001,
+      "description": "Chicken breast, grilled",
+      "dataType": "Foundation",
+      "score": 10.0,
+      "foodNutrients": [
+        {"nutrientId": 1004, "unitName": "G", "value": 3.6},
+        {"nutrientId": 1005, "unitName": "G", "value": 0},
+        {"nutrientId": 1003, "unitName": "G", "value": 31},
+        {"nutrientId": 1008, "unitName": "KCAL", "value": 165}
+      ]
+    }
+  ]
+}

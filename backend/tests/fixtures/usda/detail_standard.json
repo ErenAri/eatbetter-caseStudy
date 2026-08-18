@@ -1,0 +1,14 @@
+{
+  "fdcId": 1001,
+  "description": "Chicken breast, grilled",
+  "dataType": "Foundation",
+  "foodNutrients": [
+    {"nutrient": {"id": 1004, "unitName": "g"}, "amount": 3.6},
+    {"nutrient": {"id": 1008, "unitName": "kcal"}, "amount": 165},
+    {"nutrient": {"id": 1003, "unitName": "g"}, "amount": 31},
+    {"nutrient": {"id": 1005, "unitName": "g"}, "amount": 0}
+  ],
+  "foodPortions": [
+    {"amount": 1, "gramWeight": 120, "modifier": "breast"}
+  ]
+}

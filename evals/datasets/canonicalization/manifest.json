@@ -1,0 +1,37 @@
+{
+  "schema_version": 1,
+  "description": "Frozen selector inputs; all cases remain unevaluable until manually verified.",
+  "cases": [
+    {
+      "id": "canonical_rice_001",
+      "observation": {"observed_name": "white rice", "preparation_method": "cooked"},
+      "candidates": [
+        {"rank": 1, "source_food_id": null, "name": "Rice, white, cooked", "data_type": "Foundation"},
+        {"rank": 2, "source_food_id": null, "name": "Rice flour", "data_type": "SR Legacy"}
+      ],
+      "expected_source_food_id": null,
+      "expected_candidate_rank": null
+    },
+    {
+      "id": "canonical_chicken_001",
+      "observation": {"observed_name": "chicken breast", "preparation_method": "grilled"},
+      "candidates": [
+        {"rank": 1, "source_food_id": null, "name": "Chicken breast, grilled", "data_type": "Foundation"},
+        {"rank": 2, "source_food_id": null, "name": "Chicken breast, breaded and fried", "data_type": "Survey (FNDDS)"}
+      ],
+      "expected_source_food_id": null,
+      "expected_candidate_rank": null
+    },
+    {
+      "id": "canonical_sauce_001",
+      "observation": {"observed_name": "creamy white sauce", "preparation_method": null},
+      "candidates": [
+        {"rank": 1, "source_food_id": null, "name": "Mayonnaise", "data_type": "Foundation"},
+        {"rank": 2, "source_food_id": null, "name": "Alfredo sauce", "data_type": "Survey (FNDDS)"},
+        {"rank": 3, "source_food_id": null, "name": "Ranch dressing", "data_type": "Branded"}
+      ],
+      "expected_source_food_id": null,
+      "expected_candidate_rank": null
+    }
+  ]
+}

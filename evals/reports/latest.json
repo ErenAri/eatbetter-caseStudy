@@ -1,0 +1,51 @@
+{
+  "status": "Not measured yet",
+  "baseline": "image -> LLM -> foods + estimated portions/nutrition",
+  "hybrid": "vision observations -> canonical retrieval -> constrained selection -> deterministic nutrition",
+  "metrics": {
+    "food_f1": {
+      "baseline": "Not measured yet",
+      "hybrid": "Not measured yet"
+    },
+    "canonical_accuracy": {
+      "baseline": "Not measured yet",
+      "hybrid": "Not measured yet"
+    },
+    "portion_mae_g": {
+      "baseline": "Not measured yet",
+      "hybrid": "Not measured yet"
+    },
+    "calorie_mae_kcal": {
+      "baseline": "Not measured yet",
+      "hybrid": "Not measured yet"
+    },
+    "calorie_mape": {
+      "baseline": "Not measured yet",
+      "hybrid": "Not measured yet"
+    },
+    "macro_mae_g": {
+      "baseline": "Not measured yet",
+      "hybrid": "Not measured yet"
+    },
+    "meals_within_20_percent": {
+      "baseline": "Not measured yet",
+      "hybrid": "Not measured yet"
+    },
+    "high_confidence_wrong_rate": {
+      "baseline": "Not measured yet",
+      "hybrid": "Not measured yet"
+    },
+    "clarification_rate": {
+      "baseline": "Not measured yet",
+      "hybrid": "Not measured yet"
+    },
+    "user_correction_rate": {
+      "baseline": "Not measured yet",
+      "hybrid": "Not measured yet"
+    },
+    "latency_ms": {
+      "baseline": "Not measured yet",
+      "hybrid": "Not measured yet"
+    }
+  }
+}

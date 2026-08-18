@@ -1,0 +1,62 @@
+# Case Study — Full Stack Developer
+
+## Goal
+
+Evaluate product thinking, technical decisions, clean architecture, testing/observability, and communication.
+
+## What to submit
+
+- A working mobile app solution (deploy or run locally). Please build an app experience, not a web app.
+- A short technical write‑up (this page / README)
+- A Loom walkthrough video (5–10 min) explaining your approach
+- An email summary (short and clear): what you built, what you didn’t, key trade-offs, and next steps
+- **Deadline:** 7 days after receiving the case study
+
+Send everything to: **hello@eatbetter.app**
+
+## Focus (most important): Meal Logging Accuracy (AI)
+
+Build a *better-than-EatBetter* meal logging experience, especially around **AI accuracy**.
+
+You can start from any scope you can finish. If time is limited, show strong **problem analysis**, **solution analysis**, and **future improvements**.
+
+### Problem to solve
+
+Main challenge: convert messy input into **correct canonical foods + portions + nutrition** with high confidence, and make the system robust to ambiguity.
+
+### Core deliverable (MVP)
+
+Implement an end-to-end flow
+
+### AI/LLM work (choose one path)
+
+Pick **one** and go deep:
+
+- Prompt/LLM flow design for food recognition + normalization
+- Hybrid approach (rules + retrieval + LLM)
+- Fine-tuning plan (what data, labels, evals, risks) — implementation optional
+
+We care most about:
+
+- How you evaluate accuracy (metrics, test set, error taxonomy)
+- How you reduce hallucinations / wrong matches
+- How you iterate quickly and safely
+
+## Evaluation criteria
+
+- **Accuracy mindset:** measurement, failure modes, confidence, human-in-the-loop
+- **Architecture:** clear boundaries, maintainability
+- **Reliability:** idempotency, retries, error handling
+- **Observability:** logging/metrics/traces (simple is fine)
+- **Communication:** README clarity + trade-offs
+
+## Questions we’ll ask
+
+- Biggest trade-off you made, and why?
+- How would you improve accuracy next (top 3)?
+- What breaks at scale?
+- Where are the biggest security/privacy risks?
+
+## Allowed resources
+
+Anything is allowed (including AI tools). Just be explicit about what you used and why.

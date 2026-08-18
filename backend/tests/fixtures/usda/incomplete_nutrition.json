@@ -1,0 +1,10 @@
+{
+  "fdcId": 3001,
+  "description": "Incomplete nutrition fixture",
+  "dataType": "Survey (FNDDS)",
+  "foodNutrients": [
+    {"nutrient": {"id": 1008, "unitName": "KCAL"}, "amount": 80},
+    {"nutrient": {"id": 1004, "unitName": "G"}, "amount": 1},
+    {"nutrient": {"id": 1005, "unitName": "G"}, "amount": 10}
+  ]
+}
