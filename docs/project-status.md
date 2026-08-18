@@ -60,7 +60,8 @@ lexical recognition result was precision 0.225 (71 predictions), recall 0.208 (7
 0.216. Completed one-to-one human semantic adjudication produced precision 0.845, recall 0.779, and
 F1 0.811 (60 true positives, 11 false positives, 17 misses), with zero vision infrastructure
 failures. The frozen holdout run completed 10/10 cases with strict lexical precision 0.382, recall
-0.361, and F1 0.371; semantic adjudication of 21 non-exact predictions is pending. It does not measure
+0.361, and F1 0.371. Completed one-to-one adjudication produced semantic precision 0.853, recall
+0.806, and F1 0.829 (29 true positives, 5 false positives, 7 misses). It does not measure
 portion, nutrition, hidden ingredients, USDA grounding, canonical selection, preparation, or
 owned-product captures. Aggregate results are in `evals/reports/snapme_recognition_development.json`
 and `evals/reports/snapme_recognition_holdout.json`.
@@ -78,5 +79,5 @@ These inputs must remain local and must never be committed:
 After private inputs exist, follow `evals/README.md` and create a new split lock. Do not tune the
 already-inspected public holdout or present it as product validation.
 
-For submission, the owner must also record the Loom walkthrough, replace the placeholder signature in
-`docs/EMAIL_SUMMARY.md`, and decide where the app/API will be demonstrated.
+For submission, the owner must record the Loom walkthrough, paste its URL into
+`docs/EMAIL_SUMMARY.md`, and perform the final app/API demonstration on their phone or emulator.

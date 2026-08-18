@@ -40,7 +40,7 @@ rejected. This is secondary rig-captured evidence, not a product-specific smartp
 | OpenAI vision and constrained selector adapters | Implemented; live execution requires a private key |
 | USDA FoodData Central adapter | Implemented; live execution requires a private key |
 | PostgreSQL/Supabase schema and RLS | Defined in migrations; runtime persistence adapter is deferred |
-| Accuracy benchmark | 12 Nutrition5k dishes plus 30 human-reviewed licensed SNAPMe development photos; no phone-photo holdout result |
+| Accuracy benchmark | 12 Nutrition5k dishes plus 30 SNAPMe development and 10 participant-disjoint holdout phone photos |
 | Production authentication/deployment | Not implemented |
 
 See [project status and owner inputs](docs/project-status.md) for the exact boundary between working,
@@ -210,12 +210,21 @@ still count as errors unless independently approved as aliases. A completed one-
 adjudication counted 60/71 predictions correct against 77 labels: precision 0.845, recall 0.779, and
 F1 0.811, with 11 false positives and 17 misses. The frozen 10-photo participant-disjoint holdout
 then completed without infrastructure failures. Its strict lexical precision was 0.382 (13/34),
-recall 0.361 (13/36), and F1 0.371; 21 non-exact predictions still require independent one-to-one
-semantic adjudication. No portion, hidden-ingredient, nutrition, USDA, canonicalization,
+recall 0.361 (13/36), and F1 0.371. Completed one-to-one adjudication of all 21 non-exact predictions
+produced semantic precision 0.853, recall 0.806, and F1 0.829 (29 true positives, 5 false positives,
+7 misses). No portion, hidden-ingredient, nutrition, USDA, canonicalization,
 preparation, or owned-product claim is supported by SNAPMe.
 
 Raw benchmark directories and private meal photos are ignored by Git. Only deliberately reviewed,
 aggregate, non-sensitive reports should ever be committed to this public repository.
+
+## AI-tool disclosure
+
+OpenAI Codex was used as an implementation and analysis assistant for repository scaffolding, code,
+tests, documentation, research workflow, and evaluation tooling. Human review remained authoritative
+for visible-food labels, uncertainty exclusions, semantic adjudication, scope decisions, and final
+submission claims. Generated work was validated through deterministic tests, frozen evaluation
+configuration, manual review, and explicit evidence boundaries.
 
 ## Public repository safety
 

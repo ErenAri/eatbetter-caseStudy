@@ -138,9 +138,9 @@ completion: every meal required review and no complete nutrition total was avail
 A separate private intake used the USDA SNAPMe archive under CC BY-SA 4.0. One before-photo per
 participant was selected deterministically: 30 development cases and 10 participant-disjoint holdout
 cases. A provisional visual pass deliberately removed diary-only details such as cooking oil, sugar,
-milk fat percentage, brands, and hidden recipe ingredients. An independent human then accepted all 30
-development decisions and their uncertainty exclusions. The holdout photos were not visually reviewed
-and were not run.
+milk fat percentage, brands, and hidden recipe ingredients. An independent human accepted or corrected
+the visible labels and uncertainty exclusions before each split was run. The recognition configuration
+was frozen before holdout visual review and execution, and no post-holdout tuning was performed.
 
 The final runner stopped after vision recognition, preventing ineligible USDA or canonicalization
 failures from erasing recognition results. All 30 development cases completed with 77 visible labels.
@@ -168,8 +168,10 @@ The development set was not used for a new prompt iteration. The configuration w
 independently reviewed visible labels and produced 34 predictions across 10/10 completed cases with
 no infrastructure failures. Strict lexical scoring gave 13 true positives, 21 false positives, and
 23 misses: precision 0.382, recall 0.361, and F1 0.371. Vision latency was 10.824 s p50 and 16.175 s
-p95. Twenty-one non-exact predictions require independent one-to-one semantic adjudication, so no
-semantic holdout score is reported yet.
+p95. Completed one-to-one adjudication of all 21 non-exact predictions accepted 16 semantic matches,
+rejected four, and marked one too broad; no `UNSURE` judgments remained. With the 13 automatic exact
+matches, the final semantic result was 29 true positives, 5 false positives, and 7 misses—precision
+0.853, recall 0.806, and F1 0.829.
 
 SNAPMe amounts and nutrients are ASA24 dietary-record outputs rather than weighed truth, so portion,
 hidden-ingredient, nutrition, USDA retrieval, canonical selection, and preparation metrics remain
@@ -179,14 +181,14 @@ unmeasured. These are licensed external phone photos, not owned product captures
 
 1. Improve and diagnose USDA retrieval: Recall@5 was 0.333 on three verified holdout matches and
    retrieval misses were the largest next downstream development failure.
-2. Complete the frozen SNAPMe holdout semantic adjudication, then diagnose multi-component misses
-   without tuning or relabeling against the holdout.
+2. Diagnose multi-component recognition errors on new development data; do not tune or relabel against
+   the now-inspected SNAPMe holdout.
 3. Make clarification options resolvable: 0/5 holdout questions could be answered from ground truth,
    so oracle assistance could not complete a meal.
 
 The evidence is limited by 12 rig-captured dishes, only three measured holdout meals, one 30-case
-licensed phone-photo development run, one 10-case licensed phone-photo recognition holdout, pending
-semantic adjudication for that phone-photo holdout, strict lexical recognition matching,
+licensed phone-photo development run, one 10-case licensed phone-photo recognition holdout, completed
+single-reviewer semantic adjudication, strict lexical recognition matching,
 incomplete canonical denominators, external model nondeterminism, USDA-centered ground truth, and no
 product-specific owned-capture data. It does not establish clinical accuracy,
 production-level generalization, or superiority to another product.

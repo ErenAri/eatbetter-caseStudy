@@ -2,8 +2,9 @@
 
 The repository contains a strict real-world manifest, real-provider benchmark runner, stage graders,
 immutable report writer, rank-1 baseline, automatic hybrid snapshot, and evaluation-only oracle-HITL
-mode. No evaluation result is claimed because no labeled private image dataset or live credentials are
-available. `evals/reports/p8_unmeasured.json` records that blocker explicitly.
+mode. Measured secondary evidence now includes a 12-dish Nutrition5k subset and a recognition-only
+SNAPMe phone-photo benchmark. The intended owned/consented product-specific dataset is still absent;
+`evals/reports/p8_unmeasured.json` preserves that primary-dataset boundary.
 
 ## Dataset unit
 
@@ -55,7 +56,10 @@ Before looking at holdout output, write `evals/reports/final_configuration.json`
 prompt, retrieval, or threshold drift. Do not tune after inspecting holdout. A genuine bug rerun must be
 documented.
 
-Current development iterations: not run. Final configuration: not frozen. Final holdout: not run.
+Nutrition5k used one documented development iteration followed by a frozen three-dish holdout. SNAPMe
+used a frozen recognition configuration for a participant-disjoint 10-photo holdout, with no
+post-holdout tuning. See `docs/measured-evaluation.md` for results and denominators. The separate
+owned/consented product-specific benchmark remains unrun.
 
 ## Retrieval evaluation
 
@@ -71,9 +75,10 @@ case collection ready for consented images and separately reviewed ground truth.
 support explicit aliases, food precision/recall/F1, hallucinated and missed counts, and preparation
 accuracy only where labels exist. Hidden-ingredient warnings are not counted as detected foods.
 
-The checked-in recognition report contains null metrics because there are currently zero real cases.
-Future runs preserve model, prompt version, reasoning effort, image detail, latency, token usage, and
-per-case errors. Portion MAE must exclude cases without measured portions.
+The generic consented-product manifest remains empty, but the licensed SNAPMe recognition-only intake
+provides 30 development and 10 participant-disjoint holdout phone photos. Its public aggregate reports
+preserve model, prompt version, reasoning effort, image detail, latency, token usage, and explicit
+strict-versus-semantic grading. Portion MAE remains ineligible because SNAPMe portions were not weighed.
 
 ## Uncertainty and clarification evaluation
 

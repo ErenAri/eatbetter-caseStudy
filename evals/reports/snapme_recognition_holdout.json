@@ -1,5 +1,5 @@
 {
-  "status": "Measured licensed phone-photo holdout benchmark; semantic adjudication pending",
+  "status": "Measured licensed phone-photo holdout benchmark with completed semantic adjudication",
   "measured_at_utc": "2026-08-18",
   "dataset": {
     "name": "SNAPMe",
@@ -34,10 +34,20 @@
     "hallucinated_food_count": 21
   },
   "semantic_adjudication": {
-    "status": "pending independent human review",
+    "status": "complete",
     "automatic_exact_matches": 13,
-    "non_exact_predictions_requiring_review": 21,
-    "policy": "One-to-one human judgment against the independently reviewed visible labels. Only MATCH counts as correct; a visible label cannot be reused within a case."
+    "human_reviewed_non_exact_predictions": 21,
+    "human_semantic_matches": 16,
+    "human_no_matches": 4,
+    "human_too_broad": 1,
+    "human_unsure": 0,
+    "semantic_true_positives": 29,
+    "semantic_false_positives": 5,
+    "semantic_false_negatives": 7,
+    "semantic_precision": 0.8529411764705882,
+    "semantic_recall": 0.8055555555555556,
+    "semantic_f1": 0.8285714285714286,
+    "policy": "One-to-one human judgment against independently reviewed visible labels. Only MATCH counts as correct; a visible label cannot be reused within a case."
   },
   "latency_ms": {
     "vision_p50": 10824,
@@ -56,5 +66,5 @@
     "canonical selection accuracy",
     "preparation accuracy"
   ],
-  "interpretation": "The strict lexical F1 of 0.371 is a reproducible lower bound. Twenty-one non-exact predictions still require independent one-to-one semantic adjudication before a semantic holdout score can be reported."
+  "interpretation": "Strict lexical F1 was 0.371. Completed one-to-one adjudication of all 21 non-exact predictions produced semantic precision 0.853, recall 0.806, and F1 0.829. This remains recognition-only evidence on 10 licensed external phone photos, not end-to-end nutrition or product-specific validation."
 }
