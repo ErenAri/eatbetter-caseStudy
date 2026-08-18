@@ -158,7 +158,12 @@ Strict normalized exact-label-or-approved-alias grading produced:
 
 This result is a strict lexical lower bound, not a semantic recognition score: predictions such as
 `pistachio kernels` for `pistachios` are counted wrong unless the alias is independently approved in
-advance. The development set was not used for a new prompt iteration. SNAPMe amounts and nutrients are
+advance. A subsequent one-to-one human adjudication reviewed all 55 non-exact predictions: 44 were
+semantic matches and 11 were rejected. Combined with 16 automatic exact matches, the adjudicated
+result was 60 true positives, 11 false positives, and 17 misses—precision 0.845, recall 0.779, and F1
+0.811. No `TOO_BROAD` or unresolved judgments remained.
+
+The development set was not used for a new prompt iteration. SNAPMe amounts and nutrients are
 ASA24 dietary-record outputs rather than weighed truth, so portion, hidden-ingredient, nutrition,
 USDA retrieval, canonical selection, and preparation metrics remain unmeasured. These are licensed
 external phone photos, not owned product captures, and there is no phone-photo holdout claim.

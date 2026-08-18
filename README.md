@@ -206,7 +206,9 @@ A separate recognition-only run used 30 licensed SNAPMe phone photos and 77 visi
 an independent human reviewer. All 30 development cases completed. Under strict exact normalized
 label matching, precision was 0.225 (n=71 predictions), recall 0.208 (n=77 labels), and F1 0.216;
 there were 55 hallucinated and 61 missed labels. This is a lexical lower bound: reasonable synonyms
-still count as errors unless independently approved as aliases. The 10 participant-disjoint holdout
+still count as errors unless independently approved as aliases. A completed one-to-one human semantic
+adjudication counted 60/71 predictions correct against 77 labels: precision 0.845, recall 0.779, and
+F1 0.811, with 11 false positives and 17 misses. The 10 participant-disjoint holdout
 photos remain visually unreviewed and were not run. No portion, hidden-ingredient, nutrition, USDA,
 canonicalization, preparation, product-validation, or holdout claim is supported by SNAPMe.
 

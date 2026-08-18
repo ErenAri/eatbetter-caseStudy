@@ -57,7 +57,9 @@ is claimed.
 The private licensed SNAPMe subset contains 30 human-reviewed development phone photos with 77 visible
 labels plus 10 visually unreviewed participant-disjoint holdout photos. The development-only strict
 lexical recognition result was precision 0.225 (71 predictions), recall 0.208 (77 labels), and F1
-0.216, with zero vision infrastructure failures. It does not measure portion, nutrition, hidden
+0.216. Completed one-to-one human semantic adjudication produced precision 0.845, recall 0.779, and
+F1 0.811 (60 true positives, 11 false positives, 17 misses), with zero vision infrastructure
+failures. It does not measure portion, nutrition, hidden
 ingredients, USDA grounding, canonical selection, preparation, holdout performance, or owned-product
 captures. Aggregate results are in `evals/reports/snapme_recognition_development.json`.
 

@@ -29,6 +29,20 @@
     "missed_food_count": 61,
     "hallucinated_food_count": 55
   },
+  "semantic_adjudication": {
+    "status": "complete",
+    "policy": "One-to-one human judgment of non-exact predictions against independently approved visible labels; MATCH counts as correct, NO_MATCH counts as incorrect, and preparation/portion/hidden details remain excluded.",
+    "automatic_exact_matches": 16,
+    "human_reviewed_non_exact_predictions": 55,
+    "human_semantic_matches": 44,
+    "human_no_matches": 11,
+    "semantic_true_positives": 60,
+    "semantic_false_positives": 11,
+    "semantic_false_negatives": 17,
+    "semantic_precision": 0.8450704225352113,
+    "semantic_recall": 0.7792207792207793,
+    "semantic_f1": 0.8108108108108109
+  },
   "latency_ms": {
     "vision_p50": 5723,
     "vision_p95": 9792,
@@ -46,5 +60,5 @@
     "canonical selection accuracy",
     "preparation accuracy"
   ],
-  "interpretation": "This is a strict lexical lower-bound recognition result. Semantically related wording is still counted wrong unless independently approved as an alias. No development tuning or holdout claim follows from this run."
+  "interpretation": "Strict lexical F1 is a reproducible lower bound; completed one-to-one human semantic adjudication raises development F1 to 0.811. This is still development-only evidence. No prompt tuning or holdout claim follows from this run."
 }
