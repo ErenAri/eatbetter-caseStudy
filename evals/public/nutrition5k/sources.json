@@ -1,0 +1,81 @@
+{
+  "dataset": "Nutrition5k",
+  "official_repository": "https://github.com/google-research-datasets/Nutrition5k",
+  "license": "CC BY 4.0",
+  "license_url": "https://creativecommons.org/licenses/by/4.0/",
+  "selection_policy": "Fixed before model execution; 9 official RGB train IDs and 3 official RGB test IDs.",
+  "files": [
+    {
+      "dish_id": "dish_1556572657",
+      "split": "development",
+      "url": "https://storage.googleapis.com/nutrition5k_dataset/nutrition5k_dataset/imagery/realsense_overhead/dish_1556572657/rgb.png",
+      "sha256": "e5707ef717c93d9556e8f3ce9e3181e9cce863369bf86c4731e1a32d5b337e51"
+    },
+    {
+      "dish_id": "dish_1557853229",
+      "split": "development",
+      "url": "https://storage.googleapis.com/nutrition5k_dataset/nutrition5k_dataset/imagery/realsense_overhead/dish_1557853229/rgb.png",
+      "sha256": "a524aff2fe48ddf80c366b01f26ebf5111a1c1c823e41e052746c870935e88df"
+    },
+    {
+      "dish_id": "dish_1558116001",
+      "split": "development",
+      "url": "https://storage.googleapis.com/nutrition5k_dataset/nutrition5k_dataset/imagery/realsense_overhead/dish_1558116001/rgb.png",
+      "sha256": "b45e4ac7b7f9d58b4676420c9211c3f9273e76d8d1f89e6b3365f4838a6bdfd9"
+    },
+    {
+      "dish_id": "dish_1559590202",
+      "split": "development",
+      "url": "https://storage.googleapis.com/nutrition5k_dataset/nutrition5k_dataset/imagery/realsense_overhead/dish_1559590202/rgb.png",
+      "sha256": "7ce23b981baffbe7f67cda8cfcb4b7bf1f25600bb6f60b822c534dc8aa3e5aa0"
+    },
+    {
+      "dish_id": "dish_1565637123",
+      "split": "development",
+      "url": "https://storage.googleapis.com/nutrition5k_dataset/nutrition5k_dataset/imagery/realsense_overhead/dish_1565637123/rgb.png",
+      "sha256": "3421716cab382e5296fb8af395426e954b23ee8dfd9bec78a5088d2b793c207a"
+    },
+    {
+      "dish_id": "dish_1559235815",
+      "split": "development",
+      "url": "https://storage.googleapis.com/nutrition5k_dataset/nutrition5k_dataset/imagery/realsense_overhead/dish_1559235815/rgb.png",
+      "sha256": "cd0ffcbeb83b6809138ac0377dc4b097408190b06e3f554e85f5e12ebab3b809"
+    },
+    {
+      "dish_id": "dish_1562173200",
+      "split": "development",
+      "url": "https://storage.googleapis.com/nutrition5k_dataset/nutrition5k_dataset/imagery/realsense_overhead/dish_1562173200/rgb.png",
+      "sha256": "61c1a6a27b2f39c1a95f2e5ed930d876ac6be8d045611d666297edd67eec7eca"
+    },
+    {
+      "dish_id": "dish_1559332418",
+      "split": "development",
+      "url": "https://storage.googleapis.com/nutrition5k_dataset/nutrition5k_dataset/imagery/realsense_overhead/dish_1559332418/rgb.png",
+      "sha256": "f9cc59d6f1a673361ad7a2f0036cae0ab88b157b2360e5805bf54a2b8078c46b"
+    },
+    {
+      "dish_id": "dish_1565370004",
+      "split": "development",
+      "url": "https://storage.googleapis.com/nutrition5k_dataset/nutrition5k_dataset/imagery/realsense_overhead/dish_1565370004/rgb.png",
+      "sha256": "b2c76942a0fa7bfc54d8d287340d54f0363d433925498fa0d1e187e15aabd357"
+    },
+    {
+      "dish_id": "dish_1565811061",
+      "split": "holdout",
+      "url": "https://storage.googleapis.com/nutrition5k_dataset/nutrition5k_dataset/imagery/realsense_overhead/dish_1565811061/rgb.png",
+      "sha256": "c351a10db228441ab065694afd85176cee45f251c3bb66330de7b1eb865bb2b4"
+    },
+    {
+      "dish_id": "dish_1563478751",
+      "split": "holdout",
+      "url": "https://storage.googleapis.com/nutrition5k_dataset/nutrition5k_dataset/imagery/realsense_overhead/dish_1563478751/rgb.png",
+      "sha256": "0366e274bbd7c135a371b27c36a83f0819b472f15680fb3daa63867ba3608138"
+    },
+    {
+      "dish_id": "dish_1562085672",
+      "split": "holdout",
+      "url": "https://storage.googleapis.com/nutrition5k_dataset/nutrition5k_dataset/imagery/realsense_overhead/dish_1562085672/rgb.png",
+      "sha256": "bbadb077d9e4f75c63ccd35677e89aa2db3a011000bfeddca833d065abe24a93"
+    }
+  ]
+}

@@ -18,7 +18,7 @@ def auth(user_id: UUID) -> dict[str, str]:
 
 @pytest.fixture
 def client():
-    with TestClient(create_app(Settings(app_env=AppEnvironment.TEST))) as value:
+    with TestClient(create_app(Settings(_env_file=None, app_env=AppEnvironment.TEST))) as value:
         yield value
 
 

@@ -1,51 +1,38 @@
 {
-  "status": "Not measured yet",
-  "baseline": "image -> LLM -> foods + estimated portions/nutrition",
-  "hybrid": "vision observations -> canonical retrieval -> constrained selection -> deterministic nutrition",
-  "metrics": {
-    "food_f1": {
-      "baseline": "Not measured yet",
-      "hybrid": "Not measured yet"
+  "status": "Measured public secondary benchmark",
+  "dataset": {
+    "version": "nutrition5k-public-secondary-v1",
+    "development_cases": 9,
+    "holdout_cases": 3,
+    "dataset_sha256": "99f5fd54d7d3aac353a839fb4e1499d547caa18c0f7e9843cf32b26b26539a68",
+    "limitation": "Nutrition5k custom-rig images; not a product-specific phone-photo benchmark"
+  },
+  "development_iteration": {
+    "single_change": "meal_recognition_v1 to meal_recognition_v2",
+    "food_f1_before": {"value": 0.2857142857142857, "label_count": 25},
+    "food_f1_after": {"value": 0.6153846153846153, "label_count": 25}
+  },
+  "holdout": {
+    "completed_cases": 3,
+    "infrastructure_failures": 0,
+    "food_f1": {"value": 0.35294117647058826, "label_count": 9},
+    "retrieval_recall_at_5": {"value": 0.3333333333333333, "verified_recognized_count": 3},
+    "baseline": {
+      "calorie_mae_kcal": {"value": 20.177040500000004, "meal_count": 2},
+      "unsafe_auto_accept_rate": {"value": 1.0, "accepted_meal_count": 2},
+      "auto_accept_coverage": {"value": 0.6666666666666666, "meal_count": 3}
     },
-    "canonical_accuracy": {
-      "baseline": "Not measured yet",
-      "hybrid": "Not measured yet"
+    "hybrid_auto": {
+      "calorie_mae_kcal": {"value": null, "meal_count": 0},
+      "unsafe_auto_accept_rate": {"value": null, "accepted_meal_count": 0},
+      "auto_accept_coverage": {"value": 0.0, "meal_count": 3},
+      "clarification_rate": {"value": 1.0, "meal_count": 3},
+      "blocking_questions_per_meal": {"value": 1.6666666666666667, "meal_count": 3}
     },
-    "portion_mae_g": {
-      "baseline": "Not measured yet",
-      "hybrid": "Not measured yet"
+    "oracle_assisted": {
+      "result": "same as automatic",
+      "reason": "zero of five generated questions had a valid ground-truth answer among offered options"
     },
-    "calorie_mae_kcal": {
-      "baseline": "Not measured yet",
-      "hybrid": "Not measured yet"
-    },
-    "calorie_mape": {
-      "baseline": "Not measured yet",
-      "hybrid": "Not measured yet"
-    },
-    "macro_mae_g": {
-      "baseline": "Not measured yet",
-      "hybrid": "Not measured yet"
-    },
-    "meals_within_20_percent": {
-      "baseline": "Not measured yet",
-      "hybrid": "Not measured yet"
-    },
-    "high_confidence_wrong_rate": {
-      "baseline": "Not measured yet",
-      "hybrid": "Not measured yet"
-    },
-    "clarification_rate": {
-      "baseline": "Not measured yet",
-      "hybrid": "Not measured yet"
-    },
-    "user_correction_rate": {
-      "baseline": "Not measured yet",
-      "hybrid": "Not measured yet"
-    },
-    "latency_ms": {
-      "baseline": "Not measured yet",
-      "hybrid": "Not measured yet"
-    }
+    "latency_ms": {"p50": 13688.0, "p95": 17066.0, "meal_count": 3}
   }
 }

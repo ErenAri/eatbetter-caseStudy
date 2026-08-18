@@ -8,9 +8,10 @@ authoritative.
 
 This repository is a time-boxed full-stack case study, not a production nutrition or medical product.
 It demonstrates the architecture, native workflow, safety policy, provider boundaries, and evaluation
-harness. It does not yet contain real-world accuracy evidence.
+harness. It includes a small measured public secondary benchmark, but not product-specific phone-photo
+accuracy evidence.
 
-## Current state — P8 harness complete; real benchmark blocked
+## Current state — P8.5 measured evidence complete on a public secondary subset
 
 The normal analysis endpoint now runs independently audited P4 recognition, P3 retrieval, P5
 SELECT-or-ABSTAIN matching, USDA detail verification, and deterministic P6 uncertainty review before
@@ -28,9 +29,9 @@ detail-grounded; ABSTAIN preserves candidates and leaves the food unresolved.
 
 P8 adds a strict private-dataset contract, real-provider-only benchmark runner, rank-1 baseline,
 automatic hybrid snapshot, evaluation-only oracle clarification, stage metrics, immutable run
-artifacts, error taxonomy, and holdout configuration lock. No real meal dataset or vendor credentials
-exist in this workspace, so no accuracy number is claimed and demo fixtures are rejected by the
-runner.
+artifacts, error taxonomy, and holdout configuration lock. P8.5 ran those components on a licensed
+12-dish Nutrition5k subset with nine development and three untouched holdout dishes. Demo fixtures were
+rejected. This is secondary rig-captured evidence, not a product-specific smartphone benchmark.
 
 | Area | Public repository status |
 |---|---|
@@ -39,7 +40,7 @@ runner.
 | OpenAI vision and constrained selector adapters | Implemented; live execution requires a private key |
 | USDA FoodData Central adapter | Implemented; live execution requires a private key |
 | PostgreSQL/Supabase schema and RLS | Defined in migrations; runtime persistence adapter is deferred |
-| Real-world accuracy benchmark | Harness implemented; 0 real cases and no measured result |
+| Accuracy benchmark | Measured on 12 public Nutrition5k dishes; private phone-photo dataset still 0 cases |
 | Production authentication/deployment | Not implemented |
 
 See [project status and owner inputs](docs/project-status.md) for the exact boundary between working,
@@ -66,7 +67,7 @@ See [architecture](docs/architecture.md), [project status](docs/project-status.m
 [canonicalization](docs/canonicalization.md), [vision recognition](docs/vision-recognition.md),
 [USDA grounding](docs/usda-grounding.md), [API contract](docs/api-contract.md),
 [uncertainty and clarification](docs/uncertainty-and-clarification.md),
-[mobile UX](docs/mobile-ux.md),
+[mobile UX](docs/mobile-ux.md), [measured evaluation](docs/measured-evaluation.md),
 [evaluation protocol](docs/evaluation.md),
 [database workflow](docs/database.md), and [ADR 0001](docs/decisions/0001-modular-monolith.md).
 
@@ -180,24 +181,26 @@ npx expo-doctor
   path. Original filenames are never trusted as storage keys.
 - Daily summary converts `logged_at` using the explicitly requested IANA timezone; UTC is the default.
 
-## Accuracy Evaluation
+## Accuracy evaluation
 
-Dataset status: 0 real cases available in this workspace (0 development, 0 holdout, 0 measured
-portions, 0 manually verified FDC IDs). The target remains 30–40 consented phone photos with a roughly
-75/25 development/case-study-holdout split. Private images and labels belong under Git-ignored
-`evals/private/`.
+The measured dataset is a fixed, licensed 12-dish Nutrition5k secondary subset: nine development meals
+and a three-meal untouched holdout. All 12 have published measured portions; 30/34 visible item labels
+have independently reviewed USDA mappings and four are explicitly `UNMAPPABLE`. Nutrition5k uses a
+custom scanning rig, and the private product-specific phone-photo dataset remains at 0 cases.
 
-| Configuration | Definition | Result |
-|---|---|---|
-| `BASELINE_TOP1` | Shared P4/P3 evidence; rank 1; portion midpoint; no clarification | Not measured |
-| `HYBRID_AUTO` | P4→P3→P5→P6 before answers | Not measured |
-| `HYBRID_ORACLE_HITL` | Evaluation-only correct answers where generated options permit | Not measured |
+On the three-meal case-study holdout, food F1 was 0.353 (9 labeled items) and USDA Recall@5 was 0.333
+(3 verified recognized items). Rank-1 produced nutrition totals for two meals, with 20.177 kcal MAE,
+but both accepted meals were materially wrong because required verified foods were missing or wrong.
+The hybrid auto-accepted 0/3 meals, asked 1.667 blocking questions per meal, and produced no complete
+nutrition totals. None of five generated questions was validly oracle-resolvable, so oracle-assisted
+results equaled automatic results.
 
-Development and holdout results are not measured because `OPENAI_API_KEY`, `USDA_API_KEY`, and a real
-private manifest are unavailable. This is an execution blocker, not a zero score. See
-[`evals/README.md`](evals/README.md) for collection, independent USDA verification, privacy, commands,
-metric denominators, immutable artifacts, and the holdout lock. No comparison with EatBetter or any
-clinical/production accuracy claim is made.
+The single development iteration, `meal_recognition_v2`, raised development food F1 from 0.286 to
+0.615 while holding retrieval, selection, thresholds, and labels fixed. It did not produce consistent
+end-to-end nutrition improvement. See [measured evaluation](docs/measured-evaluation.md) for all
+denominators, before/after results, error attribution, threshold simulation, latency, and limitations;
+see [`evals/README.md`](evals/README.md) for the reproducible protocol. No clinical, production-level,
+or competitor-comparison claim is made.
 
 Raw benchmark directories and private meal photos are ignored by Git. Only deliberately reviewed,
 aggregate, non-sensitive reports should ever be committed to this public repository.
@@ -214,6 +217,6 @@ aggregate, non-sensitive reports should ever be committed to this public reposit
 ## Deferred
 
 Production Supabase/JWT adapters, a standalone manual food-search endpoint, persistent navigation state
-across process death, OCR, barcode recognition, calibrated confidence research, and real-world data
-collection/live benchmark execution remain incomplete. Recognition, retrieval, selector, portion,
+across process death, OCR, barcode recognition, calibrated confidence research, and product-specific
+phone-photo collection remain incomplete. Recognition, retrieval, selector, portion,
 nutrition, review, clarification, and infrastructure failures remain independently attributable.

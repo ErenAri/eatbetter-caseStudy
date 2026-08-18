@@ -10,10 +10,12 @@ ownership checks, correction history, and high-value tests.
 
 I intentionally did not add coaching, social, or tracking features. Deterministic fixtures keep local
 development reproducible, while OpenAI vision/selection and USDA retrieval adapters are implemented
-behind the same interfaces. They have not been run as an accuracy benchmark because this repository
-contains neither private live credentials nor a consented labeled meal dataset. Supabase runtime
-persistence and production JWT verification remain deferred. I did not fabricate accuracy metrics—the
-baseline/hybrid report remains “Not measured yet” until a real development/holdout dataset is run.
+behind the same interfaces. They were run on a licensed 12-dish Nutrition5k secondary subset with a
+frozen three-dish holdout. Development food F1 improved from 0.286 to 0.615 after one isolated
+recognition-prompt change. On the tiny holdout, food F1 was 0.353 and the hybrid safely auto-accepted
+no meals, but required review for all three and produced no complete nutrition totals. This is
+rig-captured case-study evidence—not product or clinical validation. Supabase runtime persistence,
+production JWT verification, and an owned/consented phone-photo benchmark remain deferred.
 
 The main trade-off is selective friction: high-impact uncertainty asks a targeted question instead of
 silently saving a confident guess.

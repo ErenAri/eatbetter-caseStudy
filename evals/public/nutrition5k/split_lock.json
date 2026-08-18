@@ -1,0 +1,39 @@
+{
+  "case_count": 12,
+  "case_ids": [
+    "nutrition5k_dish_1556572657",
+    "nutrition5k_dish_1557853229",
+    "nutrition5k_dish_1558116001",
+    "nutrition5k_dish_1559590202",
+    "nutrition5k_dish_1565637123",
+    "nutrition5k_dish_1559235815",
+    "nutrition5k_dish_1562173200",
+    "nutrition5k_dish_1559332418",
+    "nutrition5k_dish_1565370004",
+    "nutrition5k_dish_1565811061",
+    "nutrition5k_dish_1563478751",
+    "nutrition5k_dish_1562085672"
+  ],
+  "dataset_sha256": "99f5fd54d7d3aac353a839fb4e1499d547caa18c0f7e9843cf32b26b26539a68",
+  "dataset_version": "nutrition5k-public-secondary-v1",
+  "development_count": 9,
+  "development_ids": [
+    "nutrition5k_dish_1556572657",
+    "nutrition5k_dish_1557853229",
+    "nutrition5k_dish_1558116001",
+    "nutrition5k_dish_1559590202",
+    "nutrition5k_dish_1565637123",
+    "nutrition5k_dish_1559235815",
+    "nutrition5k_dish_1562173200",
+    "nutrition5k_dish_1559332418",
+    "nutrition5k_dish_1565370004"
+  ],
+  "holdout_count": 3,
+  "holdout_ids": [
+    "nutrition5k_dish_1565811061",
+    "nutrition5k_dish_1563478751",
+    "nutrition5k_dish_1562085672"
+  ],
+  "locked_at_utc": "2026-08-18T13:32:06.202270+00:00",
+  "schema_version": 1
+}

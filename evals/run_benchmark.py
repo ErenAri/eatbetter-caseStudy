@@ -34,7 +34,9 @@ def main() -> int:
     selected = [case for case in manifest.cases if str(case.split) == args.split]
     if not selected:
         raise SystemExit(f"manifest has no {args.split} cases")
-    settings = Settings.from_env()
+    # The documented command runs from the repository root while server secrets live in backend/.env.
+    # Process environment values still override this local file through pydantic-settings.
+    settings = Settings(_env_file=ROOT / "backend" / ".env")
     validate_real_providers(settings)
     snapshots = [snapshot(settings, configuration=name, dataset_version=manifest.dataset_version, split=args.split, seed=args.seed) for name in ConfigurationName]
     if args.split == str(Split.HOLDOUT):

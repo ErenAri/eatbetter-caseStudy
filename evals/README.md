@@ -41,18 +41,14 @@ IDs, not image bytes. The checked-in example is synthetic schema documentation a
 Real runs reject demo or unconfigured providers. From the repository root:
 
 ```powershell
-$env:VISION_PROVIDER = "openai"
-$env:CANONICALIZATION_PROVIDER = "openai"
-$env:NUTRITION_PROVIDER = "usda"
-$env:OPENAI_API_KEY = "..."
-$env:USDA_API_KEY = "..."
 .\backend\.venv\Scripts\python.exe -m evals.run_benchmark `
   --manifest evals/private/manifest.json `
   --split development `
   --output evals/reports/2026-08-18_dev_v1
 ```
 
-Each new output directory contains `summary.json`, `cases.jsonl`, `errors.json`, `metrics.json`,
+The local runner reads secrets from ignored `backend/.env`; explicitly exported process variables
+override that file. Each new output directory contains `summary.json`, `cases.jsonl`, `errors.json`, `metrics.json`,
 `configuration.json`, and `summary.md`; existing outputs are never overwritten. After 2–3 isolated
 development iterations, create `evals/reports/final_configuration.json` with
 `--write-final-configuration`. A holdout run requires that file via `--frozen-configuration` and
@@ -66,11 +62,16 @@ median interval width. Cost is omitted because no reliable versioned pricing con
 
 ## Current dataset status
 
-No real private manifest is available in this workspace and both required credentials are absent.
-Therefore development iteration, configuration freeze, and final holdout results are not measured.
-Demo fixtures are prohibited from filling that gap.
+The private product dataset remains empty. A fixed public secondary subset is checked in under
+`evals/public/nutrition5k/`: 12 licensed rig-captured dishes, split into nine development and three
+untouched holdout cases. All have published measured portions; 30/34 visible item instances have
+independently reviewed USDA mappings and four are `UNMAPPABLE`. The live benchmark ran with real
+OpenAI and USDA providers, one prompt iteration, a frozen configuration, and no holdout rerun. See
+`docs/measured-evaluation.md` for measured aggregates and limitations. Raw per-case run directories
+and credentials remain ignored.
 
-Known limitations even after collection: small dataset, likely single evaluator, limited cuisines,
+Known limitations: a very small public subset, rig capture rather than ordinary phone photos, a
+three-meal holdout, single evaluator, limited cuisines,
 USDA-centered canonical coverage, single-view portion inference, external-model nondeterminism, and no
 clinical validation. Fine-tuning is not justified before repeated systematic errors are measured and
 prompt/retrieval improvements plateau with enough separated training data.

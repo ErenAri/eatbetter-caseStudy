@@ -63,7 +63,7 @@ def snapshot(settings, *, configuration: ConfigurationName, dataset_version: str
         configuration=configuration,
         vision_provider=settings.vision_provider,
         vision_model=settings.openai_model,
-        vision_prompt_version="meal_recognition_v1",
+        vision_prompt_version="meal_recognition_v2",
         image_detail=settings.openai_image_detail,
         vision_reasoning_effort=settings.openai_reasoning_effort,
         retrieval_provider=settings.nutrition_provider,

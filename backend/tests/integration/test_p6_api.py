@@ -14,7 +14,7 @@ def auth() -> dict[str, str]:
 
 
 def test_portion_answer_is_idempotent_and_conflicting_replay_is_409():
-    with TestClient(create_app(Settings(app_env=AppEnvironment.TEST))) as client:
+    with TestClient(create_app(Settings(_env_file=None, app_env=AppEnvironment.TEST))) as client:
         meal = client.post("/api/v1/dev/fixtures/review-meal", headers=auth()).json()["meal"]
         clarification = meal["clarifications"][0]
         url = f"/api/v1/meals/{meal['id']}/clarifications/{clarification['id']}/answer"
@@ -28,7 +28,7 @@ def test_portion_answer_is_idempotent_and_conflicting_replay_is_409():
 
 
 def test_portion_answer_exposes_resolution_source_and_validates_stored_options():
-    with TestClient(create_app(Settings(app_env=AppEnvironment.TEST))) as client:
+    with TestClient(create_app(Settings(_env_file=None, app_env=AppEnvironment.TEST))) as client:
         meal = client.post("/api/v1/dev/fixtures/review-meal", headers=auth()).json()["meal"]
         clarification = meal["clarifications"][0]
         url = f"/api/v1/meals/{meal['id']}/clarifications/{clarification['id']}/answer"
@@ -44,7 +44,7 @@ def test_portion_answer_exposes_resolution_source_and_validates_stored_options()
 
 
 def test_canonical_ambiguity_demo_grounds_a_stored_candidate_then_requests_portion():
-    with TestClient(create_app(Settings(app_env=AppEnvironment.TEST))) as client:
+    with TestClient(create_app(Settings(_env_file=None, app_env=AppEnvironment.TEST))) as client:
         meal = client.post(
             "/api/v1/dev/fixtures/canonical-review-meal", headers=auth()
         ).json()["meal"]
