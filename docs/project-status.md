@@ -9,7 +9,9 @@ are measured; product-specific owned-capture accuracy is not.
 
 ## Implemented and verified
 
-- Native Expo flow: Today → Capture → Analysis → Review → Confirm → Meal Detail.
+- Native Expo flow: Today → Capture → Analysis → Review → Confirm → Meal Detail. The complete flow
+  was exercised on an Android SDK emulator on 2026-08-18 with an actual image file and the
+  deterministic demo providers; the confirmed 524 kcal meal appeared in Today.
 - FastAPI contract with meal ownership checks, lifecycle transitions, idempotent create semantics,
   stable errors, correlation IDs, and deterministic nutrition arithmetic.
 - Strict multimodal observation schema and bounded OpenAI vision adapter.
@@ -79,5 +81,5 @@ These inputs must remain local and must never be committed:
 After private inputs exist, follow `evals/README.md` and create a new split lock. Do not tune the
 already-inspected public holdout or present it as product validation.
 
-For submission, the owner must record the Loom walkthrough, paste its URL into
-`docs/EMAIL_SUMMARY.md`, and perform the final app/API demonstration on their phone or emulator.
+The final app/API emulator demonstration is complete. For submission, the owner must still record the
+Loom walkthrough and paste its URL into `docs/EMAIL_SUMMARY.md`.

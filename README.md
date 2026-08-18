@@ -35,7 +35,7 @@ rejected. This is secondary rig-captured evidence, not a product-specific smartp
 
 | Area | Public repository status |
 |---|---|
-| Native Expo capture/review flow | Implemented and tested |
+| Native Expo capture/review flow | Implemented; full image upload → analysis → clarification → confirmation flow verified on an Android SDK emulator |
 | FastAPI meal lifecycle | Implemented and tested with in-memory adapters |
 | OpenAI vision and constrained selector adapters | Implemented; live execution requires a private key |
 | USDA FoodData Central adapter | Implemented; live execution requires a private key |

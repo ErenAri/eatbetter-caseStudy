@@ -4,4 +4,5 @@ openai==3.2.0
 pydantic==2.11.7
 pydantic-settings==2.10.1
 python-multipart==0.0.20
+tzdata==2026.3
 uvicorn[standard]==0.35.0

@@ -1,3 +1,5 @@
+import { File } from "expo-file-system";
+
 import { ApiErrorBody, DailySummary, Meal, MealEnvelope, MealList } from "../types/api";
 import { HealthResponse } from "../types/health";
 import { LocalImage } from "../types/meal";
@@ -44,7 +46,7 @@ export async function createMeal(input: { meal_request_id: string; logged_at: st
 
 export async function uploadMealImage(mealId: string, image: LocalImage): Promise<void> {
   const form = new FormData();
-  form.append("image", { uri: image.uri, name: image.fileName, type: image.mimeType } as unknown as Blob);
+  form.append("image", new File(image.uri), image.fileName);
   await request(`/api/v1/meals/${mealId}/image`, { method: "POST", headers: authorization, body: form });
 }
 

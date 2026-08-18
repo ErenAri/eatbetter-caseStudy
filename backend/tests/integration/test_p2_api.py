@@ -162,3 +162,14 @@ def test_openapi_contains_authoritative_versioned_contract(client):
         "/api/v1/daily-summary",
     }
     assert expected.issubset(schema["paths"])
+
+
+def test_daily_summary_accepts_mobile_iana_timezone_on_windows(client):
+    response = client.get(
+        "/api/v1/daily-summary",
+        headers=auth(USER_A),
+        params={"date": "2026-08-18", "timezone": "Europe/Istanbul"},
+    )
+
+    assert response.status_code == 200
+    assert response.json()["timezone"] == "Europe/Istanbul"
