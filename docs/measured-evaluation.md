@@ -163,22 +163,30 @@ semantic matches and 11 were rejected. Combined with 16 automatic exact matches,
 result was 60 true positives, 11 false positives, and 17 misses—precision 0.845, recall 0.779, and F1
 0.811. No `TOO_BROAD` or unresolved judgments remained.
 
-The development set was not used for a new prompt iteration. SNAPMe amounts and nutrients are
-ASA24 dietary-record outputs rather than weighed truth, so portion, hidden-ingredient, nutrition,
-USDA retrieval, canonical selection, and preparation metrics remain unmeasured. These are licensed
-external phone photos, not owned product captures, and there is no phone-photo holdout claim.
+The development set was not used for a new prompt iteration. The configuration was frozen before the
+10 participant-disjoint holdout photos were visually reviewed or run. The holdout contained 36
+independently reviewed visible labels and produced 34 predictions across 10/10 completed cases with
+no infrastructure failures. Strict lexical scoring gave 13 true positives, 21 false positives, and
+23 misses: precision 0.382, recall 0.361, and F1 0.371. Vision latency was 10.824 s p50 and 16.175 s
+p95. Twenty-one non-exact predictions require independent one-to-one semantic adjudication, so no
+semantic holdout score is reported yet.
+
+SNAPMe amounts and nutrients are ASA24 dietary-record outputs rather than weighed truth, so portion,
+hidden-ingredient, nutrition, USDA retrieval, canonical selection, and preparation metrics remain
+unmeasured. These are licensed external phone photos, not owned product captures.
 
 ## Next improvements and limitations
 
 1. Improve and diagnose USDA retrieval: Recall@5 was 0.333 on three verified holdout matches and
    retrieval misses were the largest next downstream development failure.
-2. Improve multi-component recognition and semantic matching: holdout recall was 0.333 with six
-   misses, while several predicted labels were reasonable near-synonyms that strict matching rejects.
+2. Complete the frozen SNAPMe holdout semantic adjudication, then diagnose multi-component misses
+   without tuning or relabeling against the holdout.
 3. Make clarification options resolvable: 0/5 holdout questions could be answered from ground truth,
    so oracle assistance could not complete a meal.
 
 The evidence is limited by 12 rig-captured dishes, only three measured holdout meals, one 30-case
-licensed phone-photo development run, no phone-photo holdout run, strict lexical recognition matching,
+licensed phone-photo development run, one 10-case licensed phone-photo recognition holdout, pending
+semantic adjudication for that phone-photo holdout, strict lexical recognition matching,
 incomplete canonical denominators, external model nondeterminism, USDA-centered ground truth, and no
 product-specific owned-capture data. It does not establish clinical accuracy,
 production-level generalization, or superiority to another product.

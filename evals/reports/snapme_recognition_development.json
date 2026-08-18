@@ -10,7 +10,7 @@
     "completed_cases": 30,
     "infrastructure_failures": 0,
     "human_reviewed_visible_labels": 77,
-    "limitation": "Licensed external phone photos, not owned product captures; development only; holdout not reviewed or run."
+    "limitation": "Licensed external phone photos, not owned product captures; development split only. A separately frozen holdout run is reported in snapme_recognition_holdout.json."
   },
   "configuration": {
     "provider": "openai",

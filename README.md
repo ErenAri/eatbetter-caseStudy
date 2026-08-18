@@ -202,15 +202,17 @@ denominators, before/after results, error attribution, threshold simulation, lat
 see [`evals/README.md`](evals/README.md) for the reproducible protocol. No clinical, production-level,
 or competitor-comparison claim is made.
 
-A separate recognition-only run used 30 licensed SNAPMe phone photos and 77 visible labels accepted by
+A separate recognition-only evaluation used 30 licensed SNAPMe development phone photos and 77 visible labels accepted by
 an independent human reviewer. All 30 development cases completed. Under strict exact normalized
 label matching, precision was 0.225 (n=71 predictions), recall 0.208 (n=77 labels), and F1 0.216;
 there were 55 hallucinated and 61 missed labels. This is a lexical lower bound: reasonable synonyms
 still count as errors unless independently approved as aliases. A completed one-to-one human semantic
 adjudication counted 60/71 predictions correct against 77 labels: precision 0.845, recall 0.779, and
-F1 0.811, with 11 false positives and 17 misses. The 10 participant-disjoint holdout
-photos remain visually unreviewed and were not run. No portion, hidden-ingredient, nutrition, USDA,
-canonicalization, preparation, product-validation, or holdout claim is supported by SNAPMe.
+F1 0.811, with 11 false positives and 17 misses. The frozen 10-photo participant-disjoint holdout
+then completed without infrastructure failures. Its strict lexical precision was 0.382 (13/34),
+recall 0.361 (13/36), and F1 0.371; 21 non-exact predictions still require independent one-to-one
+semantic adjudication. No portion, hidden-ingredient, nutrition, USDA, canonicalization,
+preparation, or owned-product claim is supported by SNAPMe.
 
 Raw benchmark directories and private meal photos are ignored by Git. Only deliberately reviewed,
 aggregate, non-sensitive reports should ever be committed to this public repository.

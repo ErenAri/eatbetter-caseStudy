@@ -1,0 +1,60 @@
+{
+  "status": "Measured licensed phone-photo holdout benchmark; semantic adjudication pending",
+  "measured_at_utc": "2026-08-18",
+  "dataset": {
+    "name": "SNAPMe",
+    "version": "snapme-phone-recognition-human-reviewed-holdout-v1",
+    "license": "CC BY-SA 4.0",
+    "split": "participant-disjoint holdout",
+    "requested_cases": 10,
+    "completed_cases": 10,
+    "infrastructure_failures": 0,
+    "human_reviewed_visible_labels": 36,
+    "limitation": "Licensed external phone photos, not owned product captures; visible identity only; no post-holdout tuning."
+  },
+  "configuration": {
+    "provider": "openai",
+    "model": "gpt-5.6-terra",
+    "prompt_version": "meal_recognition_v2",
+    "image_detail": "high",
+    "reasoning_effort": "low",
+    "grading": "strict normalized exact label or pre-approved alias match",
+    "frozen_before_visual_review_and_run": true
+  },
+  "recognition": {
+    "true_positives": 13,
+    "false_positives": 21,
+    "false_negatives": 23,
+    "food_precision": 0.38235294117647056,
+    "precision_n_predictions": 34,
+    "food_recall": 0.3611111111111111,
+    "recall_n_labels": 36,
+    "food_f1": 0.3714285714285714,
+    "missed_food_count": 23,
+    "hallucinated_food_count": 21
+  },
+  "semantic_adjudication": {
+    "status": "pending independent human review",
+    "automatic_exact_matches": 13,
+    "non_exact_predictions_requiring_review": 21,
+    "policy": "One-to-one human judgment against the independently reviewed visible labels. Only MATCH counts as correct; a visible label cannot be reused within a case."
+  },
+  "latency_ms": {
+    "vision_p50": 10824,
+    "vision_p95": 16175,
+    "n": 10
+  },
+  "token_usage": {
+    "input": 18970,
+    "output": 4573
+  },
+  "not_measured": [
+    "portion accuracy",
+    "hidden-ingredient accuracy",
+    "nutrition accuracy",
+    "USDA retrieval accuracy",
+    "canonical selection accuracy",
+    "preparation accuracy"
+  ],
+  "interpretation": "The strict lexical F1 of 0.371 is a reproducible lower bound. Twenty-one non-exact predictions still require independent one-to-one semantic adjudication before a semantic holdout score can be reported."
+}

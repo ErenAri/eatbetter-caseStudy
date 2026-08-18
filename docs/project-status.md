@@ -55,13 +55,15 @@ with measured portions. It has 34 visible item labels, 30 reviewed USDA mappings
 is claimed.
 
 The private licensed SNAPMe subset contains 30 human-reviewed development phone photos with 77 visible
-labels plus 10 visually unreviewed participant-disjoint holdout photos. The development-only strict
+labels plus 10 independently reviewed participant-disjoint holdout photos with 36 visible labels. The development-only strict
 lexical recognition result was precision 0.225 (71 predictions), recall 0.208 (77 labels), and F1
 0.216. Completed one-to-one human semantic adjudication produced precision 0.845, recall 0.779, and
 F1 0.811 (60 true positives, 11 false positives, 17 misses), with zero vision infrastructure
-failures. It does not measure portion, nutrition, hidden
-ingredients, USDA grounding, canonical selection, preparation, holdout performance, or owned-product
-captures. Aggregate results are in `evals/reports/snapme_recognition_development.json`.
+failures. The frozen holdout run completed 10/10 cases with strict lexical precision 0.382, recall
+0.361, and F1 0.371; semantic adjudication of 21 non-exact predictions is pending. It does not measure
+portion, nutrition, hidden ingredients, USDA grounding, canonical selection, preparation, or
+owned-product captures. Aggregate results are in `evals/reports/snapme_recognition_development.json`
+and `evals/reports/snapme_recognition_holdout.json`.
 
 ## What the repository owner must provide
 
