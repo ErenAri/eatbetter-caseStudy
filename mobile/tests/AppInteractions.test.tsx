@@ -1,4 +1,5 @@
 import { act, fireEvent, render, waitFor } from "@testing-library/react-native";
+import { Alert } from "react-native";
 import App from "../App";
 import * as api from "../services/api";
 import { baseMeal, canonicalClarification, portionClarification, reviewMeal } from "./fixtures";
@@ -75,6 +76,7 @@ test("save calls confirmation endpoint for a resolved meal", async () => {
 });
 
 test("remove action calls the item delete API method", async () => {
+  const alert = jest.spyOn(Alert, "alert").mockImplementation(() => undefined);
   const meal = { ...baseMeal, status: "NEEDS_REVIEW" as const, confirmed_at: null };
   mocked.listMeals.mockResolvedValue([meal]);
   mocked.getMeal.mockResolvedValue(meal);
@@ -83,7 +85,11 @@ test("remove action calls the item delete API method", async () => {
   await act(async () => { fireEvent.press(await view.findByRole("button", { name: /Chicken breast, grilled.*Needs review/ })); });
   await waitFor(() => expect(mocked.getMeal).toHaveBeenCalledWith("meal-1"));
   await act(async () => { fireEvent.press(await view.findByRole("button", { name: "Remove" })); });
+  expect(mocked.removeMealItem).not.toHaveBeenCalled();
+  const buttons = alert.mock.calls[0]?.[2];
+  await act(async () => { buttons?.find((button) => button.text === "Remove")?.onPress?.(); });
   await waitFor(() => expect(mocked.removeMealItem).toHaveBeenCalledWith("meal-1", "item-1"));
+  alert.mockRestore();
 });
 
 test("opens an uploaded shell as incomplete and resumes an attached image", async () => {

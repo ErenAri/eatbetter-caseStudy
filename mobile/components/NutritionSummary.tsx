@@ -3,7 +3,7 @@ import { NutritionTotals } from "../types/api";
 import { colors, spacing } from "../theme/tokens";
 
 export function NutritionSummary({ totals, compact = false }: { totals: NutritionTotals; compact?: boolean }) {
-  return <View accessibilityLabel={`${Math.round(totals.calories_kcal)} calories`} style={styles.wrap}>
+  return <View accessible accessibilityLabel={`${Math.round(totals.calories_kcal)} calories, ${Math.round(totals.protein_g)} grams protein, ${Math.round(totals.carbs_g)} grams carbs, ${Math.round(totals.fat_g)} grams fat`} style={styles.wrap}>
     <Text style={[styles.calories, compact && styles.compact]}>{Math.round(totals.calories_kcal)} kcal</Text>
     <View style={styles.macros}>
       <Text style={styles.macro}>Protein  {Math.round(totals.protein_g)} g</Text>

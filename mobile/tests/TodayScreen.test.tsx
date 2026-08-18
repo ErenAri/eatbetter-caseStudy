@@ -19,6 +19,11 @@ test("shows confirmed meal nutrition and pending meals", async () => {
   expect(view.getByText(/quick checks remaining/)).toBeTruthy();
 });
 
+test("daily nutrition exposes calories and macros to assistive technology", async () => {
+  const view = await render(<TodayScreen meals={[baseMeal]} totals={totals} loading={false} onLog={jest.fn()} onOpen={jest.fn()} />);
+  expect(view.getByLabelText("264 calories, 50 grams protein, 0 grams carbs, 6 grams fat")).toBeTruthy();
+});
+
 test("renders an uploaded shell as incomplete instead of zero-calorie saved food", async () => {
   const incomplete = { ...baseMeal, id: "incomplete", status: "UPLOADED" as const, confirmed_at: null, image_attached: false, items: [], totals: { calories_kcal: 0, protein_g: 0, carbs_g: 0, fat_g: 0 } };
   const view = await render(<TodayScreen meals={[incomplete]} totals={totals} loading={false} onLog={jest.fn()} onOpen={jest.fn()} />);

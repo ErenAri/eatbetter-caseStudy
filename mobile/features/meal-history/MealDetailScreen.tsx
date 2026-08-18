@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View } from "react-native";
+import { Alert, StyleSheet, Text, View } from "react-native";
 import { NutritionSummary } from "../../components/NutritionSummary";
 import { Button, ErrorState, Pill, Screen } from "../../components/Primitives";
 import { colors, radius, spacing } from "../../theme/tokens";
@@ -10,6 +10,14 @@ export function MealDetailScreen({ meal, busy, error, onResume, onDiscard, onBac
   const sources = new Set(meal.items.filter((item) => !item.is_removed).map((item) => item.canonical?.source).filter(Boolean));
   const nutritionSource = sources.size === 1 && sources.has("TEST_DEMO_DATA") ? "Test/demo nutrition data" : sources.size === 1 && sources.has("USDA_FDC") ? "Nutrition data: USDA FoodData Central" : "Nutrition data: verified sources";
   const statusText = meal.status === "UPLOADED" ? (meal.image_attached ? "Photo uploaded; analysis not finished." : "This attempt still needs a photo.") : meal.status === "ANALYZING" ? "Analysis was interrupted and can be resumed." : meal.status === "FAILED_RETRYABLE" ? "Analysis failed temporarily and can be retried." : meal.status === "FAILED_PERMANENT" ? "This photo could not be analyzed." : "This meal still needs review.";
+  const confirmDiscard = () => Alert.alert(
+    "Discard this meal?",
+    "This permanently deletes the incomplete meal and its uploaded photo.",
+    [
+      { text: "Keep meal", style: "cancel" },
+      { text: "Discard", style: "destructive", onPress: onDiscard },
+    ],
+  );
   return <Screen scroll>
     <Text accessibilityRole="button" onPress={onBack} style={styles.back}>‹ Today</Text>
     <Text style={styles.title}>{confirmed ? "Meal saved" : "Incomplete meal"}</Text>
@@ -22,7 +30,7 @@ export function MealDetailScreen({ meal, busy, error, onResume, onDiscard, onBac
     {adjustments ? <Text style={styles.adjustments}>{adjustments} {adjustments === 1 ? "adjustment" : "adjustments"} made</Text> : null}
     {error ? <ErrorState message={error} /> : null}
     {!confirmed && onResume ? <Button label={busy ? "Resuming…" : "Resume analysis"} disabled={busy} onPress={onResume} /> : null}
-    {!confirmed && onDiscard ? <Button label="Discard and start over" disabled={busy} onPress={onDiscard} secondary /> : null}
+    {!confirmed && onDiscard ? <Button label="Discard and start over" disabled={busy} onPress={confirmDiscard} destructive /> : null}
     {confirmed ? <><Text style={styles.source}>{nutritionSource}</Text>{meal.image_attached ? <Text style={styles.photoNote}>Analyzed from your photo</Text> : null}</> : null}
   </Screen>;
 }

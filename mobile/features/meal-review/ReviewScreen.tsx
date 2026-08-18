@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Pressable, ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
+import { Alert, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
 import { ClarificationCard } from "../../components/ClarificationCard";
 import { FoodReviewCard } from "../../components/FoodReviewCard";
 import { Button, ErrorState, Screen } from "../../components/Primitives";
@@ -32,15 +32,23 @@ export function ReviewScreen({ meal, busyKey, error, onAnswer, onUpdate, onRemov
   useEffect(() => { if (current) setEditor(null); }, [current?.id]);
 
   const openAmount = (item: MealItem) => { setAmount(item.portion.confirmed_g === null ? "" : String(Math.round(item.portion.confirmed_g))); setEditor({ item, kind: "amount" }); };
+  const confirmRemove = (item: MealItem) => Alert.alert(
+    "Remove this food?",
+    `${item.canonical?.name ?? item.observed_name} will be excluded from the saved meal and nutrition totals.`,
+    [
+      { text: "Keep food", style: "cancel" },
+      { text: "Remove", style: "destructive", onPress: () => onRemove(item) },
+    ],
+  );
   return <Screen>
     <Text accessibilityRole="button" onPress={onBack} style={styles.back}>‹ Today</Text>
     <View style={styles.header}><View><Text style={styles.title}>Review meal</Text><Text style={styles.subtitle}>{activeItems.length} {activeItems.length === 1 ? "food" : "foods"} found</Text></View><Text style={styles.count}>{blockers.length ? `${blockers.length} quick ${blockers.length === 1 ? "check" : "checks"}` : "Ready to save"}</Text></View>
     <ScrollView contentContainerStyle={styles.scroll}>
       {current ? <ClarificationCard clarification={current} busy={busyKey === current.id} onAnswer={(answer) => onAnswer(current.id, answer)} onManualSearch={() => { const replacing = meal.items.find((item) => item.id === current.meal_item_id) ?? null; setAdding({ replacing }); setQuery(replacing?.observed_name ?? ""); setAddGrams(replacing?.portion.confirmed_g === null || replacing?.portion.confirmed_g === undefined ? "" : String(Math.round(replacing.portion.confirmed_g))); }} /> : null}
       <Text style={styles.section}>Foods</Text>
-      {activeItems.map((item) => <FoodReviewCard key={item.id} item={item} busy={busyKey === item.id} onEditAmount={() => openAmount(item)} onEditFood={() => setEditor({ item, kind: "food" })} onRemove={() => onRemove(item)} />)}
+      {activeItems.map((item) => <FoodReviewCard key={item.id} item={item} busy={busyKey === item.id} onEditAmount={() => openAmount(item)} onEditFood={() => setEditor({ item, kind: "food" })} onRemove={() => confirmRemove(item)} />)}
       {editor ? <View style={styles.editor}><Text style={styles.editorTitle}>{editor.kind === "amount" ? `Change amount for ${editor.item.canonical?.name ?? editor.item.observed_name}` : "Choose a different food"}</Text>
-        {editor.kind === "amount" ? <><TextInput accessibilityLabel="Amount in grams" value={amount} onChangeText={setAmount} keyboardType="decimal-pad" placeholder="Grams" style={styles.input} /><Button label="Save amount" disabled={busyKey === editor.item.id || amount.trim() === "" || !Number.isFinite(Number(amount)) || Number(amount) <= 0} onPress={() => { void onUpdate(editor.item, { portion_g: Number(amount) }).then((saved) => { if (saved) { setEditor(null); setAmount(""); } }); }} /></> : editor.item.candidates.map((candidate) => <Pressable accessibilityRole="button" accessibilityLabel={candidate.display_name} key={candidate.rank} onPress={() => { void onUpdate(editor.item, { candidate_rank: candidate.rank }).then((saved) => { if (saved) setEditor(null); }); }} style={styles.choice}><Text style={styles.choiceText}>{candidate.display_name}</Text></Pressable>)}
+        {editor.kind === "amount" ? <><TextInput accessibilityLabel="Amount in grams" value={amount} onChangeText={setAmount} keyboardType="decimal-pad" placeholder="Grams" style={styles.input} /><Button label="Save amount" disabled={busyKey === editor.item.id || amount.trim() === "" || !Number.isFinite(Number(amount)) || Number(amount) <= 0} onPress={() => { void onUpdate(editor.item, { portion_g: Number(amount) }).then((saved) => { if (saved) { setEditor(null); setAmount(""); } }); }} /></> : editor.item.candidates.map((candidate) => <Pressable accessibilityRole="button" accessibilityLabel={candidate.display_name} accessibilityState={{ disabled: busyKey === editor.item.id }} disabled={busyKey === editor.item.id} key={candidate.rank} onPress={() => { void onUpdate(editor.item, { candidate_rank: candidate.rank }).then((saved) => { if (saved) setEditor(null); }); }} style={styles.choice}><Text style={styles.choiceText}>{candidate.display_name}</Text></Pressable>)}
         <Button label="Cancel" onPress={() => setEditor(null)} secondary />
       </View> : null}
       {adding ? <View style={styles.editor}><Text style={styles.editorTitle}>{adding.replacing ? `Replace ${adding.replacing.observed_name}` : "Add a missing food"}</Text><Text style={styles.help}>{adding.replacing ? "Search for the correct food. This replaces the original item and resolves its old question." : "Search by food name and enter the amount you had. Nutrition is matched by the server."}</Text><TextInput accessibilityLabel="Food search" value={query} onChangeText={setQuery} placeholder="e.g. olive oil" style={styles.input} /><TextInput accessibilityLabel="Food amount in grams" value={addGrams} onChangeText={setAddGrams} keyboardType="decimal-pad" placeholder="Amount in grams" style={styles.input} /><Button label={adding.replacing ? "Replace food" : "Add food"} disabled={!query.trim() || !addGrams.trim() || !Number.isFinite(Number(addGrams)) || Number(addGrams) <= 0 || busyKey === "add" || busyKey === adding.replacing?.id} onPress={() => { const operation = adding.replacing ? onReplace(adding.replacing, query.trim(), Number(addGrams)) : onAdd(query.trim(), Number(addGrams)); void operation.then((saved) => { if (saved) { setAdding(null); setQuery(""); setAddGrams(""); } }); }} /><Button label="Cancel" onPress={() => setAdding(null)} secondary /></View> : <Button label="＋ Add food" onPress={() => { setAdding({ replacing: null }); setQuery(""); setAddGrams(""); }} secondary />}
