@@ -1,7 +1,11 @@
 from decimal import Decimal
 from typing import Any
 
-from .normalization import canonical_gate_token_roles, normalize_food_query
+from .normalization import (
+    canonical_gate_ordered_token_roles,
+    canonical_gate_token_roles,
+    normalize_food_query,
+)
 
 
 DATA_TYPE_BONUS = {
@@ -74,23 +78,25 @@ def _administrative_identity_terms(description: str) -> frozenset[str]:
     return frozenset(terms)
 
 
-def _head_extra_identity_count(
-    query_identity: frozenset[str], description: str
-) -> int:
-    """Count extra identity introduced in USDA's leading food-name segment.
+def _head_identity_mismatch(query_identity: frozenset[str], description: str) -> int:
+    """Flag a changed product head in USDA's leading food-name segment.
 
-    FoodData Central descriptions commonly put the product identity before the
-    first comma and qualifiers afterwards. This lets us distinguish a changed
-    product such as ``Almond milk, NFS`` from a qualifier such as
-    ``Almonds, unroasted`` without maintaining benchmark-specific food lists.
+    FoodData Central descriptions usually place the product name before the
+    first comma. English subtype modifiers commonly precede the noun head, so
+    ``Pork bacon`` still has the observed head ``bacon`` while ``Almond milk``
+    changes the head from ``almond`` to ``milk``. Penalizing only a mismatched
+    final identity token avoids treating useful subtype modifiers as a new food.
     """
     head = description.split(",", 1)[0]
-    head_identity, _ = canonical_gate_token_roles(head)
-    return len(
-        head_identity
-        - query_identity
-        - _administrative_identity_terms(head)
-    )
+    head_identity, _ = canonical_gate_ordered_token_roles(head)
+    meaningful = [
+        token
+        for token in head_identity
+        if token not in _administrative_identity_terms(head)
+    ]
+    if not meaningful:
+        return 1
+    return int(meaningful[-1] not in query_identity)
 
 
 def _semantic_rank_key(query: str, food: Any) -> tuple:
@@ -106,7 +112,7 @@ def _semantic_rank_key(query: str, food: Any) -> tuple:
         - query_identity
         - _administrative_identity_terms(food.description)
     )
-    head_extra_identity = _head_extra_identity_count(query_identity, food.description)
+    head_identity_mismatch = _head_identity_mismatch(query_identity, food.description)
     # NFS/NS entries are useful generic defaults only when the candidate has not
     # changed food identity. For example, "Olives, NFS" is a good generic match
     # for "olives", but "Almond milk, NFS" must not get a genericity advantage
@@ -115,7 +121,7 @@ def _semantic_rank_key(query: str, food: Any) -> tuple:
     return (
         -identity_support,
         -_preparation_support(query_preparation, description_preparation),
-        head_extra_identity,
+        head_identity_mismatch,
         len(extra_identity),
         -generic_suitability,
         -deterministic_food_score(query, food),
