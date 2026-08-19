@@ -1,3 +1,4 @@
+from datetime import datetime, timezone
 from decimal import Decimal
 from uuid import UUID
 
@@ -8,7 +9,11 @@ from app.domain.entities import CanonicalFoodCandidate, Meal, MealItem, PortionE
 
 
 def _meal_and_item(*, observed_name: str = "white rice") -> tuple[Meal, MealItem]:
-    meal = Meal(user_id=UUID(int=1), meal_request_id=UUID(int=2))
+    meal = Meal(
+        user_id=UUID(int=1),
+        meal_request_id=UUID(int=2),
+        logged_at=datetime.now(timezone.utc),
+    )
     item = MealItem(meal_id=meal.id, position=0, observed_name=observed_name)
     meal.items.append(item)
     return meal, item
