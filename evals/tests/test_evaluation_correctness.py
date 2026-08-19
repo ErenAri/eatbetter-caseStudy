@@ -78,6 +78,28 @@ def test_compound_hidden_hypothesis_stays_unresolved_even_with_closed_world_trut
     assert answer.option_id is None
 
 
+def test_semantically_overlapping_hidden_label_does_not_infer_false_no():
+    case = parsed_case(
+        complete=True,
+        hidden=[
+            {
+                "name": "olive oil",
+                "present": True,
+                "portion_truth_g": "7",
+                "calories_kcal": "63",
+                "measurement_method": "weighed",
+            }
+        ],
+    )
+    answer = answer_generated_clarification(
+        hidden_question("cooking oil"),
+        case,
+        observed_name=None,
+    )
+    assert answer.resolvable is False
+    assert answer.option_id is None
+
+
 def test_explicit_hidden_truth_still_answers_yes():
     case = parsed_case(
         complete=True,
