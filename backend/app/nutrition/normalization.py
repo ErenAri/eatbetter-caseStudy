@@ -68,6 +68,23 @@ CANONICAL_GATE_FORM_TERMS = frozenset(
     }
 )
 
+# Function words are not food identity. Keeping them in the query denominator
+# can create false abstentions for names such as "rice and beans".
+CANONICAL_GATE_STOPWORDS = frozenset(
+    {
+        "a",
+        "an",
+        "and",
+        "as",
+        "of",
+        "or",
+        "the",
+        "to",
+        "with",
+        "without",
+    }
+)
+
 _CANONICAL_GATE_PLURAL_EXCEPTIONS = frozenset(
     {
         "greens",  # collective food noun; "green" is not an equivalent identity
@@ -110,16 +127,22 @@ def canonical_gate_token_roles(value: str) -> tuple[frozenset[str], frozenset[st
 
     This is intentionally narrower than stemming/lemmatization: it handles
     common food plurals, separates preparation terms, and drops non-identity
-    form descriptors without changing the retrieval query representation.
+    form descriptors/function words without changing retrieval representation.
     """
     decomposed = unicodedata.normalize("NFKD", value).lower()
-    ascii_safe = "".join(character for character in decomposed if not unicodedata.combining(character))
-    tokens = [_canonical_gate_token(token) for token in re.findall(r"[a-z0-9]+", ascii_safe)]
+    ascii_safe = "".join(
+        character for character in decomposed if not unicodedata.combining(character)
+    )
+    tokens = [
+        _canonical_gate_token(token)
+        for token in re.findall(r"[a-z0-9]+", ascii_safe)
+    ]
     identity = frozenset(
         token
         for token in tokens
         if token not in CANONICAL_GATE_PREPARATION_TERMS
         and token not in CANONICAL_GATE_FORM_TERMS
+        and token not in CANONICAL_GATE_STOPWORDS
     )
     preparation = frozenset(
         token for token in tokens if token in CANONICAL_GATE_PREPARATION_TERMS
