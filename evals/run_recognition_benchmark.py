@@ -5,6 +5,7 @@ import asyncio
 import json
 import sys
 from datetime import datetime, timezone
+from hashlib import sha256
 from pathlib import Path
 from time import perf_counter
 from uuid import NAMESPACE_URL, uuid5
@@ -17,6 +18,7 @@ from app.infrastructure.config import Settings
 from app.main import create_app
 from evals.benchmark_metrics import latency_metrics, recognition_metric_values
 from evals.dataset import DatasetManifest, EvaluationCase, Split, load_manifest
+from evals.recognition_fixture import VisionConfiguration, write_recognition_fixture
 from evals.recognition_metrics import ExpectedFood
 
 
@@ -43,10 +45,11 @@ async def _run_case(service, manifest_path: Path, manifest: DatasetManifest, cas
             user_context=None,
         )
         image_path = (manifest_path.parent / case.image).resolve()
+        image_content = image_path.read_bytes()
         await service.attach_image(
             meal_id=meal.id,
             user_id=user_id,
-            content=image_path.read_bytes(),
+            content=image_content,
             mime_type=_mime(image_path),
         )
         meal = await service.recognition.analyze(
@@ -55,10 +58,13 @@ async def _run_case(service, manifest_path: Path, manifest: DatasetManifest, cas
             request_id=uuid5(NAMESPACE_URL, f"recognition-request:{case.case_id}"),
         )
         run = next(value for value in meal.ai_runs if value.stage == "MEAL_RECOGNITION")
-        items = (run.structured_output or {}).get("items", [])
+        observation = run.structured_output or {}
+        items = observation.get("items", [])
         return {
             "case_id": case.case_id,
             "status": "completed",
+            "image_sha256": sha256(image_content).hexdigest(),
+            "observation": observation,
             "predicted_visible_labels": [
                 item.get("observed_name") for item in items if item.get("observed_name")
             ],
@@ -113,6 +119,14 @@ def main() -> int:
     parser.add_argument("--manifest", type=Path, required=True)
     parser.add_argument("--split", choices=[str(value) for value in Split], required=True)
     parser.add_argument("--output", type=Path, required=True)
+    parser.add_argument(
+        "--write-fixture",
+        type=Path,
+        help=(
+            "Write an immutable full recognition fixture for downstream development ablations. "
+            "All requested recognition cases must complete."
+        ),
+    )
     args = parser.parse_args()
 
     manifest_path = args.manifest.resolve()
@@ -126,6 +140,25 @@ def main() -> int:
     settings = Settings(_env_file=ROOT / "backend" / ".env")
     records = asyncio.run(run(settings, manifest_path, manifest, args.split))
     completed = [record for record in records if record["status"] == "completed"]
+
+    if args.write_fixture:
+        if args.split != str(Split.DEVELOPMENT):
+            raise SystemExit("recognition fixtures are development-only to protect holdout isolation")
+        write_recognition_fixture(
+            args.write_fixture.resolve(),
+            dataset_version=manifest.dataset_version,
+            split=args.split,
+            vision_configuration=VisionConfiguration(
+                provider=settings.vision_provider,
+                model=settings.openai_model,
+                prompt_version="meal_recognition_v2",
+                image_detail=settings.openai_image_detail,
+                reasoning_effort=settings.openai_reasoning_effort,
+            ),
+            expected_case_ids=[case.case_id for case in cases],
+            records=records,
+        )
+
     report = {
         "status": "measured" if len(completed) == len(cases) else "incomplete",
         "scope": "visible-food recognition only",
@@ -164,6 +197,8 @@ def main() -> int:
         f"Wrote {len(completed)}/{len(cases)} recognition cases to {output}; "
         f"status={report['status']}"
     )
+    if args.write_fixture:
+        print(f"Wrote frozen recognition fixture to {args.write_fixture.resolve()}")
     return 0
 
 
