@@ -1,7 +1,12 @@
 from types import SimpleNamespace
 
 from app.nutrition.normalization import build_usda_query_variants
-from app.nutrition.ranking import rank_foods
+from app.nutrition.ranking import (
+    SCORE_FIRST_PR_B_RANKER,
+    rank_foods,
+    rank_foods_score_first_pr_b,
+    resolve_food_ranker,
+)
 
 
 def food(fdc_id: int, description: str, *, data_type: str = "Survey (FNDDS)", score: float = 1):
@@ -95,3 +100,15 @@ def test_ns_brown_rice_outranks_as_ingredient_when_identity_is_equal() -> None:
     )
 
     assert [value.fdc_id for value in ranked] == [2, 1]
+
+
+def test_score_first_pr_b_ablation_reproduces_usda_score_first_behavior() -> None:
+    foods = [
+        food(1, "Almond milk, NFS", score=100),
+        food(2, "Almonds, unroasted", score=1),
+    ]
+
+    ranked = rank_foods_score_first_pr_b("almonds", foods)
+
+    assert [value.fdc_id for value in ranked] == [1, 2]
+    assert resolve_food_ranker(SCORE_FIRST_PR_B_RANKER) is rank_foods_score_first_pr_b
