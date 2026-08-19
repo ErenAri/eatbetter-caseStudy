@@ -21,6 +21,11 @@ class EquivalenceDecision(StrEnum):
     UNCERTAIN = "UNCERTAIN"
 
 
+class UnreviewableReason(StrEnum):
+    CANDIDATE_DETAIL_NOT_FOUND = "CANDIDATE_DETAIL_NOT_FOUND"
+    CANDIDATE_NUTRITION_INCOMPLETE = "CANDIDATE_NUTRITION_INCOMPLETE"
+
+
 class NutritionSnapshot(StrictModel):
     calories_kcal: float | None = Field(default=None, ge=0)
     protein_g: float | None = Field(default=None, ge=0)
@@ -89,6 +94,10 @@ class ReviewKeyEntry(StrictModel):
         return value
 
 
+class UnreviewableKeyEntry(ReviewKeyEntry):
+    reason: UnreviewableReason
+
+
 class EquivalenceReviewKey(StrictModel):
     schema_version: int = Field(default=1, ge=1)
     dataset_version: str = Field(min_length=1, max_length=100)
@@ -98,12 +107,19 @@ class EquivalenceReviewKey(StrictModel):
     source_candidate_artifact_sha256: str = Field(pattern=r"^[0-9a-f]{64}$")
     warning: str = Field(min_length=1, max_length=500)
     entries: list[ReviewKeyEntry]
+    unreviewable_entries: list[UnreviewableKeyEntry] = Field(default_factory=list)
 
     @model_validator(mode="after")
     def unique_pairs(self) -> "EquivalenceReviewKey":
-        ids = [entry.pair_id for entry in self.entries]
-        if len(ids) != len(set(ids)):
+        reviewable_ids = [entry.pair_id for entry in self.entries]
+        unreviewable_ids = [entry.pair_id for entry in self.unreviewable_entries]
+        if len(reviewable_ids) != len(set(reviewable_ids)):
             raise ValueError("duplicate pair_id in equivalence review key")
+        if len(unreviewable_ids) != len(set(unreviewable_ids)):
+            raise ValueError("duplicate pair_id in unreviewable equivalence entries")
+        overlap = set(reviewable_ids) & set(unreviewable_ids)
+        if overlap:
+            raise ValueError("pair_id cannot be both reviewable and unreviewable")
         return self
 
 
