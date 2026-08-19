@@ -4,6 +4,7 @@ from evals.run_vision_prompt_ablation import (
     BASELINE_NAME,
     CANDIDATE_NAME,
     balanced_variant_order,
+    candidate_decision_screen,
     paired_deltas,
     summarize_repeats,
 )
@@ -104,6 +105,60 @@ def test_paired_deltas_are_candidate_minus_baseline_per_repeat() -> None:
     assert result[1]["food_f1_delta"] == pytest.approx(-0.05)
     assert result[1]["missed_food_count_delta"] == 1
     assert result[1]["hallucinated_food_count_delta"] == -1
+
+
+def test_candidate_screen_requires_consistent_accuracy_safety_and_granularity_gain() -> None:
+    baseline_repeats = [
+        repeat(
+            f1=value,
+            precision=0.55,
+            recall=0.60,
+            missed=10,
+            hallucinated=12,
+            categories={"UNDER_SEGMENTATION": 2, "COMPOSITE_ALIAS_WITH_EXTRA_PREDICTIONS": 2},
+        )
+        for value in (0.50, 0.52, 0.51)
+    ]
+    candidate_repeats = [
+        repeat(
+            f1=value,
+            precision=0.60,
+            recall=0.62,
+            missed=9,
+            hallucinated=9,
+            categories={"UNDER_SEGMENTATION": 1},
+        )
+        for value in (0.55, 0.54, 0.53)
+    ]
+    baseline = summarize_repeats(baseline_repeats)
+    candidate = summarize_repeats(candidate_repeats)
+    deltas = paired_deltas(baseline_repeats, candidate_repeats)
+
+    result = candidate_decision_screen(baseline, candidate, deltas)
+
+    assert result["passes_predeclared_screen"] is True
+    assert all(result["criteria"].values())
+    assert result["f1_nonnegative_repeat_count"] == 3
+    assert result["required_f1_nonnegative_repeat_count"] == 2
+
+
+def test_candidate_screen_fails_when_f1_gain_trades_for_more_hallucinations() -> None:
+    baseline_repeats = [
+        repeat(f1=0.50, precision=0.55, recall=0.55, missed=10, hallucinated=8)
+        for _ in range(3)
+    ]
+    candidate_repeats = [
+        repeat(f1=0.60, precision=0.56, recall=0.66, missed=7, hallucinated=10)
+        for _ in range(3)
+    ]
+    baseline = summarize_repeats(baseline_repeats)
+    candidate = summarize_repeats(candidate_repeats)
+    deltas = paired_deltas(baseline_repeats, candidate_repeats)
+
+    result = candidate_decision_screen(baseline, candidate, deltas)
+
+    assert result["passes_predeclared_screen"] is False
+    assert result["criteria"]["nonincreasing_mean_hallucinations"] is False
 
 
 def test_summary_rejects_empty_repeat_set() -> None:
