@@ -27,6 +27,7 @@ class ConfigurationSnapshot:
     recognition_fixture_sha256: str | None
     retrieval_provider: str
     retrieval_search_limit: int
+    retrieval_ranker: str
     retrieval_strategy: str
     canonicalization_provider: str
     canonicalization_model: str
@@ -69,6 +70,7 @@ def snapshot(
     recognition_input_mode: str = "LIVE",
     recognition_fixture_sha256: str | None = None,
     frozen_vision_configuration: dict[str, str] | None = None,
+    retrieval_ranker: str = "semantic",
 ) -> ConfigurationSnapshot:
     validate_real_providers(settings)
     vision = frozen_vision_configuration or {
@@ -78,6 +80,14 @@ def snapshot(
         "image_detail": settings.openai_image_detail,
         "reasoning_effort": settings.openai_reasoning_effort,
     }
+    if retrieval_ranker == "semantic":
+        ranker_description = "semantic/generic local rerank"
+    elif retrieval_ranker == "score-first-pr-b":
+        ranker_description = "historical PR-B USDA-score-first local rerank ablation"
+    else:
+        raise BenchmarkConfigurationError(
+            f"unknown retrieval ranker: {retrieval_ranker}"
+        )
     return ConfigurationSnapshot(
         configuration=configuration,
         vision_provider=vision["provider"],
@@ -89,9 +99,10 @@ def snapshot(
         recognition_fixture_sha256=recognition_fixture_sha256,
         retrieval_provider=settings.nutrition_provider,
         retrieval_search_limit=settings.usda_search_limit,
+        retrieval_ranker=retrieval_ranker,
         retrieval_strategy=(
             "required-identity USDA query with bounded loose fallback; "
-            "semantic/generic local rerank; top-5 after dedupe; authoritative detail after selection"
+            f"{ranker_description}; top-5 after dedupe; authoritative detail after selection"
         ),
         canonicalization_provider=settings.canonicalization_provider,
         canonicalization_model=settings.openai_canonicalization_model,
