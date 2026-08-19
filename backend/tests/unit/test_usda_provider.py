@@ -28,24 +28,27 @@ async def no_sleep(_: float) -> None:
     return None
 
 
-def provider_for(handler, *, attempts: int = 3) -> USDAFoodDataCentralProvider:
+def provider_for(
+    handler, *, attempts: int = 3, search_pool_size: int = 50
+) -> USDAFoodDataCentralProvider:
     client = httpx.AsyncClient(transport=httpx.MockTransport(handler))
     return USDAFoodDataCentralProvider(
         api_key="secret-test-key",
         client=client,
         max_attempts=attempts,
+        search_pool_size=search_pool_size,
         sleep=no_sleep,
         jitter=lambda _start, _end: 0,
     )
 
 
 @pytest.mark.asyncio
-async def test_search_normalizes_query_ranks_and_sanitizes_metadata() -> None:
-    seen: dict = {}
+async def test_search_uses_required_identity_then_loose_fallback_and_sanitizes_metadata() -> None:
+    seen_bodies: list[dict] = []
 
     def handler(request: httpx.Request) -> httpx.Response:
-        seen["query"] = request.url.params["api_key"]
-        seen["body"] = json.loads(request.content)
+        assert request.url.params["api_key"] == "secret-test-key"
+        seen_bodies.append(json.loads(request.content))
         return httpx.Response(
             200,
             json=load_fixture("search_foods.json"),
@@ -57,10 +60,10 @@ async def test_search_normalizes_query_ranks_and_sanitizes_metadata() -> None:
         "  Grilled Chicken Breast  ", meal_item_id=UUID(int=7), limit=2
     )
 
-    assert seen["query"] == "secret-test-key"
-    assert seen["body"]["query"] == "chicken breast grilled"
-    assert seen["body"]["pageSize"] == 15
-    assert seen["body"]["dataType"] == ["Foundation", "Survey (FNDDS)", "SR Legacy"]
+    assert seen_bodies[0]["query"] == "+chicken +breast grilled"
+    assert seen_bodies[0]["pageSize"] == 50
+    assert seen_bodies[0]["dataType"] == ["Foundation", "Survey (FNDDS)", "SR Legacy"]
+    assert seen_bodies[1]["query"] == "chicken breast grilled"
     assert [candidate.source_food_id for candidate in candidates] == ["1001", "1002"]
     assert [candidate.rank for candidate in candidates] == [1, 2]
     assert candidates[0].source == "USDA_FDC"
@@ -75,6 +78,73 @@ async def test_search_normalizes_query_ranks_and_sanitizes_metadata() -> None:
         "energy_nutrient_id",
     }
     assert provider.last_rate_limit.remaining == "999"
+    await provider._client.aclose()
+
+
+@pytest.mark.asyncio
+async def test_sufficient_strict_pool_skips_loose_fallback() -> None:
+    seen_bodies: list[dict] = []
+    foods = [
+        {
+            "fdcId": 9000 + index,
+            "description": f"Chicken breast, grilled, sample {index}",
+            "dataType": "Survey (FNDDS)",
+            "score": 1,
+            "foodNutrients": [],
+        }
+        for index in range(10)
+    ]
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        seen_bodies.append(json.loads(request.content))
+        return httpx.Response(200, json={"foods": foods})
+
+    provider = provider_for(handler, search_pool_size=10)
+    candidates = await provider.search_foods(
+        "grilled chicken breast", meal_item_id=UUID(int=70), limit=2
+    )
+
+    assert len(seen_bodies) == 1
+    assert seen_bodies[0]["query"] == "+chicken +breast grilled"
+    assert len(candidates) == 2
+    await provider._client.aclose()
+
+
+@pytest.mark.asyncio
+async def test_fallback_merges_by_fdc_id_before_ranking() -> None:
+    calls = 0
+
+    def food(fdc_id: int, description: str) -> dict:
+        return {
+            "fdcId": fdc_id,
+            "description": description,
+            "dataType": "Survey (FNDDS)",
+            "score": 1,
+            "foodNutrients": [],
+        }
+
+    def handler(_request: httpx.Request) -> httpx.Response:
+        nonlocal calls
+        calls += 1
+        if calls == 1:
+            return httpx.Response(200, json={"foods": [food(1, "Olives, NFS")]})
+        return httpx.Response(
+            200,
+            json={
+                "foods": [
+                    food(1, "Olives, NFS"),
+                    food(2, "Olive tapenade"),
+                ]
+            },
+        )
+
+    provider = provider_for(handler, search_pool_size=10)
+    candidates = await provider.search_foods(
+        "olives", meal_item_id=UUID(int=71), limit=5
+    )
+
+    assert calls == 2
+    assert [candidate.source_food_id for candidate in candidates] == ["1", "2"]
     await provider._client.aclose()
 
 
