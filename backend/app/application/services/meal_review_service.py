@@ -133,14 +133,17 @@ class MealReviewService:
         value = option.get("value", {}) if option else {}
         if clarification.type == "CANONICAL_SELECTION":
             assert item is not None
-            before = self._canonical_value(item)
-            await self.grounding.ground_selected_candidate(item, int(value["candidate_rank"]))
-            item.observation_certainty = "HIGH"
-            self._record(meal, item, "canonical_food", before, self._canonical_value(item))
-            if item.portion_resolution_source == PortionResolutionSource.AUTO_ESTIMATE:
-                item.confirmed_portion_g = None
-                item.portion_resolution_source = None
-                item.final_nutrition = None
+            if value.get("action") == "MANUAL_SEARCH":
+                satisfied = False
+            else:
+                before = self._canonical_value(item)
+                await self.grounding.ground_selected_candidate(item, int(value["candidate_rank"]))
+                item.observation_certainty = "HIGH"
+                self._record(meal, item, "canonical_food", before, self._canonical_value(item))
+                if item.portion_resolution_source == PortionResolutionSource.AUTO_ESTIMATE:
+                    item.confirmed_portion_g = None
+                    item.portion_resolution_source = None
+                    item.final_nutrition = None
         elif clarification.type == "PORTION":
             assert item is not None
             grams = custom_grams if custom_grams is not None else Decimal(str(value["grams"]))
@@ -214,19 +217,28 @@ class MealReviewService:
             return
         if item.candidates:
             options = tuple(
-                {"id": f"candidate-{candidate.rank}", "label": candidate.display_name(), "value": {"candidate_rank": candidate.rank}}
-                for candidate in item.candidates
+                [
+                    {"id": f"candidate-{candidate.rank}", "label": candidate.display_name(), "value": {"candidate_rank": candidate.rank}}
+                    for candidate in item.candidates
+                ]
+                + [
+                    {
+                        "id": "manual-search",
+                        "label": "Search for another food",
+                        "value": {"action": "MANUAL_SEARCH"},
+                    }
+                ]
             )
             clarification_type = "CANONICAL_SELECTION"
-            question = f"Which food best matches {item.observed_name}?"
+            question = f"Which option best describes the {item.observed_name} you ate?"
             default_reasons = (UncertaintyReason.CANONICAL_AMBIGUOUS,)
         else:
             options = (
-                {"id": "manual-search", "label": "Search manually", "value": {"action": "MANUAL_SEARCH"}},
-                {"id": "remove-item", "label": "Remove item", "value": {"action": "REMOVE_ITEM"}},
+                {"id": "manual-search", "label": "Search for another food", "value": {"action": "MANUAL_SEARCH"}},
+                {"id": "remove-item", "label": "This food is not in my meal", "value": {"action": "REMOVE_ITEM"}},
             )
             clarification_type = "FOOD_IDENTITY"
-            question = f"How should we resolve {item.observed_name}?"
+            question = f"I couldn't confidently match {item.observed_name}. What was it?"
             default_reasons = (UncertaintyReason.CANONICAL_UNRESOLVED,)
         self._append(meal, key, clarification_type, question, item.id, options, reasons or default_reasons)
 
@@ -240,19 +252,27 @@ class MealReviewService:
             maximum = item.portion_estimate.max_g
             midpoint = (minimum + maximum) / Decimal("2")
             values = (
-                [("estimated", "About this amount", midpoint)]
+                [("estimated", f"About {midpoint.normalize()} g", midpoint)]
                 if minimum == maximum
                 else [
-                    ("smaller", "Smaller", minimum),
-                    ("estimated", "About this amount", midpoint),
-                    ("larger", "Larger", maximum),
+                    ("smaller", f"About {minimum.normalize()} g", minimum),
+                    ("estimated", f"About {midpoint.normalize()} g", midpoint),
+                    ("larger", f"About {maximum.normalize()} g", maximum),
                 ]
             )
         options = tuple(
             {"id": option_id, "label": label, "value": {"grams": str(grams)}}
             for option_id, label, grams in values
         )
-        self._append(meal, key, "PORTION", f"How much {item.observed_name} was there?", item.id, options, reasons)
+        self._append(
+            meal,
+            key,
+            "PORTION",
+            f"About how much {item.observed_name} did you eat?",
+            item.id,
+            options,
+            reasons,
+        )
 
     def _ensure_hidden(self, meal: Meal, ingredient: dict[str, Any]) -> None:
         name = str(ingredient["name"])
@@ -266,7 +286,15 @@ class MealReviewService:
             {"id": presence.lower().replace("_", "-"), "label": label, "value": {"presence": presence, "name": name}}
             for presence, label in (("NO", "No"), ("YES", "Yes"), ("NOT_SURE", "Not sure"))
         )
-        self._append(meal, key, "HIDDEN_INGREDIENT", f"Did this meal include {name}?", None, options, (reason,))
+        self._append(
+            meal,
+            key,
+            "HIDDEN_INGREDIENT",
+            f"Was {name} used in a way the photo may not show?",
+            None,
+            options,
+            (reason,),
+        )
 
     @staticmethod
     def _append(meal: Meal, key: str, kind: str, question: str, item_id: UUID | None, options: tuple[dict[str, Any], ...], reasons: tuple[UncertaintyReason, ...]) -> None:
