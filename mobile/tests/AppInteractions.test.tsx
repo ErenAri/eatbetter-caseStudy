@@ -59,7 +59,7 @@ test("portion option calls the clarification answer API", async () => {
   const view = await render(<App />);
   await act(async () => { fireEvent.press(await view.findByRole("button", { name: /Chicken breast, grilled.*Needs review/ })); });
   await waitFor(() => expect(mocked.getMeal).toHaveBeenCalledWith("meal-1"));
-  await act(async () => { fireEvent.press(await view.findByRole("button", { name: "About this amount" })); });
+  await act(async () => { fireEvent.press(await view.findByRole("button", { name: "About 180 g" })); });
   await waitFor(() => expect(mocked.answerClarification).toHaveBeenCalledWith("meal-1", "portion-1", { option_id: "estimated" }));
 });
 
