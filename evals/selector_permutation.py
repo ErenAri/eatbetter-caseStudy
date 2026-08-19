@@ -73,10 +73,32 @@ def post_gate_identity(item: Any, output: CanonicalizationOutput, candidates: li
 
 def summarize_item_runs(runs: list[dict], acceptable_ids: set[str]) -> dict:
     by_condition = {run["condition"]: run for run in runs}
-    control_ids = [by_condition[name]["post_gate_selected_food_id"] for name in CONTROL_CONDITIONS]
+    return {
+        "raw": _summarize_identity_field(
+            by_condition, "raw_selected_food_id", acceptable_ids
+        ),
+        "post_gate": _summarize_identity_field(
+            by_condition, "post_gate_selected_food_id", acceptable_ids
+        ),
+    }
+
+
+def aggregate_item_summaries(items: list[dict]) -> dict:
+    return {
+        "eligible_item_count": len(items),
+        "raw": _aggregate_mode(items, "raw"),
+        "post_gate": _aggregate_mode(items, "post_gate"),
+        "gate_effects": _gate_effects(items),
+    }
+
+
+def _summarize_identity_field(
+    by_condition: dict[str, dict], field: str, acceptable_ids: set[str]
+) -> dict:
+    control_ids = [by_condition[name][field] for name in CONTROL_CONDITIONS]
     control_mode = _mode(control_ids)
-    array_ids = [by_condition[name]["post_gate_selected_food_id"] for name in ARRAY_CONDITIONS]
-    rerank_ids = [by_condition[name]["post_gate_selected_food_id"] for name in RERANK_CONDITIONS]
+    array_ids = [by_condition[name][field] for name in ARRAY_CONDITIONS]
+    rerank_ids = [by_condition[name][field] for name in RERANK_CONDITIONS]
     return {
         "control_selected_food_ids": control_ids,
         "control_mode_food_id": control_mode,
@@ -87,29 +109,66 @@ def summarize_item_runs(runs: list[dict], acceptable_ids: set[str]) -> dict:
         "rank_label_sensitive": any(value != control_mode for value in rerank_ids),
         "control_mode_correct": control_mode in acceptable_ids,
         "condition_correctness": {
-            name: by_condition[name]["post_gate_selected_food_id"] in acceptable_ids
-            for name in ALL_CONDITIONS
+            name: by_condition[name][field] in acceptable_ids for name in ALL_CONDITIONS
         },
     }
 
 
-def aggregate_item_summaries(items: list[dict]) -> dict:
-    denominator = len(items)
-    control_unstable = sum(not item["summary"]["control_stable"] for item in items)
-    array_sensitive = sum(item["summary"]["array_position_sensitive"] for item in items)
-    rank_sensitive = sum(item["summary"]["rank_label_sensitive"] for item in items)
-    control_correct = sum(item["summary"]["control_mode_correct"] for item in items)
+def _aggregate_mode(items: list[dict], mode: str) -> dict:
+    summaries = [item["summary"][mode] for item in items]
+    denominator = len(summaries)
+    stable = [summary for summary in summaries if summary["control_stable"]]
     condition_accuracy = {}
     for condition in ALL_CONDITIONS:
-        hits = sum(item["summary"]["condition_correctness"][condition] for item in items)
+        hits = sum(summary["condition_correctness"][condition] for summary in summaries)
         condition_accuracy[condition] = _ratio(hits, denominator)
+
     return {
-        "eligible_item_count": denominator,
-        "control_repeat_instability": _ratio(control_unstable, denominator),
-        "array_position_sensitivity": _ratio(array_sensitive, denominator),
-        "rank_label_sensitivity": _ratio(rank_sensitive, denominator),
-        "control_mode_accuracy": _ratio(control_correct, denominator),
+        "control_repeat_instability": _ratio(
+            sum(not summary["control_stable"] for summary in summaries), denominator
+        ),
+        "array_position_sensitivity": _ratio(
+            sum(summary["array_position_sensitive"] for summary in summaries), denominator
+        ),
+        "rank_label_sensitivity": _ratio(
+            sum(summary["rank_label_sensitive"] for summary in summaries), denominator
+        ),
+        "control_mode_accuracy": _ratio(
+            sum(summary["control_mode_correct"] for summary in summaries), denominator
+        ),
+        "control_stable_item_count": len(stable),
+        "array_position_sensitivity_control_stable": _ratio(
+            sum(summary["array_position_sensitive"] for summary in stable), len(stable)
+        ),
+        "rank_label_sensitivity_control_stable": _ratio(
+            sum(summary["rank_label_sensitive"] for summary in stable), len(stable)
+        ),
         "condition_accuracy": condition_accuracy,
+    }
+
+
+def _gate_effects(items: list[dict]) -> dict:
+    total_runs = 0
+    changed = 0
+    blocked_wrong = 0
+    blocked_correct = 0
+    for item in items:
+        acceptable_ids = set(item.get("acceptable_food_ids", []))
+        for run in item["runs"]:
+            total_runs += 1
+            raw = run["raw_selected_food_id"]
+            post = run["post_gate_selected_food_id"]
+            if raw != post:
+                changed += 1
+            if post == ABSTAIN_IDENTITY and raw != ABSTAIN_IDENTITY:
+                if raw in acceptable_ids:
+                    blocked_correct += 1
+                else:
+                    blocked_wrong += 1
+    return {
+        "selection_changed_by_gate": _ratio(changed, total_runs),
+        "wrong_selection_blocked": _ratio(blocked_wrong, total_runs),
+        "correct_selection_blocked": _ratio(blocked_correct, total_runs),
     }
 
 
