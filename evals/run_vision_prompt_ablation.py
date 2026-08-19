@@ -5,6 +5,7 @@ import asyncio
 import json
 import sys
 from hashlib import sha256
+from math import ceil
 from pathlib import Path
 from statistics import mean
 from time import perf_counter
@@ -30,6 +31,11 @@ BASELINE_NAME = "meal_recognition_v2"
 CANDIDATE_NAME = "meal_recognition_v3_experimental"
 BASELINE_PROMPT = ROOT / "backend" / "app" / "ai" / "prompts" / f"{BASELINE_NAME}.md"
 CANDIDATE_PROMPT = ROOT / "backend" / "app" / "ai" / "prompts" / f"{CANDIDATE_NAME}.md"
+GRANULARITY_CATEGORIES = (
+    "UNDER_SEGMENTATION",
+    "OVER_SEGMENTATION",
+    "COMPOSITE_ALIAS_WITH_EXTRA_PREDICTIONS",
+)
 
 
 def _mime(path: Path) -> str:
@@ -130,6 +136,62 @@ def paired_deltas(baseline: list[dict], candidate: list[dict]) -> list[dict]:
     return output
 
 
+def candidate_decision_screen(
+    baseline_summary: dict,
+    candidate_summary: dict,
+    deltas: list[dict],
+) -> dict:
+    """Predeclared directional screen; never auto-promotes the experimental prompt."""
+    if not deltas:
+        raise ValueError("candidate decision screen requires paired repeats")
+
+    mean_f1_delta = candidate_summary["food_f1"]["mean"] - baseline_summary["food_f1"]["mean"]
+    mean_precision_delta = (
+        candidate_summary["food_precision"]["mean"]
+        - baseline_summary["food_precision"]["mean"]
+    )
+    mean_hallucination_delta = (
+        candidate_summary["hallucinated_food_count"]["mean"]
+        - baseline_summary["hallucinated_food_count"]["mean"]
+    )
+
+    def granularity_units(summary: dict) -> float:
+        values = summary["diagnostic_strict_error_unit_means"]
+        return sum(float(values.get(category, 0)) for category in GRANULARITY_CATEGORIES)
+
+    baseline_granularity_units = granularity_units(baseline_summary)
+    candidate_granularity_units = granularity_units(candidate_summary)
+    nonnegative_f1_repeats = sum(delta["food_f1_delta"] >= 0 for delta in deltas)
+    required_nonnegative_f1_repeats = ceil(len(deltas) * 2 / 3)
+
+    criteria = {
+        "positive_mean_f1_delta": mean_f1_delta > 0,
+        "nonnegative_mean_precision_delta": mean_precision_delta >= 0,
+        "nonincreasing_mean_hallucinations": mean_hallucination_delta <= 0,
+        "f1_nonnegative_in_at_least_two_thirds_of_repeats": (
+            nonnegative_f1_repeats >= required_nonnegative_f1_repeats
+        ),
+        "lower_mean_granularity_strict_error_units": (
+            candidate_granularity_units < baseline_granularity_units
+        ),
+    }
+    return {
+        "policy": (
+            "Exploratory promotion screen declared before measured v3 results. Passing does not "
+            "promote the prompt automatically; failing prevents claiming a robust development win."
+        ),
+        "mean_f1_delta": mean_f1_delta,
+        "mean_precision_delta": mean_precision_delta,
+        "mean_hallucinated_food_count_delta": mean_hallucination_delta,
+        "baseline_mean_granularity_strict_error_units": baseline_granularity_units,
+        "candidate_mean_granularity_strict_error_units": candidate_granularity_units,
+        "f1_nonnegative_repeat_count": nonnegative_f1_repeats,
+        "required_f1_nonnegative_repeat_count": required_nonnegative_f1_repeats,
+        "criteria": criteria,
+        "passes_predeclared_screen": all(criteria.values()),
+    }
+
+
 async def _analyze(
     provider: OpenAIVisionProvider,
     *,
@@ -151,6 +213,7 @@ async def _analyze(
     observation = result.observation
     return {
         "case_id": case.case_id,
+        "image_sha256": sha256(image_content).hexdigest(),
         "predicted_visible_labels": [
             item.observed_name for item in observation.items if item.observed_name
         ],
@@ -249,14 +312,17 @@ async def run(settings: Settings, manifest_path: Path, cases: list, repeats: int
         ]
         for variant in (BASELINE_NAME, CANDIDATE_NAME)
     }
+    summaries = {
+        variant: summarize_repeats(graded[variant])
+        for variant in (BASELINE_NAME, CANDIDATE_NAME)
+    }
+    deltas = paired_deltas(graded[BASELINE_NAME], graded[CANDIDATE_NAME])
     return {
         "variants": graded,
-        "summaries": {
-            variant: summarize_repeats(graded[variant])
-            for variant in (BASELINE_NAME, CANDIDATE_NAME)
-        },
-        "paired_deltas_candidate_minus_baseline": paired_deltas(
-            graded[BASELINE_NAME], graded[CANDIDATE_NAME]
+        "summaries": summaries,
+        "paired_deltas_candidate_minus_baseline": deltas,
+        "candidate_decision_screen": candidate_decision_screen(
+            summaries[BASELINE_NAME], summaries[CANDIDATE_NAME], deltas
         ),
         "prompt_provenance": {
             BASELINE_NAME: {
@@ -305,6 +371,7 @@ def main() -> int:
         "split": args.split,
         "case_count": len(cases),
         "repeat_count": args.repeats,
+        "source_manifest_sha256": sha256(manifest_path.read_bytes()).hexdigest(),
         "design": (
             "Same development images and model settings for both prompts; prompt call order is "
             "balanced by repeat/case parity. Each repeat is graded independently so live-model "
@@ -323,6 +390,7 @@ def main() -> int:
             "no manifest or acceptable-alias mutation",
             "candidate prompt contains no benchmark case IDs or FDC IDs",
             "strict label/alias metrics remain primary; segmentation taxonomy is diagnostic",
+            "the predeclared decision screen is directional evidence, not automatic promotion",
         ],
     }
     output.parent.mkdir(parents=True, exist_ok=True)
@@ -332,13 +400,15 @@ def main() -> int:
 
     baseline = report["summaries"][BASELINE_NAME]
     candidate = report["summaries"][CANDIDATE_NAME]
+    screen = report["candidate_decision_screen"]
     print(
         "Vision prompt ablation complete: "
         f"cases={len(cases)} repeats={args.repeats}; "
         f"v2_mean_f1={baseline['food_f1']['mean']:.4f}; "
         f"v3_mean_f1={candidate['food_f1']['mean']:.4f}; "
         f"v2_mean_hallucinations={baseline['hallucinated_food_count']['mean']:.2f}; "
-        f"v3_mean_hallucinations={candidate['hallucinated_food_count']['mean']:.2f}"
+        f"v3_mean_hallucinations={candidate['hallucinated_food_count']['mean']:.2f}; "
+        f"passes_screen={screen['passes_predeclared_screen']}"
     )
     return 0
 
