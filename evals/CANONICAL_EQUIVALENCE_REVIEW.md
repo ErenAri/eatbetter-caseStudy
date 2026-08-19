@@ -48,7 +48,7 @@ must not be presented as an independently adjudicated metric.
 
 ## Decision rubric
 
-Each pair gets exactly one decision.
+Each reviewable pair gets exactly one decision.
 
 ### `EQUIVALENT`
 
@@ -105,6 +105,25 @@ The builder:
 
 The review packet and key are bound to the exact manifest and exact `cases.jsonl` bytes by SHA-256.
 
+### FoodData Central detail availability
+
+A frozen search artifact can contain an FDC ID that is no longer detail-resolvable when the review
+packet is built. The audit treats reference and candidate failures differently:
+
+- The frozen **reference** is mandatory evidence. If its FoodData Central detail is missing or its
+  authoritative nutrition is incomplete, packet generation fails closed.
+- A non-reference **candidate** whose detail is missing or whose authoritative nutrition is incomplete
+  is not silently accepted and does not abort unrelated comparisons. Its pair is omitted from the
+  reviewer packet and recorded in the private key under `unreviewable_entries` with a reason such as
+  `CANDIDATE_DETAIL_NOT_FOUND` or `CANDIDATE_NUTRITION_INCOMPLETE`.
+- Unreviewable candidates never expand the equivalence-aware acceptable set and therefore cannot
+  improve the secondary metric.
+- Provider/network/rate-limit failures still propagate as failures; only an authoritative candidate
+  404 or incomplete-nutrition condition is classified as unreviewable.
+
+This preserves the exact-FDC benchmark and the audit trail without letting one stale candidate ID
+invalidate every independent equivalence comparison.
+
 ## 2. Create the reviewer template
 
 ```powershell
@@ -143,9 +162,12 @@ The scorer fails closed if:
 
 - packet/key/adjudication hashes do not match,
 - manifest or candidate artifact bytes changed,
-- a pair is missing or duplicated,
+- a reviewable pair is missing or duplicated,
 - any decision is invalid,
 - the artifacts refer to a different dataset/split.
+
+`unreviewable_entries` live only in the private key and are not part of the reviewer adjudication pair
+set. They remain non-matches in the secondary metric.
 
 ## Metric policy
 
@@ -156,7 +178,8 @@ The output reports both metric families side-by-side:
 - exact selector accuracy
 - equivalence-aware selector accuracy
 
-Only `EQUIVALENT` expands the secondary acceptable set. `NOT_EQUIVALENT` and `UNCERTAIN` never do.
+Only `EQUIVALENT` expands the secondary acceptable set. `NOT_EQUIVALENT`, `UNCERTAIN`, and
+unreviewable candidate pairs never do.
 
 The exact-FDC result is never overwritten or relabeled. The secondary metric should be described as
 "independently adjudicated canonical-equivalence" only when the independence rule above was actually
