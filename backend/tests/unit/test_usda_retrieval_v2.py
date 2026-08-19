@@ -49,6 +49,18 @@ def test_generic_marker_does_not_promote_a_different_food_identity() -> None:
     assert [value.fdc_id for value in ranked] == [2, 1]
 
 
+def test_prefix_subtype_modifier_keeps_observed_food_head() -> None:
+    ranked = rank_foods(
+        "bacon cooked",
+        [
+            food(1, "Beef, bacon, cooked", score=100),
+            food(2, "Pork bacon, NS as to fresh, smoked or cured, cooked", score=1),
+        ],
+    )
+
+    assert [value.fdc_id for value in ranked] == [2, 1]
+
+
 def test_generic_ns_entry_outranks_unrequested_subtype() -> None:
     ranked = rank_foods(
         "bacon cooked",
