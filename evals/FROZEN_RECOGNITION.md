@@ -50,11 +50,43 @@ Replay validates all of the following before running:
 `configuration.json` records `recognition_input_mode=FROZEN` and the SHA-256 of the fixture itself, so
 two downstream reports can be checked for identical upstream input.
 
+## 3. P1 ranker ablation
+
+The production ranker remains `semantic`. For a controlled development experiment, the runner also
+exposes `score-first-pr-b`, which reproduces the pre-PR-C USDA-score-first ranking formula while keeping
+the current required-identity queries, loose fallback, raw pool size, and FDC-ID dedupe unchanged.
+
+Run both variants with the **same** frozen recognition fixture:
+
+```powershell
+.\backend\.venv\Scripts\python.exe -m evals.run_benchmark `
+  --manifest evals\public\nutrition5k\manifest_v2.json `
+  --split development `
+  --frozen-recognition evals\private\frozen\nutrition5k_v2_dev_recognition.json `
+  --retrieval-ranker semantic `
+  --output evals\reports\2026-08-19_dev_ranker_semantic
+
+.\backend\.venv\Scripts\python.exe -m evals.run_benchmark `
+  --manifest evals\public\nutrition5k\manifest_v2.json `
+  --split development `
+  --frozen-recognition evals\private\frozen\nutrition5k_v2_dev_recognition.json `
+  --retrieval-ranker score-first-pr-b `
+  --output evals\reports\2026-08-19_dev_ranker_score_first_pr_b
+```
+
+Compare exact Recall@1/@3/@5, selector selection accuracy, selective accuracy, wrong selection,
+wrong-strong selection, and the per-item candidate lists. `configuration.json` records the selected
+`retrieval_ranker` and must show the same recognition fixture SHA-256 in both runs.
+
+The score-first ranker is an ablation control, not a product configuration. The runner rejects it
+without frozen recognition, so it cannot be used accidentally in a live end-to-end or holdout run.
+
 ## Guardrails
 
 - Frozen recognition replay is development-only. The runner rejects it for holdout.
 - A frozen-recognition run cannot write `final_configuration.json`; final product configuration must be
   frozen from a normal end-to-end development run.
+- Non-production ranker ablations require frozen recognition.
 - Vision latency and vision token usage from replay runs are not comparable with live vision runs.
   Use frozen runs to compare downstream retrieval/selector behavior, not end-to-end cost or latency.
 - Do not edit a fixture in place. Create a new fixture only when intentionally starting a new
