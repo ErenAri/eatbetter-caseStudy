@@ -21,7 +21,7 @@ These answer: **did the system actually identify the measured hidden ingredient 
 ### 2. Hidden-risk surfacing
 
 Risk surfacing intentionally makes a weaker claim. A hidden-positive meal is considered surfaced when
-recognition raises any hidden-ingredient hypothesis or when the HYBRID flow asks any
+recognition raises any hidden-ingredient hypothesis or when the evaluated HYBRID state contains any
 `HIDDEN_INGREDIENT` clarification.
 
 - `recognition_risk_surface_case_recall`
@@ -51,9 +51,26 @@ meal. To make that strategy visible, P5 reports:
 A meal is considered a valid hidden-negative only when `hidden_truth_complete=true` and no hidden
 ingredient is marked present. Cases without complete hidden truth are never used as negative labels.
 
+## Clarification-stage semantics
+
+`HYBRID_AUTO` is an **initial-state** view of the clarification pipeline, not necessarily eventual
+question reachability. `MealReviewService` intentionally prioritizes unresolved canonical/identity
+blockers and returns before hidden-ingredient questions are generated. When a preceding blocker is
+answered, the meal is assessed again and a hidden question may then be created.
+
+Therefore:
+
+- `HYBRID_AUTO.question_risk_surface_*` should be read as **initial hidden-question coverage**;
+- `HYBRID_ORACLE_HITL.question_risk_surface_*` is the companion measurement for **eventual staged
+  reachability after resolvable earlier blockers are progressed**;
+- an initial-stage zero must not be described as hidden risk being dropped until the oracle-assisted
+  staged state has also been measured.
+
 ## Run on an existing frozen development benchmark
 
-P5 makes no model/provider calls. Reuse the same P1 score-first development artifact:
+P5 makes no model/provider calls. Reuse the same P1 score-first development artifact.
+
+Initial automatic state:
 
 ```powershell
 .\backend\.venv\Scripts\python.exe -m evals.run_hidden_risk_analysis `
@@ -64,17 +81,31 @@ P5 makes no model/provider calls. Reuse the same P1 score-first development arti
   --output evals\reports\2026-08-20_hidden_risk_score_first.json
 ```
 
-The report binds itself to the exact manifest and `cases.jsonl` bytes using SHA-256 and refuses to
-overwrite an existing output.
+Eventual staged reachability:
+
+```powershell
+.\backend\.venv\Scripts\python.exe -m evals.run_hidden_risk_analysis `
+  --manifest evals\public\nutrition5k\manifest_v2.json `
+  --cases-jsonl evals\reports\2026-08-19_dev_ranker_score_first_pr_b\cases.jsonl `
+  --split development `
+  --configuration HYBRID_ORACLE_HITL `
+  --output evals\reports\2026-08-20_hidden_risk_score_first_oracle.json
+```
+
+Both reports bind themselves to the exact manifest and `cases.jsonl` bytes using SHA-256 and refuse to
+overwrite existing outputs.
 
 ## Interpretation policy
 
 Report exact identity and risk surfacing side-by-side. Examples:
 
-- low exact recall + high risk-question coverage means the system often notices that something hidden
-  may matter but cannot identify it reliably;
-- high risk coverage + high negative false-positive rate means the system is over-questioning users;
-- low risk coverage means hidden-positive meals can pass without the user ever being warned;
+- low exact recall + high recognition risk coverage means the model notices uncertainty without
+  reliably identifying the hidden ingredient;
+- low initial question coverage + high oracle-stage question coverage means risk is staged behind
+  earlier blockers rather than lost;
+- low initial and oracle-stage question coverage means hidden risk can remain unreachable and the
+  routing policy needs investigation;
+- high risk coverage + high complete-negative false-positive rate means the system is over-questioning;
 - high exact calorie-weighted coverage is stronger evidence than high case-level risk coverage because
   it credits the measured ingredient identity itself.
 
@@ -87,4 +118,5 @@ Do not call case-level risk coverage "hidden ingredient recall". It is a separat
 - no semantic matching between predicted and true hidden ingredients;
 - incomplete hidden truth is never treated as a negative example;
 - no provider calls are needed;
-- risk surfacing never substitutes for exact identity accuracy.
+- risk surfacing never substitutes for exact identity accuracy;
+- initial-stage and eventual-stage question coverage must be reported separately.
