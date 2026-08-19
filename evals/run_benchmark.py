@@ -117,8 +117,17 @@ def main() -> int:
 
 def _validate_frozen(frozen: dict, current) -> None:
     ignored = {"timestamp_utc", "split"}
-    old = [{key: value for key, value in item.items() if key not in ignored} for item in frozen.get("configurations", [])]
-    new = [{key: value for key, value in item.to_dict().items() if key not in ignored} for item in current]
+
+    def normalized(item: dict) -> dict:
+        value = {key: raw for key, raw in item.items() if key not in ignored}
+        # Historical frozen configurations predate stage-isolated recognition replay.
+        # They are equivalent to LIVE recognition with no fixture hash.
+        value.setdefault("recognition_input_mode", "LIVE")
+        value.setdefault("recognition_fixture_sha256", None)
+        return value
+
+    old = [normalized(item) for item in frozen.get("configurations", [])]
+    new = [normalized(item.to_dict()) for item in current]
     if old != new:
         raise SystemExit("current provider/model/prompt/threshold configuration differs from frozen configuration")
 
