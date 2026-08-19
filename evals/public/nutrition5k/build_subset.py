@@ -219,10 +219,12 @@ def build_case(dish_id: str, split: str, row: list[str], image_sha256: str) -> d
                 "name": value["name"],
                 "present": True,
                 "portion_truth_g": value["grams"],
-                "measurement_method": "Published Nutrition5k per-ingredient mass label.",
+                "calories_kcal": value["calories_kcal"],
+                "measurement_method": "Published Nutrition5k per-ingredient mass and calorie label.",
             }
             for value in hidden
         ],
+        "hidden_truth_complete": True,
         "nutrition_truth": {
             "calories_kcal": row[1],
             "protein_g": row[5],
