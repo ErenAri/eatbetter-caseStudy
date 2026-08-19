@@ -106,11 +106,14 @@ class HiddenIngredientTruth(StrictModel):
     name: str = Field(min_length=1, max_length=200)
     present: bool
     portion_truth_g: Decimal | None = Field(default=None, ge=0)
+    calories_kcal: Decimal | None = Field(default=None, ge=0)
     measurement_method: str | None = Field(default=None, max_length=500)
 
     @model_validator(mode="after")
     def measured_values_have_method(self) -> "HiddenIngredientTruth":
-        if self.portion_truth_g is not None and not self.measurement_method:
+        if (
+            self.portion_truth_g is not None or self.calories_kcal is not None
+        ) and not self.measurement_method:
             raise ValueError("measured hidden ingredients require measurement_method")
         return self
 
@@ -130,6 +133,7 @@ class EvaluationCase(StrictModel):
     image: str = Field(min_length=1, max_length=500)
     items: list[GroundTruthItem] = Field(default_factory=list, max_length=30)
     hidden_ingredients: list[HiddenIngredientTruth] = Field(default_factory=list)
+    hidden_truth_complete: bool = False
     nutrition_truth: NutritionTruth | None = None
     provenance: Provenance
     notes: str = Field(default="", max_length=2000)

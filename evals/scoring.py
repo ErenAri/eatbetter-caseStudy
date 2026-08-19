@@ -4,6 +4,7 @@ from collections import Counter
 
 from .benchmark_metrics import (
     clarification_metrics,
+    hidden_ingredient_metrics,
     interval_metrics,
     latency_metrics,
     nutrition_metrics,
@@ -42,6 +43,20 @@ def score_configuration(cases: list[EvaluationCase], records: list[dict], config
     recognition = recognition_metric_values(
         [[ExpectedFood(item.label, tuple(item.acceptable_aliases)) for item in case.items] for case in completed_cases],
         [[item["observed_name"] for item in predicted] for predicted in predicted_by_case],
+    )
+    hidden_recognition = hidden_ingredient_metrics(
+        [
+            [
+                (
+                    item.name,
+                    float(item.calories_kcal) if item.calories_kcal is not None else None,
+                )
+                for item in case.hidden_ingredients
+                if item.present
+            ]
+            for case in completed_cases
+        ],
+        [by_id[case.case_id].get("possible_hidden_ingredients", []) for case in completed_cases],
     )
     preparation_pairs = []
     for case in completed_cases:
@@ -200,6 +215,7 @@ def score_configuration(cases: list[EvaluationCase], records: list[dict], config
     metrics = {
         "completion": {"value": completed / total_requested if total_requested else None, "numerator": completed, "denominator": total_requested, "unit": "ratio"},
         "recognition": recognition,
+        "hidden_ingredient": hidden_recognition,
         "recognition_by_category": category_metrics,
         "retrieval": retrieval_metrics(retrieval_labels, retrieval_ranks),
         "canonicalization": selector_metric_values(selector_cases),

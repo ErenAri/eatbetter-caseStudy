@@ -5,14 +5,14 @@ from statistics import mean, median
 from typing import Iterable
 
 from .canonicalization_metrics import SelectorCaseResult, selector_metrics
-from .recognition_metrics import ExpectedFood, recognition_metrics
+from .recognition_metrics import ExpectedFood, normalize_food_name, recognition_metrics
 
 
 @dataclass(frozen=True)
 class MetricValue:
     value: float | None
     numerator: float | int | None
-    denominator: int
+    denominator: float | int
     unit: str
     exclusion: str | None = None
 
@@ -150,6 +150,47 @@ def clarification_metrics(clarifications_by_meal: list[list[dict]]) -> dict[str,
     resolvable = sum(bool(item["resolvable"]) for item in labeled)
     output["clarification_resolvability"] = MetricValue(resolvable / len(labeled) if labeled else None, resolvable if labeled else None, len(labeled), "ratio", "clarifications without grader-resolvability labels excluded").to_dict()
     return output
+
+
+def hidden_ingredient_metrics(
+    expected_by_case: list[list[tuple[str, float | None]]],
+    predicted_by_case: list[list[str]],
+) -> dict[str, dict]:
+    if len(expected_by_case) != len(predicted_by_case):
+        raise ValueError("hidden ingredient inputs must have equal lengths")
+
+    total = 0
+    matched = 0
+    measured_kcal = 0.0
+    matched_kcal = 0.0
+    for expected, predicted in zip(expected_by_case, predicted_by_case, strict=True):
+        predicted_names = {normalize_food_name(name) for name in predicted}
+        for name, calories_kcal in expected:
+            total += 1
+            hit = normalize_food_name(name) in predicted_names
+            matched += int(hit)
+            if calories_kcal is not None:
+                calories = float(calories_kcal)
+                measured_kcal += calories
+                if hit:
+                    matched_kcal += calories
+
+    return {
+        "recall_all": MetricValue(
+            matched / total if total else None,
+            matched if total else None,
+            total,
+            "ratio",
+            "only ground-truth hidden ingredients marked present are evaluated",
+        ).to_dict(),
+        "calorie_weighted_coverage": MetricValue(
+            matched_kcal / measured_kcal if measured_kcal > 0 else None,
+            matched_kcal if measured_kcal > 0 else None,
+            measured_kcal,
+            "ratio",
+            "hidden ingredients without calorie truth are excluded; denominator is total measured hidden kcal",
+        ).to_dict(),
+    }
 
 
 def latency_metrics(stage_values_ms: dict[str, list[float | None]]) -> dict[str, dict]:

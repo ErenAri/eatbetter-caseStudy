@@ -219,10 +219,12 @@ def build_case(dish_id: str, split: str, row: list[str], image_sha256: str) -> d
                 "name": value["name"],
                 "present": True,
                 "portion_truth_g": value["grams"],
-                "measurement_method": "Published Nutrition5k per-ingredient mass label.",
+                "calories_kcal": value["calories_kcal"],
+                "measurement_method": "Published Nutrition5k per-ingredient mass and calorie label.",
             }
             for value in hidden
         ],
+        "hidden_truth_complete": True,
         "nutrition_truth": {
             "calories_kcal": row[1],
             "protein_g": row[5],
@@ -270,18 +272,20 @@ def main() -> None:
             cases.append(build_case(dish_id, split, rows[dish_id], digest))
             source_files.append({"dish_id": dish_id, "split": split, "url": image_url, "sha256": digest})
 
-    manifest = {"schema_version": 1, "dataset_version": "nutrition5k-public-secondary-v1", "cases": cases}
-    (ROOT / "manifest.json").write_text(json.dumps(manifest, indent=2) + "\n", encoding="utf-8")
+    manifest = {"schema_version": 2, "dataset_version": "nutrition5k-public-secondary-v2", "cases": cases}
+    (ROOT / "manifest_v2.json").write_text(json.dumps(manifest, indent=2) + "\n", encoding="utf-8")
     source = {
         "dataset": "Nutrition5k",
+        "dataset_version": "nutrition5k-public-secondary-v2",
+        "derived_from": "nutrition5k-public-secondary-v1",
         "official_repository": "https://github.com/google-research-datasets/Nutrition5k",
         "license": "CC BY 4.0",
         "license_url": "https://creativecommons.org/licenses/by/4.0/",
-        "selection_policy": "Fixed before model execution; 9 official RGB train IDs and 3 official RGB test IDs.",
+        "selection_policy": "Same fixed 9 development / 3 historical holdout IDs as v1; v2 changes evaluation truth semantics only.",
         "files": source_files,
     }
-    (ROOT / "sources.json").write_text(json.dumps(source, indent=2) + "\n", encoding="utf-8")
-    print(json.dumps({"cases": len(cases), "development": len(SELECTION["development"]), "holdout": len(SELECTION["holdout"])}, sort_keys=True))
+    (ROOT / "sources_v2.json").write_text(json.dumps(source, indent=2) + "\n", encoding="utf-8")
+    print(json.dumps({"cases": len(cases), "development": len(SELECTION["development"]), "holdout": len(SELECTION["holdout"]), "dataset_version": manifest["dataset_version"]}, sort_keys=True))
 
 
 if __name__ == "__main__":
