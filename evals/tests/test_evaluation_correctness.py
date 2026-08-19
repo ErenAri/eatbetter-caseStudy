@@ -4,6 +4,7 @@ from pydantic import ValidationError
 from evals.benchmark_metrics import hidden_ingredient_metrics
 from evals.dataset import DatasetManifest
 from evals.oracle import answer_generated_clarification
+from evals.public.nutrition5k.build_subset import build_case
 from evals.tests.test_p8_dataset import manifest, valid_case
 
 
@@ -133,3 +134,53 @@ def test_hidden_metrics_report_count_recall_and_calorie_weighted_coverage():
     assert metrics["calorie_weighted_coverage"]["value"] == pytest.approx(63 / 64)
     assert metrics["calorie_weighted_coverage"]["numerator"] == pytest.approx(63)
     assert metrics["calorie_weighted_coverage"]["denominator"] == pytest.approx(64)
+
+
+def test_nutrition5k_builder_marks_hidden_truth_complete_and_preserves_hidden_calories():
+    row = [
+        "dish_1559332418",
+        "482.1",
+        "259.0",
+        "24.4",
+        "10.7",
+        "50.3",
+        "1",
+        "salmon",
+        "203.5",
+        "400.0",
+        "20.0",
+        "0.0",
+        "40.0",
+        "2",
+        "brown rice",
+        "40.7",
+        "50.0",
+        "1.0",
+        "10.0",
+        "1.0",
+        "3",
+        "arugula",
+        "8.1",
+        "2.0",
+        "0.0",
+        "0.4",
+        "0.2",
+        "4",
+        "olive oil",
+        "7.7",
+        "68.0",
+        "7.7",
+        "0.0",
+        "0.0",
+    ]
+    case = build_case("dish_1559332418", "development", row, "abc123")
+    assert case["hidden_truth_complete"] is True
+    assert case["hidden_ingredients"] == [
+        {
+            "name": "olive oil",
+            "present": True,
+            "portion_truth_g": "7.7",
+            "calories_kcal": "68.0",
+            "measurement_method": "Published Nutrition5k per-ingredient mass and calorie label.",
+        }
+    ]
