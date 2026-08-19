@@ -13,11 +13,14 @@ sys.path.insert(0, str(ROOT))
 
 from app.infrastructure.config import Settings
 from app.main import create_app
+from app.nutrition.errors import USDAIncompleteNutritionError
 from evals.canonical_equivalence import (
     BlindedReviewPair,
     EquivalenceReviewKey,
     EquivalenceReviewPacket,
     ReviewKeyEntry,
+    UnreviewableKeyEntry,
+    UnreviewableReason,
     file_sha256,
     food_snapshot,
     now_utc,
@@ -118,6 +121,47 @@ def _pair_specs(manifest, records: dict[str, dict], *, split: str, configuration
     return sorted(specs, key=lambda value: (value["case_id"], value["item_id"], value["candidate_fdc_id"]))
 
 
+async def _load_review_foods(provider, specs: list[dict]) -> tuple[dict[str, Any], dict[str, UnreviewableReason]]:
+    """Load authoritative details while preserving a strict reference boundary.
+
+    Frozen reference IDs are mandatory evidence: if any reference is unavailable or
+    lacks complete authoritative macros, the audit cannot establish its comparison
+    anchor and must fail. Non-reference candidate IDs are secondary evidence. A
+    candidate that is no longer detail-resolvable is recorded as unreviewable and is
+    excluded from the blinded packet; it is never counted as equivalent.
+    """
+    reference_ids = sorted({spec["reference_fdc_id"] for spec in specs}, key=int)
+    candidate_ids = sorted({spec["candidate_fdc_id"] for spec in specs}, key=int)
+    foods: dict[str, Any] = {}
+    unreviewable: dict[str, UnreviewableReason] = {}
+
+    for food_id in reference_ids:
+        try:
+            food = await provider.get_food(food_id)
+        except USDAIncompleteNutritionError as error:
+            raise ValueError(
+                f"FoodData Central reference FDC {food_id} lacks complete authoritative nutrition"
+            ) from error
+        if food is None:
+            raise ValueError(f"FoodData Central reference detail missing for FDC {food_id}")
+        foods[food_id] = food
+
+    for food_id in candidate_ids:
+        if food_id in foods:
+            continue
+        try:
+            food = await provider.get_food(food_id)
+        except USDAIncompleteNutritionError:
+            unreviewable[food_id] = UnreviewableReason.CANDIDATE_NUTRITION_INCOMPLETE
+            continue
+        if food is None:
+            unreviewable[food_id] = UnreviewableReason.CANDIDATE_DETAIL_NOT_FOUND
+            continue
+        foods[food_id] = food
+
+    return foods, unreviewable
+
+
 async def _build(
     settings: Settings,
     *,
@@ -126,26 +170,13 @@ async def _build(
     manifest_sha256: str,
     candidate_artifact_sha256: str,
     split: str,
-) -> tuple[EquivalenceReviewPacket, list[ReviewKeyEntry]]:
+) -> tuple[EquivalenceReviewPacket, list[ReviewKeyEntry], list[UnreviewableKeyEntry]]:
     app = create_app(settings)
     provider = app.state.nutrition_provider
     if getattr(provider, "source", None) != "USDA_FDC":
         raise ValueError("canonical-equivalence evidence requires the configured USDA_FDC provider")
-    unique_ids = sorted(
-        {
-            food_id
-            for spec in specs
-            for food_id in (spec["reference_fdc_id"], spec["candidate_fdc_id"])
-        },
-        key=int,
-    )
-    foods: dict[str, Any] = {}
     try:
-        for food_id in unique_ids:
-            food = await provider.get_food(food_id)
-            if food is None:
-                raise ValueError(f"FoodData Central detail missing for FDC {food_id}")
-            foods[food_id] = food
+        foods, unreviewable_by_id = await _load_review_foods(provider, specs)
     finally:
         for value in (
             app.state.vision_provider,
@@ -158,6 +189,7 @@ async def _build(
 
     pairs: list[BlindedReviewPair] = []
     key_entries: list[ReviewKeyEntry] = []
+    unreviewable_entries: list[UnreviewableKeyEntry] = []
     for spec in specs:
         pair_id = stable_pair_id(
             dataset_version=manifest.dataset_version,
@@ -166,6 +198,20 @@ async def _build(
             reference_fdc_id=spec["reference_fdc_id"],
             candidate_fdc_id=spec["candidate_fdc_id"],
         )
+        unreviewable_reason = unreviewable_by_id.get(spec["candidate_fdc_id"])
+        if unreviewable_reason is not None:
+            unreviewable_entries.append(
+                UnreviewableKeyEntry(
+                    pair_id=pair_id,
+                    case_id=spec["case_id"],
+                    item_id=spec["item_id"],
+                    reference_fdc_id=spec["reference_fdc_id"],
+                    candidate_fdc_id=spec["candidate_fdc_id"],
+                    reason=unreviewable_reason,
+                )
+            )
+            continue
+
         reference = food_snapshot(foods[spec["reference_fdc_id"]])
         candidate = food_snapshot(foods[spec["candidate_fdc_id"]])
         food_a, food_b = (
@@ -192,6 +238,9 @@ async def _build(
             )
         )
 
+    if not pairs:
+        raise ValueError("no reviewable canonical-equivalence pairs remain after USDA detail validation")
+
     packet = EquivalenceReviewPacket(
         dataset_version=manifest.dataset_version,
         split=split,
@@ -201,7 +250,11 @@ async def _build(
         blindness_note=BLINDNESS_NOTE,
         pairs=sorted(pairs, key=lambda value: value.pair_id),
     )
-    return packet, sorted(key_entries, key=lambda value: value.pair_id)
+    return (
+        packet,
+        sorted(key_entries, key=lambda value: value.pair_id),
+        sorted(unreviewable_entries, key=lambda value: value.pair_id),
+    )
 
 
 def main() -> int:
@@ -235,7 +288,7 @@ def main() -> int:
         raise SystemExit("no non-exact VERIFIED candidate pairs were available for review")
 
     settings = Settings(_env_file=ROOT / "backend" / ".env")
-    packet, key_entries = asyncio.run(
+    packet, key_entries, unreviewable_entries = asyncio.run(
         _build(
             settings,
             manifest=manifest,
@@ -254,12 +307,19 @@ def main() -> int:
         source_candidate_artifact_sha256=file_sha256(candidate_path),
         warning=KEY_WARNING,
         entries=key_entries,
+        unreviewable_entries=unreviewable_entries,
     )
     write_immutable_json(args.key_output.resolve(), key)
     print(
         f"Wrote blinded equivalence packet with {len(packet.pairs)} pairs; "
-        f"packet_sha256={packet_hash}"
+        f"unreviewable={len(unreviewable_entries)}; packet_sha256={packet_hash}"
     )
+    for entry in unreviewable_entries:
+        print(
+            "Unreviewable candidate: "
+            f"case={entry.case_id} item={entry.item_id} fdc_id={entry.candidate_fdc_id} "
+            f"reason={entry.reason}"
+        )
     return 0
 
 
