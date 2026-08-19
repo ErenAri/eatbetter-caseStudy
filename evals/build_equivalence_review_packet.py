@@ -129,6 +129,8 @@ async def _build(
 ) -> tuple[EquivalenceReviewPacket, list[ReviewKeyEntry]]:
     app = create_app(settings)
     provider = app.state.nutrition_provider
+    if getattr(provider, "source", None) != "USDA_FDC":
+        raise ValueError("canonical-equivalence evidence requires the configured USDA_FDC provider")
     unique_ids = sorted(
         {
             food_id
