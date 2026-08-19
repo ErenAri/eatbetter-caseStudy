@@ -14,8 +14,8 @@ test("resolved item shows Looks good and enables save", async () => {
 test("portion clarification submits the stored option and disables save", async () => {
   const onAnswer = jest.fn();
   const view = await render(<ReviewScreen meal={reviewMeal(portionClarification)} {...props} onAnswer={onAnswer} />);
-  expect(view.getByText("How much rice was there?")).toBeTruthy();
-  fireEvent.press(view.getByRole("button", { name: "About this amount" }));
+  expect(view.getByText("About how much rice did you eat?")).toBeTruthy();
+  fireEvent.press(view.getByRole("button", { name: "About 180 g" }));
   expect(onAnswer).toHaveBeenCalledWith("portion-1", { option_id: "estimated" });
   expect(view.getByRole("button", { name: /Review 1 item/ }).props.accessibilityState.disabled).toBe(true);
 });
@@ -28,10 +28,10 @@ test("canonical clarification renders readable candidate and submits option id",
   expect(view.queryByText(/rank 1/i)).toBeNull();
 });
 
-test("hidden ingredient clarification uses simple product language", async () => {
+test("hidden ingredient clarification avoids claiming the photo confirms hidden use", async () => {
   const view = await render(<ReviewScreen meal={reviewMeal(hiddenClarification)} {...props} />);
-  expect(view.getByText("Was cooking oil used?")).toBeTruthy();
-  expect(view.getByText(/significantly change/)).toBeTruthy();
+  expect(view.getByText("Was cooking oil used in a way the photo may not show?")).toBeTruthy();
+  expect(view.getByText(/photo alone cannot confirm hidden ingredients/i)).toBeTruthy();
   expect(view.getByRole("button", { name: "Not sure" })).toBeTruthy();
 });
 
@@ -64,12 +64,12 @@ test("ignores pending blockers that belong to removed items", async () => {
   expect(view.getByRole("button", { name: "Save meal" }).props.accessibilityState.disabled).toBe(false);
 });
 
-test("None of these opens replacement and replaces the original item", async () => {
+test("Search for another food opens replacement and replaces the original item", async () => {
   const onReplace = jest.fn().mockResolvedValue(true);
   const meal = reviewMeal(canonicalClarification);
   const view = await render(<ReviewScreen meal={meal} {...props} onReplace={onReplace} />);
 
-  await act(async () => { fireEvent.press(view.getByRole("button", { name: "None of these" })); });
+  await act(async () => { fireEvent.press(view.getByRole("button", { name: "Search for another food" })); });
   await act(async () => { fireEvent.changeText(view.getByLabelText("Food search"), "brown rice"); });
   await act(async () => { fireEvent.changeText(view.getByLabelText("Food amount in grams"), "150"); });
   await act(async () => { fireEvent.press(view.getByRole("button", { name: "Replace food" })); });
