@@ -81,12 +81,49 @@ wrong-strong selection, and the per-item candidate lists. `configuration.json` r
 The score-first ranker is an ablation control, not a product configuration. The runner rejects it
 without frozen recognition, so it cannot be used accidentally in a live end-to-end or holdout run.
 
+## 4. P2 selector permutation robustness
+
+P2 measures whether canonical selection changes merely because the same candidate identities are
+presented in a different order. The runner only evaluates items whose recognition matches a ground-truth
+item, whose canonical truth is `VERIFIED`, and whose acceptable FDC ID is already present in the top
+five. Retrieval misses and recognition errors are therefore excluded from the selector-robustness
+denominator.
+
+Use the score-first control first because P1 showed better downstream selector safety on the frozen
+development input:
+
+```powershell
+.\backend\.venv\Scripts\python.exe -m evals.run_selector_permutation_eval `
+  --manifest evals\public\nutrition5k\manifest_v2.json `
+  --split development `
+  --frozen-recognition evals\private\frozen\nutrition5k_v2_dev_recognition.json `
+  --retrieval-ranker score-first-pr-b `
+  --output evals\reports\2026-08-19_selector_permutation_score_first.json
+```
+
+Each eligible item receives seven canonicalization calls:
+
+- `CONTROL_A`, `CONTROL_B`, `CONTROL_C`: identical candidate array and rank labels; estimates model
+  stochasticity on a repeated identical request.
+- `ARRAY_REVERSED`, `ARRAY_ROTATE_LEFT`: candidate array order changes while each candidate keeps its
+  original numeric rank. These isolate serialization/array-position sensitivity.
+- `RERANK_REVERSED`, `RERANK_ROTATE_LEFT`: candidate identities are reordered and ranks are reassigned
+  `1..N`. These measure sensitivity to the production ranking/rank-label signal.
+
+The report stores raw model selection and the post-deterministic-gate selection separately. Primary
+metrics are control-repeat instability, array-position sensitivity, rank-label sensitivity, and
+condition-level canonical accuracy. Interpret permutation sensitivity relative to control-repeat
+instability; a difference seen equally often in repeated controls is stochasticity, not evidence of
+position bias.
+
 ## Guardrails
 
 - Frozen recognition replay is development-only. The runner rejects it for holdout.
 - A frozen-recognition run cannot write `final_configuration.json`; final product configuration must be
   frozen from a normal end-to-end development run.
 - Non-production ranker ablations require frozen recognition.
+- Selector permutation evaluation is development-only and does not mutate product ranking, prompts,
+  ground truth, acceptable FDC IDs, or selector thresholds.
 - Vision latency and vision token usage from replay runs are not comparable with live vision runs.
   Use frozen runs to compare downstream retrieval/selector behavior, not end-to-end cost or latency.
 - Do not edit a fixture in place. Create a new fixture only when intentionally starting a new
