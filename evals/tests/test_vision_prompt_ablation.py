@@ -1,3 +1,5 @@
+import pytest
+
 from evals.run_vision_prompt_ablation import (
     BASELINE_NAME,
     CANDIDATE_NAME,
@@ -77,7 +79,7 @@ def test_repeat_summary_keeps_sampling_visible_and_averages_metrics() -> None:
     summary = summarize_repeats(values)
 
     assert summary["food_f1"]["values"] == [0.50, 0.70]
-    assert summary["food_f1"]["mean"] == 0.60
+    assert summary["food_f1"]["mean"] == pytest.approx(0.60)
     assert summary["missed_food_count"]["mean"] == 2.5
     assert summary["hallucinated_food_count"]["mean"] == 3.5
     assert summary["diagnostic_event_means"]["UNDER_SEGMENTATION"] == 0.5
@@ -96,28 +98,20 @@ def test_paired_deltas_are_candidate_minus_baseline_per_repeat() -> None:
 
     result = paired_deltas(baseline, candidate)
 
-    assert result[0]["food_f1_delta"] == 0.20
+    assert result[0]["food_f1_delta"] == pytest.approx(0.20)
     assert result[0]["missed_food_count_delta"] == -2
     assert result[0]["hallucinated_food_count_delta"] == -1
-    assert result[1]["food_f1_delta"] == -0.05
+    assert result[1]["food_f1_delta"] == pytest.approx(-0.05)
     assert result[1]["missed_food_count_delta"] == 1
     assert result[1]["hallucinated_food_count_delta"] == -1
 
 
 def test_summary_rejects_empty_repeat_set() -> None:
-    try:
+    with pytest.raises(ValueError, match="at least one"):
         summarize_repeats([])
-    except ValueError as error:
-        assert "at least one" in str(error)
-    else:
-        raise AssertionError("empty prompt-ablation repeat set must be rejected")
 
 
 def test_paired_deltas_reject_unpaired_repeat_counts() -> None:
     one = [repeat(f1=0.5, precision=0.5, recall=0.5, missed=1, hallucinated=1)]
-    try:
+    with pytest.raises(ValueError, match="equal lengths"):
         paired_deltas(one, [])
-    except ValueError as error:
-        assert "equal lengths" in str(error)
-    else:
-        raise AssertionError("unpaired prompt-ablation repeats must be rejected")
