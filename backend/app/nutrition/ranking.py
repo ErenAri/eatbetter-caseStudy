@@ -1,7 +1,8 @@
 from decimal import Decimal
-from typing import Any
+from typing import Any, Callable
 
 from .normalization import (
+    PREPARATION_TERMS,
     canonical_gate_ordered_token_roles,
     canonical_gate_token_roles,
     normalize_food_query,
@@ -28,6 +29,10 @@ USDA_ADMINISTRATIVE_IDENTITY_TERMS = frozenset(
     }
 )
 
+SEMANTIC_RANKER = "semantic"
+SCORE_FIRST_PR_B_RANKER = "score-first-pr-b"
+FoodRanker = Callable[[str, list[Any]], list[Any]]
+
 
 def deterministic_food_score(query: str, food: Any) -> Decimal:
     """Retain USDA score/data-type evidence as a late deterministic tie-breaker."""
@@ -38,6 +43,28 @@ def deterministic_food_score(query: str, food: Any) -> Decimal:
     overlap = len(query_tokens & description_tokens) / max(len(query_tokens), 1)
     score = Decimal(str(food.score or 0))
     score += Decimal(str(overlap)) * Decimal("20")
+    if normalized_query == normalized_description:
+        score += Decimal("40")
+    score += DATA_TYPE_BONUS.get(food.data_type.lower(), Decimal("0"))
+    if food.brand_owner:
+        score -= Decimal("10")
+    return score
+
+
+def _score_first_pr_b_food_score(query: str, food: Any) -> Decimal:
+    """Reproduce the pre-PR-C score-first ranker for controlled ablation only."""
+    normalized_query = normalize_food_query(query)
+    normalized_description = normalize_food_query(food.description)
+    query_tokens = set(normalized_query.split())
+    description_tokens = set(normalized_description.split())
+    overlap = len(query_tokens & description_tokens) / max(len(query_tokens), 1)
+    preparation_overlap = len(
+        (query_tokens & PREPARATION_TERMS)
+        & (description_tokens & PREPARATION_TERMS)
+    )
+    score = Decimal(str(food.score or 0))
+    score += Decimal(str(overlap)) * Decimal("20")
+    score += Decimal(preparation_overlap) * Decimal("8")
     if normalized_query == normalized_description:
         score += Decimal("40")
     score += DATA_TYPE_BONUS.get(food.data_type.lower(), Decimal("0"))
@@ -130,10 +157,24 @@ def _semantic_rank_key(query: str, food: Any) -> tuple:
 
 
 def rank_foods(query: str, foods: list[Any]) -> list[Any]:
-    """Prefer semantic/generic compatibility before USDA's own text score.
-
-    A broad visual observation should not be displaced by a narrower subtype
-    merely because USDA's search engine scored that subtype higher. The original
-    USDA score and data-type preference remain deterministic tie-breakers.
-    """
+    """Production semantic/generic reranker."""
     return sorted(foods, key=lambda food: _semantic_rank_key(query, food))
+
+
+def rank_foods_score_first_pr_b(query: str, foods: list[Any]) -> list[Any]:
+    """Historical PR-B score-first ranker used only for controlled evaluation."""
+    return sorted(
+        foods,
+        key=lambda food: (
+            -_score_first_pr_b_food_score(query, food),
+            str(food.fdc_id),
+        ),
+    )
+
+
+def resolve_food_ranker(name: str) -> FoodRanker:
+    if name == SEMANTIC_RANKER:
+        return rank_foods
+    if name == SCORE_FIRST_PR_B_RANKER:
+        return rank_foods_score_first_pr_b
+    raise ValueError(f"unknown USDA ranking strategy: {name}")

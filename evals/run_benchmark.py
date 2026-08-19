@@ -10,7 +10,13 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "backend"))
 sys.path.insert(0, str(ROOT))
 
+import app.nutrition.providers.usda as usda_provider_module
 from app.infrastructure.config import Settings
+from app.nutrition.ranking import (
+    SEMANTIC_RANKER,
+    SCORE_FIRST_PR_B_RANKER,
+    resolve_food_ranker,
+)
 from evals.configuration import ConfigurationName, snapshot, validate_real_providers
 from evals.dataset import Split, load_manifest
 from evals.live_benchmark import run_live
@@ -32,6 +38,15 @@ def parse_args() -> argparse.Namespace:
         help=(
             "Development-only: replay an immutable recognition fixture instead of calling vision. "
             "Use this for downstream retrieval/selector ablations on identical upstream observations."
+        ),
+    )
+    parser.add_argument(
+        "--retrieval-ranker",
+        choices=[SEMANTIC_RANKER, SCORE_FIRST_PR_B_RANKER],
+        default=SEMANTIC_RANKER,
+        help=(
+            "USDA local ranker. score-first-pr-b is an evaluation-only ablation and requires "
+            "--frozen-recognition on the development split."
         ),
     )
     return parser.parse_args()
@@ -59,6 +74,10 @@ def main() -> int:
             split=args.split,
             expected_images=manifest_image_hashes(manifest_path, selected),
         )
+    if args.retrieval_ranker != SEMANTIC_RANKER and recognition_fixture is None:
+        raise SystemExit(
+            "non-production retrieval rankers require --frozen-recognition development replay"
+        )
 
     frozen_vision_configuration = None
     if recognition_fixture is not None:
@@ -82,6 +101,7 @@ def main() -> int:
                 recognition_fixture.content_sha256 if recognition_fixture else None
             ),
             frozen_vision_configuration=frozen_vision_configuration,
+            retrieval_ranker=args.retrieval_ranker,
         )
         for name in ConfigurationName
     ]
@@ -102,15 +122,22 @@ def main() -> int:
         with args.write_final_configuration.open("x", encoding="utf-8") as stream:
             json.dump({"configurations": [item.to_dict() for item in snapshots]}, stream, indent=2, sort_keys=True)
             stream.write("\n")
-    records = asyncio.run(
-        run_live(
-            settings,
-            manifest_path,
-            manifest,
-            split=args.split,
-            recognition_fixture=recognition_fixture,
+
+    original_ranker = usda_provider_module.rank_foods
+    usda_provider_module.rank_foods = resolve_food_ranker(args.retrieval_ranker)
+    try:
+        records = asyncio.run(
+            run_live(
+                settings,
+                manifest_path,
+                manifest,
+                split=args.split,
+                recognition_fixture=recognition_fixture,
+            )
         )
-    )
+    finally:
+        usda_provider_module.rank_foods = original_ranker
+
     write_report(args.output.resolve(), manifest=manifest, cases=selected, records=records, configurations=snapshots)
     return 0
 
@@ -120,10 +147,12 @@ def _validate_frozen(frozen: dict, current) -> None:
 
     def normalized(item: dict) -> dict:
         value = {key: raw for key, raw in item.items() if key not in ignored}
-        # Historical frozen configurations predate stage-isolated recognition replay.
-        # They are equivalent to LIVE recognition with no fixture hash.
+        # Historical frozen configurations predate stage-isolated recognition replay
+        # and ranker ablations. They are equivalent to LIVE recognition with the
+        # production semantic ranker and no fixture hash.
         value.setdefault("recognition_input_mode", "LIVE")
         value.setdefault("recognition_fixture_sha256", None)
+        value.setdefault("retrieval_ranker", SEMANTIC_RANKER)
         return value
 
     old = [normalized(item) for item in frozen.get("configurations", [])]
