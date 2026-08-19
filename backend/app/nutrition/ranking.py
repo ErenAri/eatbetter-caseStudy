@@ -73,11 +73,16 @@ def _semantic_rank_key(query: str, food: Any) -> tuple:
         - query_identity
         - USDA_ADMINISTRATIVE_IDENTITY_TERMS
     )
+    # NFS/NS entries are useful generic defaults only when the candidate has not
+    # changed food identity. For example, "Olives, NFS" is a good generic match
+    # for "olives", but "Almond milk, NFS" must not get a genericity advantage
+    # for an "almonds" observation merely because it contains the almond token.
+    generic_suitability = _generic_marker(food.description) if not extra_identity else 0
     return (
         -identity_support,
         -_preparation_support(query_preparation, description_preparation),
-        -_generic_marker(food.description),
         len(extra_identity),
+        -generic_suitability,
         -deterministic_food_score(query, food),
         str(food.fdc_id),
     )
