@@ -27,7 +27,10 @@ def test_configuration_snapshot_has_reproducibility_fields_and_no_secrets():
     value = snapshot(real_settings(), configuration=ConfigurationName.HYBRID_AUTO, dataset_version="v1", split="development", seed=7).to_dict()
     for key in ("vision_model", "vision_prompt_version", "image_detail", "retrieval_strategy", "canonicalization_prompt_version", "absolute_threshold_kcal", "relative_threshold", "dataset_version", "split", "timestamp_utc"):
         assert key in value
-    assert value["retrieval_strategy"] == "normalized single-query ranked top-5; authoritative detail after selection"
+    assert value["retrieval_strategy"] == (
+        "required-identity USDA query with bounded loose fallback; "
+        "semantic/generic local rerank; top-5 after dedupe; authoritative detail after selection"
+    )
     assert "api_key" not in " ".join(value)
 
 
