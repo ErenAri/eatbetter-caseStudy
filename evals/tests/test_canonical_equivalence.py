@@ -1,6 +1,10 @@
 from __future__ import annotations
 
-from evals.build_equivalence_review_packet import _pair_specs
+import asyncio
+
+import pytest
+
+from evals.build_equivalence_review_packet import _load_review_foods, _pair_specs
 from evals.canonical_equivalence import (
     BlindedReviewPair,
     EquivalenceAdjudication,
@@ -10,6 +14,8 @@ from evals.canonical_equivalence import (
     EquivalenceReviewPacket,
     FoodSnapshot,
     ReviewKeyEntry,
+    UnreviewableKeyEntry,
+    UnreviewableReason,
     equivalent_candidate_ids_by_item,
     reference_goes_first,
     stable_pair_id,
@@ -189,3 +195,84 @@ def test_artifact_validation_requires_complete_matching_pair_set() -> None:
         assert "pair set mismatch" in str(error)
     else:
         raise AssertionError("incomplete adjudication set must be rejected")
+
+
+class FakeDetailProvider:
+    def __init__(self, values: dict[str, object | None]) -> None:
+        self.values = values
+
+    async def get_food(self, food_id: str):
+        return self.values.get(food_id)
+
+
+def review_specs() -> list[dict]:
+    return [
+        {
+            "case_id": "meal_001",
+            "item_id": "banana",
+            "target_label": "banana",
+            "target_preparation": "raw",
+            "reference_fdc_id": "173944",
+            "candidate_fdc_id": "999",
+        },
+        {
+            "case_id": "meal_001",
+            "item_id": "banana",
+            "target_label": "banana",
+            "target_preparation": "raw",
+            "reference_fdc_id": "173944",
+            "candidate_fdc_id": "888",
+        },
+    ]
+
+
+def test_missing_candidate_detail_is_unreviewable_not_global_failure() -> None:
+    reference = object()
+    candidate = object()
+    foods, unreviewable = asyncio.run(
+        _load_review_foods(
+            FakeDetailProvider({"173944": reference, "999": None, "888": candidate}),
+            review_specs(),
+        )
+    )
+
+    assert foods == {"173944": reference, "888": candidate}
+    assert unreviewable == {"999": UnreviewableReason.CANDIDATE_DETAIL_NOT_FOUND}
+
+
+def test_missing_reference_detail_still_fails_closed() -> None:
+    with pytest.raises(ValueError, match="reference detail missing"):
+        asyncio.run(
+            _load_review_foods(
+                FakeDetailProvider({"173944": None, "999": object(), "888": object()}),
+                review_specs(),
+            )
+        )
+
+
+def test_private_key_tracks_unreviewable_pairs_without_expanding_review_set() -> None:
+    review_key = key().model_copy(
+        update={
+            "unreviewable_entries": [
+                UnreviewableKeyEntry(
+                    pair_id="d" * 64,
+                    case_id="meal_001",
+                    item_id="banana",
+                    reference_fdc_id="173944",
+                    candidate_fdc_id="321360",
+                    reason=UnreviewableReason.CANDIDATE_DETAIL_NOT_FOUND,
+                )
+            ]
+        }
+    )
+    validate_adjudications(
+        packet=packet(),
+        packet_sha256="c" * 64,
+        key=review_key,
+        adjudications=adjudications(EquivalenceDecision.EQUIVALENT),
+    )
+    expanded = equivalent_candidate_ids_by_item(
+        review_key, adjudications(EquivalenceDecision.EQUIVALENT)
+    )
+    assert expanded[("meal_001", "banana")] == {"999"}
+    assert "321360" not in expanded[("meal_001", "banana")]
