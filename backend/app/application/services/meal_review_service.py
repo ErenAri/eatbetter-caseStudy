@@ -252,12 +252,12 @@ class MealReviewService:
             maximum = item.portion_estimate.max_g
             midpoint = (minimum + maximum) / Decimal("2")
             values = (
-                [("estimated", f"About {midpoint.normalize()} g", midpoint)]
+                [("estimated", f"About {midpoint} g", midpoint)]
                 if minimum == maximum
                 else [
-                    ("smaller", f"About {minimum.normalize()} g", minimum),
-                    ("estimated", f"About {midpoint.normalize()} g", midpoint),
-                    ("larger", f"About {maximum.normalize()} g", maximum),
+                    ("smaller", f"About {minimum} g", minimum),
+                    ("estimated", f"About {midpoint} g", midpoint),
+                    ("larger", f"About {maximum} g", maximum),
                 ]
             )
         options = tuple(
