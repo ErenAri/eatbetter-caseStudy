@@ -37,7 +37,7 @@ type ClarificationBase<TType extends string, TValue> = {
   blocking: boolean;
   resolution_satisfied: boolean;
 };
-export type CanonicalClarification = ClarificationBase<"CANONICAL_SELECTION", { candidate_rank: number } | { action: "MANUAL_SEARCH" }>;
+export type CanonicalClarification = ClarificationBase<"CANONICAL_SELECTION", { candidate_rank: number } | { action: "MANUAL_SEARCH" | "REMOVE_ITEM" }>;
 export type PortionClarification = ClarificationBase<"PORTION", { grams: string; household_unit?: string }>;
 export type HiddenIngredientClarification = ClarificationBase<"HIDDEN_INGREDIENT", { presence: "NO" | "YES" | "NOT_SURE"; name: string }>;
 export type FoodIdentityClarification = ClarificationBase<"FOOD_IDENTITY", { action: "MANUAL_SEARCH" | "REMOVE_ITEM" }>;
