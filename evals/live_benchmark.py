@@ -14,6 +14,7 @@ from app.main import create_app
 from .configuration import ConfigurationName, validate_real_providers
 from .dataset import DatasetManifest, EvaluationCase
 from .oracle import answer_generated_clarification
+from .recognition_fixture import FrozenVisionProvider, RecognitionFixture
 
 
 def _number(value):
@@ -165,11 +166,21 @@ async def _apply_oracle(meal, service, case: EvaluationCase) -> tuple[object, li
     return meal, graded
 
 
-async def run_live(settings, manifest_path: Path, manifest: DatasetManifest, *, split: str) -> list[dict]:
+async def run_live(
+    settings,
+    manifest_path: Path,
+    manifest: DatasetManifest,
+    *,
+    split: str,
+    recognition_fixture: RecognitionFixture | None = None,
+) -> list[dict]:
     validate_real_providers(settings)
     app = create_app(settings)
     service = app.state.meal_service
     nutrition_provider = app.state.nutrition_provider
+    frozen_provider = FrozenVisionProvider(recognition_fixture) if recognition_fixture else None
+    if frozen_provider is not None:
+        service.recognition.vision_provider = frozen_provider
     user_id = uuid5(NAMESPACE_URL, "eatbetter-p8-evaluator")
     records: list[dict] = []
     try:
@@ -231,7 +242,14 @@ async def run_live(settings, manifest_path: Path, manifest: DatasetManifest, *, 
             except Exception as error:
                 records.append({"case_id": case.case_id, "status": "infrastructure_failure", "error_type": type(error).__name__, "error": str(error), "latency_ms": {"total": round((perf_counter() - started) * 1000)}})
     finally:
-        for provider in (app.state.vision_provider, app.state.canonicalization_provider, app.state.nutrition_provider):
+        providers = [
+            app.state.vision_provider,
+            app.state.canonicalization_provider,
+            app.state.nutrition_provider,
+        ]
+        if frozen_provider is not None:
+            providers.append(frozen_provider)
+        for provider in providers:
             close = getattr(provider, "aclose", None)
             if close:
                 await close()
