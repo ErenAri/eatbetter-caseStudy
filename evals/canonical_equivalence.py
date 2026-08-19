@@ -122,6 +122,26 @@ class EquivalenceAdjudicationSet(StrictModel):
     reviewed_utc: str
     adjudications: list[EquivalenceAdjudication]
 
+    @field_validator("reviewer")
+    @classmethod
+    def completed_reviewer(cls, value: str) -> str:
+        if value.upper().startswith("REPLACE"):
+            raise ValueError("reviewer placeholder must be replaced before scoring")
+        return value
+
+    @field_validator("reviewed_utc")
+    @classmethod
+    def valid_reviewed_utc(cls, value: str) -> str:
+        if value.upper().startswith("REPLACE"):
+            raise ValueError("reviewed_utc placeholder must be replaced before scoring")
+        try:
+            parsed = datetime.fromisoformat(value.replace("Z", "+00:00"))
+        except ValueError:
+            raise ValueError("reviewed_utc must be an ISO-8601 timestamp") from None
+        if parsed.tzinfo is None:
+            raise ValueError("reviewed_utc must include a timezone")
+        return value
+
     @model_validator(mode="after")
     def unique_pairs(self) -> "EquivalenceAdjudicationSet":
         ids = [entry.pair_id for entry in self.adjudications]
