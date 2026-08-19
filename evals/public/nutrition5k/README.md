@@ -40,6 +40,10 @@ supports:
 - `calories_kcal` for measured hidden ingredients, allowing count-based hidden recall and
   calorie-weighted hidden coverage to be reported separately without inventing a materiality threshold.
 
+V2 split locks use canonical JSON plus image SHA-256 digests so the dataset hash is stable across LF and
+CRLF checkouts. V1 keeps its historical raw-manifest hash behavior so the previously published v1 lock
+is not reinterpreted retroactively.
+
 Create a new split lock for v2 after generating the manifest. Because the three original holdout dishes
 have already been observed, v2 development data may be used for tuning but those same three dishes must
 not be described as a new untouched holdout. A future final holdout requires previously unseen cases.
