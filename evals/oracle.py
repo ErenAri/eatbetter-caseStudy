@@ -37,6 +37,17 @@ def _atomic_hidden_hypothesis(value: str) -> bool:
     return bool(normalized) and re.search(r"\b(?:or|and)\b|/", normalized) is None
 
 
+def _hidden_hypothesis_overlaps_truth(value: str, case: EvaluationCase) -> bool:
+    """Avoid false negatives for semantically adjacent labels such as cooking oil vs olive oil."""
+    hypothesis_tokens = set(normalize_food_name(value).split())
+    if not hypothesis_tokens:
+        return False
+    return any(
+        hypothesis_tokens & set(normalize_food_name(item.name).split())
+        for item in case.hidden_ingredients
+    )
+
+
 def answer_generated_clarification(
     clarification: dict,
     case: EvaluationCase,
@@ -67,7 +78,11 @@ def answer_generated_clarification(
             None,
         )
         if hidden is None:
-            if case.hidden_truth_complete and _atomic_hidden_hypothesis(raw_name):
+            if (
+                case.hidden_truth_complete
+                and _atomic_hidden_hypothesis(raw_name)
+                and not _hidden_hypothesis_overlaps_truth(raw_name, case)
+            ):
                 option = next(
                     (
                         item
