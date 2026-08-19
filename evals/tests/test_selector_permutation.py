@@ -22,6 +22,18 @@ def candidate(rank: int, food_id: str) -> CanonicalFoodCandidate:
     )
 
 
+def runs_from(post_gate: dict[str, str], raw: dict[str, str] | None = None) -> list[dict]:
+    raw = raw or post_gate
+    return [
+        {
+            "condition": condition,
+            "raw_selected_food_id": raw[condition],
+            "post_gate_selected_food_id": post_gate[condition],
+        }
+        for condition in ALL_CONDITIONS
+    ]
+
+
 def test_array_permutation_changes_position_but_preserves_rank_labels() -> None:
     values = [candidate(1, "1"), candidate(2, "2"), candidate(3, "3")]
     reversed_values = permuted_candidates(values, "ARRAY_REVERSED")
@@ -48,59 +60,75 @@ def test_summary_separates_control_noise_array_bias_and_rank_bias() -> None:
         "RERANK_REVERSED": "3",
         "RERANK_ROTATE_LEFT": "1",
     }
-    runs = [
-        {"condition": condition, "post_gate_selected_food_id": selected[condition]}
-        for condition in ALL_CONDITIONS
-    ]
+    summary = summarize_item_runs(runs_from(selected), {"1"})
 
-    summary = summarize_item_runs(runs, {"1"})
-
-    assert summary["control_stable"] is True
-    assert summary["control_mode_food_id"] == "1"
-    assert summary["array_position_sensitive"] is True
-    assert summary["rank_label_sensitive"] is True
-    assert summary["control_mode_correct"] is True
-    assert summary["condition_correctness"]["ARRAY_ROTATE_LEFT"] is False
+    for mode in ("raw", "post_gate"):
+        current = summary[mode]
+        assert current["control_stable"] is True
+        assert current["control_mode_food_id"] == "1"
+        assert current["array_position_sensitive"] is True
+        assert current["rank_label_sensitive"] is True
+        assert current["control_mode_correct"] is True
+        assert current["condition_correctness"]["ARRAY_ROTATE_LEFT"] is False
 
 
-def test_aggregate_reports_instability_and_sensitivity_denominators() -> None:
-    first = {
-        "summary": {
-            "control_stable": True,
-            "array_position_sensitive": False,
-            "rank_label_sensitive": True,
-            "control_mode_correct": True,
-            "condition_correctness": {condition: True for condition in ALL_CONDITIONS},
-        }
+def test_aggregate_conditions_sensitivity_on_control_stable_items() -> None:
+    stable_selected = {condition: "1" for condition in ALL_CONDITIONS}
+    stable_selected["RERANK_REVERSED"] = "2"
+    unstable_selected = {
+        "CONTROL_A": "1",
+        "CONTROL_B": "2",
+        "CONTROL_C": "1",
+        "ARRAY_REVERSED": "2",
+        "ARRAY_ROTATE_LEFT": "1",
+        "RERANK_REVERSED": "1",
+        "RERANK_ROTATE_LEFT": "1",
     }
-    second_correctness = {condition: False for condition in ALL_CONDITIONS}
-    second_correctness["CONTROL_A"] = True
-    second = {
-        "summary": {
-            "control_stable": False,
-            "array_position_sensitive": True,
-            "rank_label_sensitive": False,
-            "control_mode_correct": False,
-            "condition_correctness": second_correctness,
-        }
-    }
+    items = []
+    for selected in (stable_selected, unstable_selected):
+        runs = runs_from(selected)
+        items.append(
+            {
+                "acceptable_food_ids": ["1"],
+                "runs": runs,
+                "summary": summarize_item_runs(runs, {"1"}),
+            }
+        )
 
-    metrics = aggregate_item_summaries([first, second])
+    metrics = aggregate_item_summaries(items)
+    gated = metrics["post_gate"]
 
     assert metrics["eligible_item_count"] == 2
-    assert metrics["control_repeat_instability"]["value"] == 0.5
-    assert metrics["array_position_sensitivity"]["value"] == 0.5
-    assert metrics["rank_label_sensitivity"]["value"] == 0.5
-    assert metrics["control_mode_accuracy"]["value"] == 0.5
-    assert metrics["condition_accuracy"]["CONTROL_A"]["value"] == 1.0
+    assert gated["control_repeat_instability"]["value"] == 0.5
+    assert gated["control_stable_item_count"] == 1
+    assert gated["array_position_sensitivity_control_stable"]["value"] == 0.0
+    assert gated["rank_label_sensitivity_control_stable"]["value"] == 1.0
+
+
+def test_gate_effects_distinguish_blocked_wrong_and_blocked_correct_selection() -> None:
+    post = {condition: "1" for condition in ALL_CONDITIONS}
+    raw = dict(post)
+    raw["ARRAY_REVERSED"] = "2"
+    post["ARRAY_REVERSED"] = ABSTAIN_IDENTITY
+    raw["RERANK_REVERSED"] = "1"
+    post["RERANK_REVERSED"] = ABSTAIN_IDENTITY
+    runs = runs_from(post, raw)
+    item = {
+        "acceptable_food_ids": ["1"],
+        "runs": runs,
+        "summary": summarize_item_runs(runs, {"1"}),
+    }
+
+    effects = aggregate_item_summaries([item])["gate_effects"]
+
+    assert effects["selection_changed_by_gate"]["numerator"] == 2
+    assert effects["wrong_selection_blocked"]["numerator"] == 1
+    assert effects["correct_selection_blocked"]["numerator"] == 1
 
 
 def test_abstain_identity_is_explicit_in_summary() -> None:
-    runs = [
-        {"condition": condition, "post_gate_selected_food_id": ABSTAIN_IDENTITY}
-        for condition in ALL_CONDITIONS
-    ]
-    summary = summarize_item_runs(runs, {"1"})
-    assert summary["control_stable"] is True
-    assert summary["control_mode_food_id"] == ABSTAIN_IDENTITY
-    assert summary["control_mode_correct"] is False
+    selected = {condition: ABSTAIN_IDENTITY for condition in ALL_CONDITIONS}
+    summary = summarize_item_runs(runs_from(selected), {"1"})
+    assert summary["post_gate"]["control_stable"] is True
+    assert summary["post_gate"]["control_mode_food_id"] == ABSTAIN_IDENTITY
+    assert summary["post_gate"]["control_mode_correct"] is False
