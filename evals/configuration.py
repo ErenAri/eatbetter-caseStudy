@@ -23,6 +23,8 @@ class ConfigurationSnapshot:
     vision_prompt_version: str
     image_detail: str
     vision_reasoning_effort: str
+    recognition_input_mode: str
+    recognition_fixture_sha256: str | None
     retrieval_provider: str
     retrieval_search_limit: int
     retrieval_strategy: str
@@ -57,15 +59,34 @@ def validate_real_providers(settings) -> None:
         )
 
 
-def snapshot(settings, *, configuration: ConfigurationName, dataset_version: str, split: str, seed: int) -> ConfigurationSnapshot:
+def snapshot(
+    settings,
+    *,
+    configuration: ConfigurationName,
+    dataset_version: str,
+    split: str,
+    seed: int,
+    recognition_input_mode: str = "LIVE",
+    recognition_fixture_sha256: str | None = None,
+    frozen_vision_configuration: dict[str, str] | None = None,
+) -> ConfigurationSnapshot:
     validate_real_providers(settings)
+    vision = frozen_vision_configuration or {
+        "provider": settings.vision_provider,
+        "model": settings.openai_model,
+        "prompt_version": "meal_recognition_v2",
+        "image_detail": settings.openai_image_detail,
+        "reasoning_effort": settings.openai_reasoning_effort,
+    }
     return ConfigurationSnapshot(
         configuration=configuration,
-        vision_provider=settings.vision_provider,
-        vision_model=settings.openai_model,
-        vision_prompt_version="meal_recognition_v2",
-        image_detail=settings.openai_image_detail,
-        vision_reasoning_effort=settings.openai_reasoning_effort,
+        vision_provider=vision["provider"],
+        vision_model=vision["model"],
+        vision_prompt_version=vision["prompt_version"],
+        image_detail=vision["image_detail"],
+        vision_reasoning_effort=vision["reasoning_effort"],
+        recognition_input_mode=recognition_input_mode,
+        recognition_fixture_sha256=recognition_fixture_sha256,
         retrieval_provider=settings.nutrition_provider,
         retrieval_search_limit=settings.usda_search_limit,
         retrieval_strategy=(
