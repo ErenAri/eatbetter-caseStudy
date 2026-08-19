@@ -295,12 +295,16 @@ def main() -> int:
     output.parent.mkdir(parents=True, exist_ok=True)
     output.write_text(json.dumps(report, indent=2, sort_keys=True) + "\n", encoding="utf-8")
     metrics = report["metrics"]
+    raw = metrics["raw"]
+    gated = metrics["post_gate"]
     print(
         "Selector permutation evaluation: "
         f"eligible={metrics['eligible_item_count']}; "
-        f"control-instability={metrics['control_repeat_instability']['value']}; "
-        f"array-sensitivity={metrics['array_position_sensitivity']['value']}; "
-        f"rank-sensitivity={metrics['rank_label_sensitivity']['value']}"
+        f"raw-control-instability={raw['control_repeat_instability']['value']}; "
+        f"raw-array-sensitivity-stable={raw['array_position_sensitivity_control_stable']['value']}; "
+        f"raw-rank-sensitivity-stable={raw['rank_label_sensitivity_control_stable']['value']}; "
+        f"gated-array-sensitivity-stable={gated['array_position_sensitivity_control_stable']['value']}; "
+        f"gated-rank-sensitivity-stable={gated['rank_label_sensitivity_control_stable']['value']}"
     )
     return 0
 
