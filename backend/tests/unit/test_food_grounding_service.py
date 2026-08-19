@@ -104,7 +104,7 @@ async def test_retrieval_deduplicates_indistinguishable_candidate_rows() -> None
 
     assert len(candidates) == 1
     assert candidates[0].rank == 1
-    assert candidates[0].display_name() == "SPAGHETTI · USDA survey food"
+    assert candidates[0].display_name() == "SPAGHETTI · FoodData Central · FNDDS"
 
 
 @pytest.mark.asyncio

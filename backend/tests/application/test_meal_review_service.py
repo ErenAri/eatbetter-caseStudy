@@ -148,7 +148,7 @@ async def test_hidden_ingredient_overlapping_visible_food_is_suppressed():
     await service.assess_meal(meal)
 
     hidden_questions = [value.question for value in meal.clarifications if value.type == "HIDDEN_INGREDIENT"]
-    assert hidden_questions == ["Did this meal include cooking oil?"]
+    assert hidden_questions == ["Was cooking oil used in a way the photo may not show?"]
 
 
 @pytest.mark.asyncio
