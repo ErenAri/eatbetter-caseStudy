@@ -37,6 +37,18 @@ def test_generic_nfs_food_outranks_narrower_composite_for_broad_observation() ->
     assert [value.fdc_id for value in ranked] == [2, 1]
 
 
+def test_generic_marker_does_not_promote_a_different_food_identity() -> None:
+    ranked = rank_foods(
+        "almonds",
+        [
+            food(1, "Almond milk, NFS", score=100),
+            food(2, "Almonds, unroasted", score=1),
+        ],
+    )
+
+    assert [value.fdc_id for value in ranked] == [2, 1]
+
+
 def test_generic_ns_entry_outranks_unrequested_subtype() -> None:
     ranked = rank_foods(
         "bacon cooked",
