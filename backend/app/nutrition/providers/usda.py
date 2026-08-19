@@ -26,7 +26,7 @@ from ..errors import (
     USDATimeoutError,
     USDAUnavailableError,
 )
-from ..normalization import normalize_food_query
+from ..normalization import build_usda_query_variants, normalize_food_query
 from ..ranking import rank_foods
 from ..usda_parser import ParsedUSDANutrition, parse_usda_nutrition
 
@@ -84,7 +84,7 @@ class USDAFoodDataCentralProvider:
         api_key: str,
         base_url: str = "https://api.nal.usda.gov/fdc/v1",
         timeout_seconds: float = 8,
-        search_pool_size: int = 15,
+        search_pool_size: int = 50,
         max_attempts: int = 3,
         client: httpx.AsyncClient | None = None,
         sleep: Callable[[float], Awaitable[None]] = asyncio.sleep,
@@ -95,7 +95,7 @@ class USDAFoodDataCentralProvider:
         self._api_key = api_key
         self._base_url = base_url.rstrip("/")
         self._timeout = httpx.Timeout(timeout_seconds)
-        self._search_pool_size = min(max(search_pool_size, 5), 20)
+        self._search_pool_size = min(max(search_pool_size, 5), 100)
         self._max_attempts = min(max(max_attempts, 1), 5)
         self._sleep = sleep
         self._jitter = jitter
@@ -113,26 +113,45 @@ class USDAFoodDataCentralProvider:
         self, query: str, *, meal_item_id: UUID, limit: int = 5
     ) -> list[CanonicalFoodCandidate]:
         normalized_query = normalize_food_query(query)
-        if not normalized_query:
+        query_variants = build_usda_query_variants(query)
+        if not normalized_query or not query_variants:
             return []
-        started = perf_counter()
-        payload = await self._request_json(
-            "POST",
-            "foods/search",
-            operation="search",
-            json_body={
-                "query": normalized_query,
-                "pageSize": max(self._search_pool_size, min(limit * 2, 20)),
-                "dataType": ["Foundation", "Survey (FNDDS)", "SR Legacy"],
-            },
-        )
-        try:
-            response = USDASearchResponse.model_validate(payload)
-        except ValidationError:
-            self._log_failure("search", "USDA_INVALID_RESPONSE")
-            raise USDAInvalidResponseError("USDA returned an invalid search response.") from None
 
-        ranked = rank_foods(normalized_query, response.foods)[:limit]
+        started = perf_counter()
+        foods_by_id: dict[str, USDASearchFood] = {}
+        executed_variants = 0
+        useful_result_target = min(self._search_pool_size, max(limit * 2, 10))
+
+        for index, search_query in enumerate(query_variants):
+            payload = await self._request_json(
+                "POST",
+                "foods/search",
+                operation="search",
+                json_body={
+                    # Do not run this through normalize_food_query again: the strict
+                    # variant intentionally contains FoodData Central '+' operators.
+                    "query": search_query,
+                    "pageSize": self._search_pool_size,
+                    "dataType": ["Foundation", "Survey (FNDDS)", "SR Legacy"],
+                },
+            )
+            try:
+                response = USDASearchResponse.model_validate(payload)
+            except ValidationError:
+                self._log_failure("search", "USDA_INVALID_RESPONSE")
+                raise USDAInvalidResponseError("USDA returned an invalid search response.") from None
+
+            executed_variants += 1
+            for food in response.foods:
+                foods_by_id.setdefault(str(food.fdc_id), food)
+
+            # The strict required-identity query is preferred. Only spend a
+            # second API request when it did not provide a sufficiently broad
+            # pool for local ranking/deduplication.
+            if index == 0 and len(foods_by_id) >= useful_result_target:
+                break
+
+        ranked = rank_foods(normalized_query, list(foods_by_id.values()))[:limit]
         candidates: list[CanonicalFoodCandidate] = []
         for rank, food in enumerate(ranked, start=1):
             parsed = parse_usda_nutrition(food.food_nutrients)
@@ -151,6 +170,9 @@ class USDAFoodDataCentralProvider:
             "nutrition_search_completed",
             provider=self.source,
             query=normalized_query,
+            query_variant_count=executed_variants,
+            raw_result_count=len(foods_by_id),
+            search_pool_size=self._search_pool_size,
             result_count=len(candidates),
             latency_ms=round((perf_counter() - started) * 1000, 2),
             rate_limit_remaining=self.last_rate_limit.remaining,
