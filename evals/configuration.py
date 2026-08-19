@@ -68,7 +68,10 @@ def snapshot(settings, *, configuration: ConfigurationName, dataset_version: str
         vision_reasoning_effort=settings.openai_reasoning_effort,
         retrieval_provider=settings.nutrition_provider,
         retrieval_search_limit=settings.usda_search_limit,
-        retrieval_strategy="normalized single-query ranked top-5; authoritative detail after selection",
+        retrieval_strategy=(
+            "required-identity USDA query with bounded loose fallback; "
+            "semantic/generic local rerank; top-5 after dedupe; authoritative detail after selection"
+        ),
         canonicalization_provider=settings.canonicalization_provider,
         canonicalization_model=settings.openai_canonicalization_model,
         canonicalization_prompt_version="canonicalization_v1",
