@@ -55,9 +55,23 @@ def _preparation_support(
     return int(query_preparation.issubset(description_preparation))
 
 
+def _normalized_description(value: str) -> str:
+    return " ".join(value.lower().replace(",", " ").split())
+
+
 def _generic_marker(description: str) -> int:
-    lowered = " ".join(description.lower().replace(",", " ").split())
+    lowered = _normalized_description(description)
     return int(" nfs" in f" {lowered}" or "ns as to" in lowered)
+
+
+def _administrative_identity_terms(description: str) -> frozenset[str]:
+    terms = set(USDA_ADMINISTRATIVE_IDENTITY_TERMS)
+    lowered = _normalized_description(description)
+    # In FoodData Central, "NS as to type of meat" describes uncertainty about
+    # the subtype; "meat" is metadata wording rather than an added food identity.
+    if "ns as to type of meat" in lowered:
+        terms.add("meat")
+    return frozenset(terms)
 
 
 def _semantic_rank_key(query: str, food: Any) -> tuple:
@@ -71,7 +85,7 @@ def _semantic_rank_key(query: str, food: Any) -> tuple:
     extra_identity = (
         description_identity
         - query_identity
-        - USDA_ADMINISTRATIVE_IDENTITY_TERMS
+        - _administrative_identity_terms(food.description)
     )
     # NFS/NS entries are useful generic defaults only when the candidate has not
     # changed food identity. For example, "Olives, NFS" is a good generic match
