@@ -101,14 +101,18 @@ def main() -> int:
                 "Strict normalized exact label or pre-approved alias matching remains primary."
             ),
             "diagnostic_policy": (
-                "Exact/alias matches are removed first. Remaining mismatches are classified "
-                "with conservative lexical containment only; no new aliases or semantic "
-                "equivalences are inferred."
+                "Exact/alias matches are removed first. Residual relationships use only the "
+                "primary expected label, so broad acceptable aliases such as rice, salad, or "
+                "greens are not promoted into semantic evidence. Conservative lexical "
+                "containment/overlap only; no new aliases or equivalences are inferred."
             ),
             "interpretation": (
-                "UNDER_SEGMENTATION and OVER_SEGMENTATION describe representation/granularity "
-                "events; IDENTITY_WITH_EXTRA_MODIFIERS and BROADER_LABEL explain strict naming "
-                "mismatches. UNEXPLAINED categories require separate semantic/image review."
+                "UNDER_SEGMENTATION and OVER_SEGMENTATION describe direct granularity events; "
+                "COMPOSITE_ALIAS_WITH_EXTRA_PREDICTIONS records a neutral single-composite "
+                "pattern after an accepted broader alias; IDENTITY_WITH_EXTRA_MODIFIERS and "
+                "BROADER_LABEL are primary-label containment mismatches; "
+                "PARTIAL_IDENTITY_OVERLAP records shared primary wording without asserting "
+                "equivalence. UNEXPLAINED categories require separate semantic/image review."
             ),
         },
     }
