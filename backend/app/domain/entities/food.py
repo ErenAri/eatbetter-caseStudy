@@ -33,7 +33,7 @@ class CanonicalFoodCandidate:
             raise ValueError("candidate rank must be at least 1")
 
     def display_name(self) -> str:
-        """Return a user-facing label that distinguishes materially different results."""
+        """Return a user-facing label while keeping provenance distinct from match confidence."""
         data = self.data if isinstance(self.data, dict) else {}
         details: list[str] = []
         brand = data.get("brand_owner")
@@ -43,10 +43,10 @@ class CanonicalFoodCandidate:
             details.append(str(brand))
         elif data_type:
             friendly_types = {
-                "foundation": "USDA foundation food",
-                "survey (fndds)": "USDA survey food",
-                "sr legacy": "USDA reference food",
-                "branded": "Branded food",
+                "foundation": "FoodData Central · Foundation",
+                "survey (fndds)": "FoodData Central · FNDDS",
+                "sr legacy": "FoodData Central · SR Legacy",
+                "branded": "FoodData Central · Branded",
             }
             details.append(friendly_types.get(str(data_type).lower(), str(data_type)))
         if serving:
