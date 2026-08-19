@@ -74,6 +74,25 @@ def _administrative_identity_terms(description: str) -> frozenset[str]:
     return frozenset(terms)
 
 
+def _head_extra_identity_count(
+    query_identity: frozenset[str], description: str
+) -> int:
+    """Count extra identity introduced in USDA's leading food-name segment.
+
+    FoodData Central descriptions commonly put the product identity before the
+    first comma and qualifiers afterwards. This lets us distinguish a changed
+    product such as ``Almond milk, NFS`` from a qualifier such as
+    ``Almonds, unroasted`` without maintaining benchmark-specific food lists.
+    """
+    head = description.split(",", 1)[0]
+    head_identity, _ = canonical_gate_token_roles(head)
+    return len(
+        head_identity
+        - query_identity
+        - _administrative_identity_terms(head)
+    )
+
+
 def _semantic_rank_key(query: str, food: Any) -> tuple:
     query_identity, query_preparation = canonical_gate_token_roles(query)
     description_identity, description_preparation = canonical_gate_token_roles(
@@ -87,6 +106,7 @@ def _semantic_rank_key(query: str, food: Any) -> tuple:
         - query_identity
         - _administrative_identity_terms(food.description)
     )
+    head_extra_identity = _head_extra_identity_count(query_identity, food.description)
     # NFS/NS entries are useful generic defaults only when the candidate has not
     # changed food identity. For example, "Olives, NFS" is a good generic match
     # for "olives", but "Almond milk, NFS" must not get a genericity advantage
@@ -95,6 +115,7 @@ def _semantic_rank_key(query: str, food: Any) -> tuple:
     return (
         -identity_support,
         -_preparation_support(query_preparation, description_preparation),
+        head_extra_identity,
         len(extra_identity),
         -generic_suitability,
         -deterministic_food_score(query, food),
