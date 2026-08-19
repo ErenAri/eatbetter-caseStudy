@@ -9,10 +9,22 @@ from pathlib import Path
 from evals.dataset import Split, load_manifest
 
 
+def _manifest_hash_payload(manifest_path: Path, schema_version: int) -> bytes:
+    if schema_version >= 2:
+        parsed = json.loads(manifest_path.read_text(encoding="utf-8"))
+        return json.dumps(
+            parsed,
+            ensure_ascii=False,
+            separators=(",", ":"),
+            sort_keys=True,
+        ).encode("utf-8")
+    return manifest_path.read_bytes()
+
+
 def dataset_hash(manifest_path: Path) -> str:
     manifest = load_manifest(manifest_path)
     digest = hashlib.sha256()
-    digest.update(manifest_path.read_bytes())
+    digest.update(_manifest_hash_payload(manifest_path, manifest.schema_version))
     for case in sorted(manifest.cases, key=lambda value: value.case_id):
         image_path = (manifest_path.parent / case.image).resolve()
         digest.update(case.case_id.encode("utf-8"))
@@ -25,7 +37,7 @@ def build_lock(manifest_path: Path) -> dict:
     all_ids = [case.case_id for case in manifest.cases]
     development_ids = [case.case_id for case in manifest.cases if case.split == Split.DEVELOPMENT]
     holdout_ids = [case.case_id for case in manifest.cases if case.split == Split.HOLDOUT]
-    return {
+    lock = {
         "schema_version": 1,
         "dataset_version": manifest.dataset_version,
         "dataset_sha256": dataset_hash(manifest_path),
@@ -37,6 +49,9 @@ def build_lock(manifest_path: Path) -> dict:
         "holdout_count": len(holdout_ids),
         "locked_at_utc": datetime.now(timezone.utc).isoformat(),
     }
+    if manifest.schema_version >= 2:
+        lock["hash_scheme"] = "canonical-json-v2+image-sha256"
+    return lock
 
 
 def main() -> int:
