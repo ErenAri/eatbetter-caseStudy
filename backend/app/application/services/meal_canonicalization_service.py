@@ -14,7 +14,7 @@ from app.ai.schemas import (
 )
 from app.domain.entities import AIRun, Meal, MealItem
 from app.domain.ports import CanonicalizationProvider, MealRepository
-from app.nutrition.normalization import PREPARATION_TERMS, build_grounding_query, normalize_food_query
+from app.nutrition.normalization import canonical_gate_token_roles
 from app.observability.logging import log_event
 
 from .food_grounding_service import FoodGroundingService
@@ -229,32 +229,33 @@ class MealCanonicalizationService:
         if selected is None:
             return False
 
-        query = build_grounding_query(
-            item.normalized_name or item.observed_name,
-            item.preparation_method,
+        identity_tokens, observed_preparation = canonical_gate_token_roles(
+            item.normalized_name or item.observed_name
         )
-        query_tokens = set(normalize_food_query(query).split())
-        selected_tokens = set(normalize_food_query(selected.name).split())
-        if not query_tokens or not selected_tokens:
+        _, explicit_preparation = canonical_gate_token_roles(item.preparation_method or "")
+        requested_preparation = observed_preparation | explicit_preparation
+        selected_identity, selected_preparation = canonical_gate_token_roles(selected.name)
+        if not identity_tokens or not selected_identity:
             return False
 
-        identity_tokens = query_tokens - PREPARATION_TERMS
-        selected_identity = selected_tokens - PREPARATION_TERMS
-        identity_overlap = len(identity_tokens & selected_identity) / max(len(identity_tokens), 1)
-
-        requested_preparation = query_tokens & PREPARATION_TERMS
-        selected_preparation = selected_tokens & PREPARATION_TERMS
-        if requested_preparation and not requested_preparation.issubset(selected_preparation):
+        identity_overlap = len(identity_tokens & selected_identity) / max(
+            len(identity_tokens), 1
+        )
+        if requested_preparation and not requested_preparation.issubset(
+            selected_preparation
+        ):
             return False
 
         support_scores: list[float] = []
         for candidate in candidates[:5]:
-            candidate_tokens = set(normalize_food_query(candidate.name).split()) - PREPARATION_TERMS
+            candidate_identity, _ = canonical_gate_token_roles(candidate.name)
             support_scores.append(
-                len(identity_tokens & candidate_tokens) / max(len(identity_tokens), 1)
+                len(identity_tokens & candidate_identity) / max(len(identity_tokens), 1)
             )
         best_support = max(support_scores, default=0.0)
 
+        # Keep the existing calibrated safety thresholds unchanged. This PR only
+        # fixes the representation supplied to the gate.
         minimum_overlap = 0.75 if output.match_quality == MatchQuality.EXACT else 0.50
         return identity_overlap >= minimum_overlap and identity_overlap >= best_support - 0.15
 
