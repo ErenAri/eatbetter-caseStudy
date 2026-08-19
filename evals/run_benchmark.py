@@ -10,8 +10,13 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "backend"))
 sys.path.insert(0, str(ROOT))
 
+import app.nutrition.providers.usda as usda_provider_module
 from app.infrastructure.config import Settings
-from app.nutrition.ranking import SEMANTIC_RANKER, SCORE_FIRST_PR_B_RANKER
+from app.nutrition.ranking import (
+    SEMANTIC_RANKER,
+    SCORE_FIRST_PR_B_RANKER,
+    resolve_food_ranker,
+)
 from evals.configuration import ConfigurationName, snapshot, validate_real_providers
 from evals.dataset import Split, load_manifest
 from evals.live_benchmark import run_live
@@ -117,16 +122,22 @@ def main() -> int:
         with args.write_final_configuration.open("x", encoding="utf-8") as stream:
             json.dump({"configurations": [item.to_dict() for item in snapshots]}, stream, indent=2, sort_keys=True)
             stream.write("\n")
-    records = asyncio.run(
-        run_live(
-            settings,
-            manifest_path,
-            manifest,
-            split=args.split,
-            recognition_fixture=recognition_fixture,
-            retrieval_ranker=args.retrieval_ranker,
+
+    original_ranker = usda_provider_module.rank_foods
+    usda_provider_module.rank_foods = resolve_food_ranker(args.retrieval_ranker)
+    try:
+        records = asyncio.run(
+            run_live(
+                settings,
+                manifest_path,
+                manifest,
+                split=args.split,
+                recognition_fixture=recognition_fixture,
+            )
         )
-    )
+    finally:
+        usda_provider_module.rank_foods = original_ranker
+
     write_report(args.output.resolve(), manifest=manifest, cases=selected, records=records, configurations=snapshots)
     return 0
 
