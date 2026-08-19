@@ -32,6 +32,20 @@ def _load_jsonl(path: Path) -> list[dict]:
     return records
 
 
+def _question_stage_semantics(configuration: str) -> str:
+    if configuration == str(ConfigurationName.HYBRID_AUTO):
+        return (
+            "initial clarification state; hidden questions may be staged behind unresolved "
+            "canonical/identity blockers"
+        )
+    if configuration == str(ConfigurationName.HYBRID_ORACLE_HITL):
+        return (
+            "oracle-progressed staged state; measures hidden-question reachability after resolvable "
+            "earlier blockers are progressed"
+        )
+    return "configuration does not represent staged hybrid clarification reachability"
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(
         description=(
@@ -70,6 +84,7 @@ def main() -> int:
         "dataset_version": manifest.dataset_version,
         "split": args.split,
         "configuration": args.configuration,
+        "question_stage_semantics": _question_stage_semantics(args.configuration),
         "source_manifest_sha256": sha256(manifest_path.read_bytes()).hexdigest(),
         "source_cases_jsonl_sha256": sha256(cases_path.read_bytes()).hexdigest(),
         "metric_policy": {
@@ -81,6 +96,7 @@ def main() -> int:
                 "A hidden-positive meal is risk-surfaced when the system emits any hidden-risk signal "
                 "or HIDDEN_INGREDIENT question. This does not claim the ingredient identity is correct."
             ),
+            "question_stage": _question_stage_semantics(args.configuration),
             "negative_burden": (
                 "False-positive rates use only hidden_truth_complete meals with no present hidden "
                 "ingredients, so absence is treated as a negative label only when explicitly complete."
@@ -93,6 +109,7 @@ def main() -> int:
             "no semantic ingredient equivalence or post-hoc aliases",
             "risk-surface coverage is reported separately from exact ingredient identity",
             "false-positive question burden is reported alongside coverage",
+            "initial-stage and eventual-stage question coverage must not be conflated",
             "holdout is rejected while metric definitions are under development",
         ],
     }
@@ -110,6 +127,7 @@ def main() -> int:
         f"risk_question_case_recall={question['numerator']}/{question['denominator']}; "
         f"negative_question_fp={false_positive['numerator']}/{false_positive['denominator']}"
     )
+    print(f"Question stage: {_question_stage_semantics(args.configuration)}")
     return 0
 
 
