@@ -116,6 +116,42 @@ condition-level canonical accuracy. Interpret permutation sensitivity relative t
 instability; a difference seen equally often in repeated controls is stochasticity, not evidence of
 position bias.
 
+## 5. P4 frozen recognition segmentation diagnostics
+
+P4 explains why the strict visible-food metric reports a miss/hallucination without changing that
+metric or adding new aliases after the fact. It uses the immutable P0 recognition fixture and performs
+no model calls.
+
+```powershell
+.\backend\.venv\Scripts\python.exe -m evals.run_recognition_segmentation_analysis `
+  --manifest evals\public\nutrition5k\manifest_v2.json `
+  --split development `
+  --frozen-recognition evals\private\frozen\nutrition5k_v2_dev_recognition.json `
+  --output evals\reports\2026-08-20_recognition_segmentation_diagnostics.json
+```
+
+The diagnostic first performs the same strict normalized exact-label/pre-approved-alias matching used
+by the primary recognition metric. Only remaining mismatches are classified, using conservative lexical
+containment:
+
+- `UNDER_SEGMENTATION`: one predicted composite contains two or more independently expected foods,
+  such as `bagel with cream cheese` against separate `bagel` and `cream cheese` truth labels.
+- `OVER_SEGMENTATION`: multiple predicted fragments jointly cover one expected composite label.
+- `IDENTITY_WITH_EXTRA_MODIFIERS`: one prediction contains one expected identity plus additional
+  descriptive tokens, such as `chopped cooked chicken` against `chicken`.
+- `BROADER_LABEL`: a prediction is lexically broader than the expected label.
+- `UNEXPLAINED_MISS` / `UNEXPLAINED_PREDICTION`: strict mismatches not explained by the conservative
+  lexical rules; these require separate semantic/image review.
+
+The report conserves strict error units: an under-segmentation event that produces two primary misses
+and one primary hallucination is recorded as one structural event carrying three strict error units.
+This prevents one granularity mistake from being mistaken for three independent recognition failures
+while leaving primary precision/recall/F1 unchanged.
+
+Do not use this diagnostic taxonomy to silently approve new aliases or to claim a higher recognition
+accuracy. It exists to choose the next engineering intervention: segmentation policy, naming policy, or
+true visual-identity errors.
+
 ## Guardrails
 
 - Frozen recognition replay is development-only. The runner rejects it for holdout.
@@ -124,6 +160,8 @@ position bias.
 - Non-production ranker ablations require frozen recognition.
 - Selector permutation evaluation is development-only and does not mutate product ranking, prompts,
   ground truth, acceptable FDC IDs, or selector thresholds.
+- Recognition segmentation diagnostics are development-only and do not modify the primary strict
+  recognition metric, manifest aliases, vision prompt, or frozen fixture.
 - Vision latency and vision token usage from replay runs are not comparable with live vision runs.
   Use frozen runs to compare downstream retrieval/selector behavior, not end-to-end cost or latency.
 - Do not edit a fixture in place. Create a new fixture only when intentionally starting a new
