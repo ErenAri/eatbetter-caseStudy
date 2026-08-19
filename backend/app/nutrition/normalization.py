@@ -38,9 +38,7 @@ GROUNDING_QUERY_ALIASES = {
 }
 
 # Canonical-selection safety needs a richer vocabulary than retrieval currently
-# uses, but sharing that vocabulary with PREPARATION_TERMS would silently change
-# retrieval/ranking behavior. Keep the gate representation isolated until the
-# retrieval strategy is intentionally revised and re-evaluated.
+# uses. Retrieval v2 reuses the role classification, but not the gate thresholds.
 CANONICAL_GATE_PREPARATION_TERMS = frozenset(
     set(PREPARATION_TERMS)
     | {
@@ -122,32 +120,57 @@ def _canonical_gate_token(value: str) -> str:
     return value
 
 
+def canonical_gate_ordered_token_roles(value: str) -> tuple[tuple[str, ...], tuple[str, ...]]:
+    """Return de-duplicated identity/preparation tokens while preserving order."""
+    decomposed = unicodedata.normalize("NFKD", value).lower()
+    ascii_safe = "".join(
+        character for character in decomposed if not unicodedata.combining(character)
+    )
+    identity: list[str] = []
+    preparation: list[str] = []
+    for raw_token in re.findall(r"[a-z0-9]+", ascii_safe):
+        token = _canonical_gate_token(raw_token)
+        if token in CANONICAL_GATE_PREPARATION_TERMS:
+            if token not in preparation:
+                preparation.append(token)
+            continue
+        if token in CANONICAL_GATE_FORM_TERMS or token in CANONICAL_GATE_STOPWORDS:
+            continue
+        if token not in identity:
+            identity.append(token)
+    return tuple(identity), tuple(preparation)
+
+
 def canonical_gate_token_roles(value: str) -> tuple[frozenset[str], frozenset[str]]:
     """Return normalized identity and preparation tokens for the safety gate.
 
     This is intentionally narrower than stemming/lemmatization: it handles
     common food plurals, separates preparation terms, and drops non-identity
-    form descriptors/function words without changing retrieval representation.
+    form descriptors/function words without changing the loose retrieval text.
     """
-    decomposed = unicodedata.normalize("NFKD", value).lower()
-    ascii_safe = "".join(
-        character for character in decomposed if not unicodedata.combining(character)
-    )
-    tokens = [
-        _canonical_gate_token(token)
-        for token in re.findall(r"[a-z0-9]+", ascii_safe)
-    ]
-    identity = frozenset(
-        token
-        for token in tokens
-        if token not in CANONICAL_GATE_PREPARATION_TERMS
-        and token not in CANONICAL_GATE_FORM_TERMS
-        and token not in CANONICAL_GATE_STOPWORDS
-    )
-    preparation = frozenset(
-        token for token in tokens if token in CANONICAL_GATE_PREPARATION_TERMS
-    )
-    return identity, preparation
+    identity, preparation = canonical_gate_ordered_token_roles(value)
+    return frozenset(identity), frozenset(preparation)
+
+
+def build_usda_query_variants(value: str) -> tuple[str, ...]:
+    """Build a required-identity USDA query with a bounded loose fallback.
+
+    FoodData Central treats plain terms broadly. Prefixing identity tokens with
+    ``+`` makes them required while preparation remains optional evidence. The
+    loose normalized query is retained as a fallback for analyzer/plural edge
+    cases. Operators are intentionally introduced after generic normalization so
+    provider code must not normalize them away again.
+    """
+    loose = normalize_food_query(value)
+    identity, preparation = canonical_gate_ordered_token_roles(value)
+    strict = " ".join(
+        [*(f"+{token}" for token in identity), *preparation]
+    ).strip()
+    variants: list[str] = []
+    for candidate in (strict, loose):
+        if candidate and candidate not in variants:
+            variants.append(candidate)
+    return tuple(variants)
 
 
 def build_grounding_query(observed_name: str, preparation_method: str | None) -> str:
