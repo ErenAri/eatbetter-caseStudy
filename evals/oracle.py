@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import re
 from dataclasses import dataclass
 from decimal import Decimal
 
@@ -30,7 +31,18 @@ def match_truth_item(observed_name: str, case: EvaluationCase) -> GroundTruthIte
     )
 
 
-def answer_generated_clarification(clarification: dict, case: EvaluationCase, *, observed_name: str | None) -> OracleAnswer:
+def _atomic_hidden_hypothesis(value: str) -> bool:
+    """Closed-world negatives are safe only for one concrete ingredient hypothesis."""
+    normalized = value.strip().lower()
+    return bool(normalized) and re.search(r"\b(?:or|and)\b|/", normalized) is None
+
+
+def answer_generated_clarification(
+    clarification: dict,
+    case: EvaluationCase,
+    *,
+    observed_name: str | None,
+) -> OracleAnswer:
     """Grade a generated question only; this function has no pipeline/provider dependency."""
     kind = clarification.get("type")
     options = clarification.get("options", [])
@@ -44,14 +56,55 @@ def answer_generated_clarification(clarification: dict, case: EvaluationCase, *,
     if kind == "PORTION" and truth and truth.portion_truth_g is not None:
         return OracleAnswer(custom_grams=truth.portion_truth_g, resolvable=True)
     if kind == "HIDDEN_INGREDIENT":
-        name = normalize_food_name(str(clarification.get("ingredient_name", "")))
-        hidden = next((item for item in case.hidden_ingredients if normalize_food_name(item.name) == name), None)
+        raw_name = str(clarification.get("ingredient_name", ""))
+        name = normalize_food_name(raw_name)
+        hidden = next(
+            (
+                item
+                for item in case.hidden_ingredients
+                if normalize_food_name(item.name) == name
+            ),
+            None,
+        )
         if hidden is None:
+            if case.hidden_truth_complete and _atomic_hidden_hypothesis(raw_name):
+                option = next(
+                    (
+                        item
+                        for item in options
+                        if item.get("value", {}).get("presence") == "NO"
+                    ),
+                    None,
+                )
+                return OracleAnswer(
+                    option_id=option.get("id") if option else None,
+                    resolvable=option is not None,
+                )
             return OracleAnswer()
         expected_presence = "YES" if hidden.present else "NO"
-        option = next((item for item in options if item.get("value", {}).get("presence") == expected_presence), None)
-        return OracleAnswer(option_id=option.get("id") if option else None, resolvable=option is not None)
+        option = next(
+            (
+                item
+                for item in options
+                if item.get("value", {}).get("presence") == expected_presence
+            ),
+            None,
+        )
+        return OracleAnswer(
+            option_id=option.get("id") if option else None,
+            resolvable=option is not None,
+        )
     if kind == "FOOD_IDENTITY" and truth is None:
-        option = next((item for item in options if item.get("value", {}).get("action") == "REMOVE_ITEM"), None)
-        return OracleAnswer(option_id=option.get("id") if option else None, resolvable=option is not None)
+        option = next(
+            (
+                item
+                for item in options
+                if item.get("value", {}).get("action") == "REMOVE_ITEM"
+            ),
+            None,
+        )
+        return OracleAnswer(
+            option_id=option.get("id") if option else None,
+            resolvable=option is not None,
+        )
     return OracleAnswer()
