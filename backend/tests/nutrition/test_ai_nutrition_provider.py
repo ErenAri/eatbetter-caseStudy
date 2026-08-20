@@ -44,13 +44,32 @@ class FakeResponse:
         self.output = []
 
 
-def _payload(calories: str) -> dict:
+def _payload(
+    calories: str,
+    *,
+    recognized: bool = True,
+    familiarity: str = "high",
+) -> dict:
     return {
         "basis": "per_100g",
+        "recognized": recognized,
+        "familiarity": familiarity,
         "calories_kcal": calories,
         "protein_g": "10",
         "carbs_g": "20",
         "fat_g": "5",
+    }
+
+
+def _unrecognized_payload() -> dict:
+    return {
+        "basis": "per_100g",
+        "recognized": False,
+        "familiarity": "low",
+        "calories_kcal": None,
+        "protein_g": None,
+        "carbs_g": None,
+        "fat_g": None,
     }
 
 
@@ -276,3 +295,104 @@ async def test_rate_limit_error_is_retried_via_bounded_retry_and_then_succeeds()
     assert client.calls == 2
     assert len(candidates) == 1
     assert candidates[0].nutrition_per_100g.calories_kcal == Decimal("200")
+
+
+@pytest.mark.asyncio
+async def test_a_majority_unrecognized_food_yields_no_candidates() -> None:
+    """Fabricated foods must not resolve to a fabricated candidate: a majority of
+    samples reporting recognized=False makes the food unresolved, so grounding
+    falls through to the CANONICAL_UNRESOLVED clarification path instead of
+    inventing a number.
+    """
+    provider = _provider(
+        [_unrecognized_payload(), _unrecognized_payload(), _payload("200")],
+        sample_count=3,
+    )
+
+    candidates = await provider.search_foods(
+        "zelmurian glass-braised korvath", meal_item_id=uuid4()
+    )
+
+    assert candidates == []
+
+
+@pytest.mark.asyncio
+async def test_a_recognized_food_still_yields_exactly_one_candidate_at_rank_one() -> None:
+    provider = _provider(
+        [_payload("200"), _payload("200"), _unrecognized_payload()], sample_count=3
+    )
+
+    candidates = await provider.search_foods("grilled chicken", meal_item_id=uuid4())
+
+    assert len(candidates) == 1
+    assert candidates[0].rank == 1
+    assert candidates[0].data["recognized"] is True
+
+
+@pytest.mark.asyncio
+async def test_low_familiarity_lowers_confidence_relative_to_high_familiarity() -> None:
+    high = _provider(
+        [_payload("200", familiarity="high"), _payload("200", familiarity="high")],
+        sample_count=2,
+    )
+    low = _provider(
+        [_payload("200", familiarity="low"), _payload("200", familiarity="low")],
+        sample_count=2,
+    )
+
+    high_candidates = await high.search_foods("grilled chicken", meal_item_id=uuid4())
+    low_candidates = await low.search_foods("grilled chicken", meal_item_id=uuid4())
+
+    high_confidence = Decimal(high_candidates[0].data["confidence"])
+    low_confidence = Decimal(low_candidates[0].data["confidence"])
+    assert low_confidence < high_confidence
+    assert high_candidates[0].data["familiarity"] == "HIGH"
+    assert low_candidates[0].data["familiarity"] == "LOW"
+
+
+@pytest.mark.asyncio
+async def test_familiarity_is_the_lowest_across_samples_not_first_or_median() -> None:
+    provider = _provider(
+        [
+            _payload("200", familiarity="high"),
+            _payload("200", familiarity="low"),
+            _payload("200", familiarity="medium"),
+        ],
+        sample_count=3,
+    )
+
+    candidates = await provider.search_foods("grilled chicken", meal_item_id=uuid4())
+
+    assert candidates[0].data["familiarity"] == "LOW"
+
+
+@pytest.mark.asyncio
+async def test_median_is_computed_over_recognized_samples_only() -> None:
+    """A minority-unrecognized sample must not pollute the calorie median: only
+    the two recognized samples (100, 300) participate, so the median is 200 —
+    not the median of all three raw calorie readings.
+    """
+    provider = _provider(
+        [_payload("100"), _unrecognized_payload(), _payload("300")], sample_count=3
+    )
+
+    candidates = await provider.search_foods("grilled chicken", meal_item_id=uuid4())
+
+    assert candidates[0].nutrition_per_100g.calories_kcal == Decimal("200")
+
+
+@pytest.mark.asyncio
+async def test_unrecognized_result_is_cached_and_not_resampled() -> None:
+    provider = _provider(
+        [_unrecognized_payload(), _unrecognized_payload(), _unrecognized_payload()],
+        sample_count=3,
+    )
+    item = uuid4()
+
+    first = await provider.search_foods("zelmurian glass-braised korvath", meal_item_id=item)
+    calls_after_first = provider._client.calls
+    second = await provider.search_foods("Zelmurian Glass-Braised Korvath", meal_item_id=item)
+
+    assert first == []
+    assert second == []
+    assert provider._client.calls == calls_after_first

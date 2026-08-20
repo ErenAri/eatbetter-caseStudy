@@ -14,6 +14,7 @@ from __future__ import annotations
 import asyncio
 import random
 from collections.abc import Awaitable, Callable
+from decimal import Decimal
 from pathlib import Path
 from typing import Any
 from uuid import UUID
@@ -37,8 +38,22 @@ from ..consensus import confidence_from_spread, median_nutrition, relative_sprea
 from ..normalization import normalize_food_query
 from ..schemas.ai_nutrition import AINutritionOutput
 
-PROMPT_VERSION = "ai_nutrition_v1"
+PROMPT_VERSION = "ai_nutrition_v2"
 PROMPT_PATH = Path(__file__).parents[2] / "ai" / "prompts" / f"{PROMPT_VERSION}.md"
+
+# Spread measures response *stability*, not *knowledge*: a fabricated food can
+# get identical (wrong) answers every time. Self-reported familiarity is the
+# only knowledge signal available, so it dampens confidence multiplicatively.
+_FAMILIARITY_CONFIDENCE_MULTIPLIER: dict[str, Decimal] = {
+    "high": Decimal("1.0"),
+    "medium": Decimal("0.6"),
+    "low": Decimal("0.3"),
+}
+_FAMILIARITY_ORDER: dict[str, int] = {"low": 0, "medium": 1, "high": 2}
+
+
+def _lowest_familiarity(values: list[str]) -> str:
+    return min(values, key=lambda value: _FAMILIARITY_ORDER[value])
 
 
 class AINutritionProvider:
@@ -78,7 +93,7 @@ class AINutritionProvider:
             timeout=timeout_seconds,
             max_retries=0,
         )
-        self._cache: dict[str, tuple[NutritionPer100g, dict[str, Any]]] = {}
+        self._cache: dict[str, tuple[NutritionPer100g | None, dict[str, Any]]] = {}
 
     async def aclose(self) -> None:
         if self._owns_client:
@@ -107,7 +122,7 @@ class AINutritionProvider:
             "AI nutrition provider request failed.", details=details
         )
 
-    async def _sample_once(self, food_name: str) -> NutritionPer100g:
+    async def _sample_once(self, food_name: str) -> AINutritionOutput:
         async def call_api():
             return await self._client.responses.parse(
                 model=self.model,
@@ -142,21 +157,66 @@ class AINutritionProvider:
                 raise AINutritionInvalidResponseError(
                     "AI nutrition provider returned an invalid estimate."
                 ) from None
-        return NutritionPer100g(
-            parsed.calories_kcal, parsed.protein_g, parsed.carbs_g, parsed.fat_g
-        )
+        return parsed
 
-    async def _resolve(self, normalized: str) -> tuple[NutritionPer100g, dict[str, Any]]:
+    async def _resolve(self, normalized: str) -> tuple[NutritionPer100g | None, dict[str, Any]]:
         key = self._cache_key(normalized)
         cached = self._cache.get(key)
         if cached is not None:
             return cached
 
         samples = [await self._sample_once(normalized) for _ in range(self._sample_count)]
-        nutrition = median_nutrition(samples)
-        spread = relative_spread(samples)
-        confidence = confidence_from_spread(spread)
-        data: dict[str, Any] = {
+        recognized_samples = [sample for sample in samples if sample.recognized]
+        total = len(samples)
+        # Strictly more than half must agree the food is real, otherwise a
+        # single confident hallucination could tip an otherwise-unknown food
+        # into "recognized".
+        is_recognized = len(recognized_samples) * 2 > total
+
+        if not is_recognized:
+            data: dict[str, Any] = {
+                "recognized": False,
+                "sample_count": self._sample_count,
+                "recognized_count": len(recognized_samples),
+                "model": self.model,
+                "prompt_version": self.prompt_version,
+                "estimated": True,
+                "data_type": "AI ESTIMATE — NOT A DATABASE RECORD",
+            }
+            log_event(
+                "ai_nutrition_unrecognized",
+                food=normalized,
+                sample_count=self._sample_count,
+                recognized_count=len(recognized_samples),
+            )
+            self._cache[key] = (None, data)
+            return None, data
+
+        usable = [
+            sample
+            for sample in recognized_samples
+            if sample.calories_kcal is not None
+            and sample.protein_g is not None
+            and sample.carbs_g is not None
+            and sample.fat_g is not None
+        ]
+        if not usable:
+            raise AINutritionInvalidResponseError(
+                "AI nutrition provider marked the food recognized but returned"
+                " no usable nutrient values."
+            )
+        nutrition_samples = [
+            NutritionPer100g(
+                sample.calories_kcal, sample.protein_g, sample.carbs_g, sample.fat_g
+            )
+            for sample in usable
+        ]
+        nutrition = median_nutrition(nutrition_samples)
+        spread = relative_spread(nutrition_samples)
+        familiarity = _lowest_familiarity([sample.familiarity for sample in usable])
+        confidence = confidence_from_spread(spread) * _FAMILIARITY_CONFIDENCE_MULTIPLIER[familiarity]
+        confidence = min(Decimal("1"), max(Decimal("0"), confidence))
+        data = {
             "confidence": str(confidence),
             "spread": str(spread),
             "sample_count": self._sample_count,
@@ -164,6 +224,8 @@ class AINutritionProvider:
             "prompt_version": self.prompt_version,
             "estimated": True,
             "data_type": "AI ESTIMATE — NOT A DATABASE RECORD",
+            "recognized": True,
+            "familiarity": familiarity.upper(),
         }
         log_event(
             "ai_nutrition_resolved",
@@ -171,6 +233,7 @@ class AINutritionProvider:
             sample_count=self._sample_count,
             spread=str(spread),
             confidence=str(confidence),
+            familiarity=familiarity,
         )
         self._cache[key] = (nutrition, data)
         return nutrition, data
@@ -182,6 +245,8 @@ class AINutritionProvider:
         if not normalized:
             return []
         nutrition, data = await self._resolve(normalized)
+        if nutrition is None:
+            return []
         return [
             CanonicalFoodCandidate(
                 meal_item_id=meal_item_id,
@@ -200,6 +265,8 @@ class AINutritionProvider:
         if cached is None:
             return None
         nutrition, data = cached
+        if nutrition is None:
+            return None
         return CanonicalFood(
             source=self.source,
             # The source_food_id is the normalized food name itself: search_foods
