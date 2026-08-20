@@ -20,6 +20,15 @@ def test_sample_count_of_one_is_rejected() -> None:
         Settings(_env_file=None, ai_nutrition_sample_count=1)
 
 
+def test_min_relative_trigger_kcal_defaults_to_25() -> None:
+    assert Settings(_env_file=None).min_relative_trigger_kcal == 25
+
+
+def test_min_relative_trigger_kcal_rejects_negative() -> None:
+    with pytest.raises(ValueError):
+        Settings(_env_file=None, min_relative_trigger_kcal=-1)
+
+
 def _production_kwargs(**overrides: object) -> dict:
     kwargs: dict = {
         "_env_file": None,

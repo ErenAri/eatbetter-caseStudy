@@ -114,6 +114,9 @@ def create_app(settings: Settings | None = None) -> FastAPI:
             max_relative_calorie_uncertainty=Decimal(
                 str(application_settings.max_auto_accept_relative_uncertainty)
             ),
+            min_relative_trigger_kcal=Decimal(
+                str(application_settings.min_relative_trigger_kcal)
+            ),
         ),
     )
     meal_service = MealContractService(

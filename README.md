@@ -89,9 +89,12 @@ See [architecture](docs/architecture.md), [project status](docs/project-status.m
 
 We intentionally traded some zero-friction logging for selective confirmation. The system interrupts
 only when unresolved uncertainty can materially change the logged result. A 20 g range matters far
-more for oil than parsley because P6 evaluates calorie impact, not gram spread alone. The initial
-100 kcal / 20% limits are configurable hypotheses, not calibrated or clinically validated thresholds.
-No calibrated numeric confidence exists, so `canonical_confidence` remains null.
+more for oil than parsley because P6 evaluates calorie impact, not gram spread alone. A relative
+swing (for example >20%) only raises a question once the absolute calorie swing clears a floor
+(25 kcal by default); below that floor, even a wide percentage swing on a garnish is not worth an
+interruption. The initial 100 kcal / 20% / 25 kcal limits are configurable hypotheses, not
+calibrated or clinically validated thresholds. No calibrated numeric confidence exists, so
+`canonical_confidence` remains null.
 
 ## API endpoints
 

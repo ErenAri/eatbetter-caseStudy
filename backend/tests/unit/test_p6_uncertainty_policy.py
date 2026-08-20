@@ -1,4 +1,6 @@
 from decimal import Decimal
+from types import SimpleNamespace
+from unittest.mock import patch
 from uuid import uuid4
 
 import pytest
@@ -90,6 +92,61 @@ def test_low_nutrition_familiarity_is_flagged_and_blocks_auto_accept():
     assert UncertaintyReason.LOW_NUTRITION_FAMILIARITY in assessment.reasons
     assert assessment.level == RiskLevel.HIGH
     assert assessment.auto_accept_eligible is False
+
+
+def test_low_absolute_swing_with_high_relative_variance_does_not_block():
+    """A garnish like cilantro (9 kcal, 7 kcal swing, ~80% relative) must not
+    raise a blocking question: the relative arm needs an absolute floor.
+    """
+    policy = UncertaintyPolicy()
+    # calories=100/100g, 5g-15g -> 5 kcal to 15 kcal: absolute=10 (below the
+    # 25 kcal floor), relative=1.0 (above the 20% threshold).
+    result = policy.assess_portion(item(Decimal("5"), Decimal("15"), calories=Decimal("100")))
+
+    assert UncertaintyReason.RELATIVE_CALORIE_UNCERTAINTY not in result.reasons
+    assert UncertaintyReason.ABSOLUTE_CALORIE_UNCERTAINTY not in result.reasons
+
+
+def test_large_swing_above_both_thresholds_still_blocks():
+    policy = UncertaintyPolicy()
+    # calories=200/100g, 10g-90g -> 20 kcal to 180 kcal: absolute=160 (above
+    # both the 100 kcal absolute threshold and the 25 kcal floor),
+    # relative=1.6 (above 20%).
+    result = policy.assess_portion(item(Decimal("10"), Decimal("90"), calories=Decimal("200")))
+
+    assert UncertaintyReason.RELATIVE_CALORIE_UNCERTAINTY in result.reasons
+
+
+def test_relative_above_threshold_and_above_floor_but_below_absolute_max_still_blocks():
+    policy = UncertaintyPolicy()
+    # calories=200/100g, 10g-30g -> 20 kcal to 60 kcal: absolute=40 (above
+    # the 25 kcal floor, below the 100 kcal absolute threshold),
+    # relative=1.0 (above 20%).
+    result = policy.assess_portion(item(Decimal("10"), Decimal("30"), calories=Decimal("200")))
+
+    assert UncertaintyReason.RELATIVE_CALORIE_UNCERTAINTY in result.reasons
+    assert UncertaintyReason.ABSOLUTE_CALORIE_UNCERTAINTY not in result.reasons
+
+
+def test_relative_none_still_blocks_regardless_of_absolute_floor():
+    """calorie_midpoint == 0 while absolute != 0 cannot occur through real
+    NutritionTotals (nonnegative, monotonic in grams), but the code guards
+    it explicitly as an undefined-relative case. Confirm that guard still
+    blocks even when the (defensively computed) absolute swing is far below
+    the new floor -- the floor must gate the relative *comparison*, not the
+    relative-is-None branch.
+    """
+    policy = UncertaintyPolicy()
+    fake_minimum = SimpleNamespace(calories_kcal=Decimal("5"))
+    fake_maximum = SimpleNamespace(calories_kcal=Decimal("-5"))
+    with patch(
+        "app.domain.policies.uncertainty.calculate_nutrition_for_grams",
+        side_effect=[fake_minimum, fake_maximum],
+    ):
+        result = policy.assess_portion(item(Decimal("10"), Decimal("20")))
+
+    assert result.relative_calorie_uncertainty is None
+    assert UncertaintyReason.RELATIVE_CALORIE_UNCERTAINTY in result.reasons
 
 
 def test_missing_nutrition_familiarity_is_not_flagged():

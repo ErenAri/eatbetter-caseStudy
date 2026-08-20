@@ -16,10 +16,14 @@ from the stored per-100 g snapshot. Absolute calorie uncertainty is `max - min`.
 is `(max - min) / ((max + min) / 2)`. A zero midpoint with a zero interval has zero relative
 uncertainty; a zero midpoint with nonzero spread is unsafe.
 
-The configured thresholds are inclusive: exactly 100 kcal and exactly 20% are auto-acceptable. Only
-values greater than either threshold require portion clarification. Safe estimates use the range
-midpoint and record `AUTO_ESTIMATE`; direct user grams record `USER`; a provider-backed household
-option records `USER_HOUSEHOLD_UNIT`. There is deliberately no universal household-unit conversion.
+The configured thresholds are inclusive: exactly 100 kcal and exactly 20% are auto-acceptable. Values
+greater than the absolute threshold always require portion clarification. The relative threshold is
+additionally gated by a minimum absolute floor (25 kcal by default): a swing greater than 20% only
+requires clarification once the absolute swing also exceeds that floor, so a large percentage change
+on a handful of kcal (a garnish) does not interrupt the user the way it would on a calorie-dense item.
+Safe estimates use the range midpoint and record `AUTO_ESTIMATE`; direct user grams record `USER`; a
+provider-backed household option records `USER_HOUSEHOLD_UNIT`. There is deliberately no universal
+household-unit conversion.
 
 ## Canonical-selection safety gate
 

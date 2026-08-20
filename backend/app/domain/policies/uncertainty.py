@@ -58,6 +58,7 @@ class ItemRiskAssessment:
 class UncertaintyPolicy:
     max_absolute_calorie_uncertainty: Decimal = Decimal("100")
     max_relative_calorie_uncertainty: Decimal = Decimal("0.20")
+    min_relative_trigger_kcal: Decimal = Decimal("25")
 
     def assess_portion(self, item: MealItem) -> PortionAssessment:
         estimate = item.portion_estimate
@@ -79,7 +80,14 @@ class UncertaintyPolicy:
         # Boundary is inclusive: exactly 100 kcal or 20% is safe; only greater blocks.
         if absolute > self.max_absolute_calorie_uncertainty:
             reasons.append(UncertaintyReason.ABSOLUTE_CALORIE_UNCERTAINTY)
-        if relative is None or relative > self.max_relative_calorie_uncertainty:
+        # The relative arm is gated behind an absolute floor: a large percentage
+        # swing on a handful of kcal (garnishes, spices) is not worth an
+        # interruption. `relative is None` (undefined relative, i.e. a
+        # zero-calorie midpoint) still blocks unconditionally.
+        if relative is None or (
+            relative > self.max_relative_calorie_uncertainty
+            and absolute > self.min_relative_trigger_kcal
+        ):
             reasons.append(UncertaintyReason.RELATIVE_CALORIE_UNCERTAINTY)
         return PortionAssessment(minimum, maximum, absolute, relative, midpoint, tuple(reasons))
 

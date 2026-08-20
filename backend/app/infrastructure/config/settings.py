@@ -55,6 +55,7 @@ class Settings(BaseSettings):
     image_retention_days: int = Field(default=7, ge=0)
     max_auto_accept_calorie_uncertainty_kcal: float = Field(default=100, ge=0)
     max_auto_accept_relative_uncertainty: float = Field(default=0.20, ge=0)
+    min_relative_trigger_kcal: float = Field(default=25, ge=0)
 
     @model_validator(mode="after")
     def require_production_configuration(self) -> "Settings":
