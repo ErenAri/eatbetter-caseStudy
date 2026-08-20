@@ -6,6 +6,7 @@ import pytest
 from app.application.errors import CanonicalFoodNotFoundError
 from app.application.services import FoodGroundingService
 from app.domain.entities import CanonicalFood, CanonicalFoodCandidate, MealItem, NutritionPer100g
+from app.nutrition.normalization import build_grounding_query
 
 
 class DetailAuthoritativeProvider:
@@ -168,6 +169,87 @@ async def test_grounding_sets_nutrition_familiarity_from_canonical_data() -> Non
     await service.ground_selected_candidate(item, candidates[0].rank)
 
     assert item.nutrition_familiarity == "LOW"
+
+
+class QueryRecordingProvider:
+    """Records the exact query string passed to search_foods."""
+
+    source = "FIXTURE"
+
+    def __init__(self) -> None:
+        self.received_query: str | None = None
+
+    async def search_foods(self, query: str, *, meal_item_id: UUID, limit: int = 5):
+        self.received_query = query
+        return []
+
+    async def get_food(self, source_food_id: str):
+        raise AssertionError("not used")
+
+
+class LexicalSearchProvider(QueryRecordingProvider):
+    uses_lexical_search = True
+
+
+class NonLexicalSearchProvider(QueryRecordingProvider):
+    uses_lexical_search = False
+
+
+@pytest.mark.asyncio
+async def test_lexical_search_provider_receives_the_rewritten_query() -> None:
+    provider = LexicalSearchProvider()
+    service = FoodGroundingService(provider)
+    item = MealItem(meal_id=UUID(int=1), position=0, observed_name="tomato sauce")
+
+    await service.retrieve_candidates(item)
+
+    assert provider.received_query == build_grounding_query("tomato sauce", None)
+    assert provider.received_query == "tomato products canned sauce"
+
+
+@pytest.mark.asyncio
+async def test_provider_without_the_attribute_defaults_to_todays_rewritten_query_behavior() -> None:
+    """A provider that predates `uses_lexical_search` (or simply omits it) must
+    keep receiving the rewritten query -- the attribute is read defensively.
+    """
+    provider = QueryRecordingProvider()
+    service = FoodGroundingService(provider)
+    item = MealItem(meal_id=UUID(int=1), position=0, observed_name="tomato sauce")
+
+    await service.retrieve_candidates(item)
+
+    assert provider.received_query == "tomato products canned sauce"
+
+
+@pytest.mark.asyncio
+async def test_non_lexical_search_provider_receives_the_readable_observed_name() -> None:
+    """The AI path must not receive USDA search-index rewrites: the model
+    should be asked about a real food, and the observed name is what becomes
+    the user-visible canonical_food_name.
+    """
+    provider = NonLexicalSearchProvider()
+    service = FoodGroundingService(provider)
+    item = MealItem(meal_id=UUID(int=1), position=0, observed_name="Tomato Wedges")
+
+    await service.retrieve_candidates(item)
+
+    assert provider.received_query == "Tomato Wedges"
+
+
+@pytest.mark.asyncio
+async def test_non_lexical_search_provider_falls_back_to_normalized_name_when_observed_name_is_empty() -> None:
+    provider = NonLexicalSearchProvider()
+    service = FoodGroundingService(provider)
+    item = MealItem(
+        meal_id=UUID(int=1),
+        position=0,
+        observed_name="",
+        normalized_name="Tomato Sauce",
+    )
+
+    await service.retrieve_candidates(item)
+
+    assert provider.received_query == "Tomato Sauce"
 
 
 @pytest.mark.asyncio

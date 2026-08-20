@@ -201,7 +201,24 @@ async def test_get_food_returns_the_cached_entry_by_normalized_name() -> None:
     assert food is not None
     assert food.nutrition_per_100g.calories_kcal == Decimal("200")
     assert food.source_food_id == candidates[0].source_food_id
-    assert food.name == candidates[0].source_food_id
+
+
+@pytest.mark.asyncio
+async def test_candidate_name_is_readable_while_source_food_id_stays_normalized() -> None:
+    """The candidate/canonical `name` is user-facing (becomes canonical_food_name),
+    so it must stay in the caller's own words rather than the lowercased,
+    preparation-reordered identifier used for caching/identity.
+    """
+    provider = _provider([_payload("200")])
+
+    candidates = await provider.search_foods("Grilled Chicken", meal_item_id=uuid4())
+    food = await provider.get_food("Grilled  Chicken")
+
+    assert candidates[0].source_food_id == "chicken grilled"
+    assert candidates[0].name == "Grilled Chicken"
+    assert food is not None
+    assert food.source_food_id == candidates[0].source_food_id
+    assert food.name == candidates[0].name
 
 
 @pytest.mark.asyncio

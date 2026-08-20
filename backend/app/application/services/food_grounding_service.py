@@ -13,10 +13,19 @@ class FoodGroundingService:
     async def retrieve_candidates(
         self, meal_item: MealItem, *, limit: int = 5
     ) -> list[CanonicalFoodCandidate]:
-        query = build_grounding_query(
-            meal_item.normalized_name or meal_item.observed_name,
-            meal_item.preparation_method,
-        )
+        # Lexical-search normalization (USDA search-index aliases, preparation
+        # reordering) only helps providers that do lexical search against an
+        # external index. A provider that reasons over free text (the AI path)
+        # should see the item's own readable words -- both as model input and
+        # as the display name the user sees -- not a mangled search string.
+        uses_lexical_search = getattr(self.provider, "uses_lexical_search", True)
+        if uses_lexical_search:
+            query = build_grounding_query(
+                meal_item.normalized_name or meal_item.observed_name,
+                meal_item.preparation_method,
+            )
+        else:
+            query = meal_item.observed_name or meal_item.normalized_name or ""
         retrieved = await self.provider.search_foods(
             query, meal_item_id=meal_item.id, limit=max(limit * 3, limit)
         )

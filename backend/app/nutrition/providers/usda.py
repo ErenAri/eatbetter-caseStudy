@@ -76,6 +76,7 @@ class RateLimitSnapshot:
 
 class USDAFoodDataCentralProvider:
     source = "USDA_FDC"
+    uses_lexical_search = True
     transient_statuses = frozenset({429, 502, 503, 504})
 
     def __init__(

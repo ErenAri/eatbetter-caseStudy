@@ -7,6 +7,7 @@ class DemoNutritionProvider:
     """TEST/DEMO DATA — NOT USDA RESULTS."""
 
     source = "TEST_DEMO_DATA"
+    uses_lexical_search = True
     _foods = {
         "fixture-chicken": ("Chicken breast, grilled", NutritionPer100g(165, 31, 0, 3.6)),
         "fixture-rice": ("Rice, white, cooked", NutritionPer100g(130, 2.7, 28.2, 0.3)),

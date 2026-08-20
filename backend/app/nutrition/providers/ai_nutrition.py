@@ -60,6 +60,11 @@ class AINutritionProvider:
     """Values are model estimates, not database records."""
 
     source = "AI_ESTIMATE"
+    # This provider reasons over free text rather than doing lexical search
+    # against an external index, so lexical-search query rewriting (USDA
+    # search-index aliases, preparation-term reordering) must not be applied
+    # to what it receives as input or displays as a name.
+    uses_lexical_search = False
 
     def __init__(
         self,
@@ -93,7 +98,7 @@ class AINutritionProvider:
             timeout=timeout_seconds,
             max_retries=0,
         )
-        self._cache: dict[str, tuple[NutritionPer100g | None, dict[str, Any]]] = {}
+        self._cache: dict[str, tuple[NutritionPer100g | None, dict[str, Any], str]] = {}
 
     async def aclose(self) -> None:
         if self._owns_client:
@@ -159,7 +164,9 @@ class AINutritionProvider:
                 ) from None
         return parsed
 
-    async def _resolve(self, normalized: str) -> tuple[NutritionPer100g | None, dict[str, Any]]:
+    async def _resolve(
+        self, normalized: str, display_name: str
+    ) -> tuple[NutritionPer100g | None, dict[str, Any], str]:
         key = self._cache_key(normalized)
         cached = self._cache.get(key)
         if cached is not None:
@@ -189,8 +196,8 @@ class AINutritionProvider:
                 sample_count=self._sample_count,
                 recognized_count=len(recognized_samples),
             )
-            self._cache[key] = (None, data)
-            return None, data
+            self._cache[key] = (None, data, display_name)
+            return None, data, display_name
 
         usable = [
             sample
@@ -235,8 +242,8 @@ class AINutritionProvider:
             confidence=str(confidence),
             familiarity=familiarity,
         )
-        self._cache[key] = (nutrition, data)
-        return nutrition, data
+        self._cache[key] = (nutrition, data, display_name)
+        return nutrition, data, display_name
 
     async def search_foods(
         self, query: str, *, meal_item_id: UUID, limit: int = 5
@@ -244,7 +251,7 @@ class AINutritionProvider:
         normalized = normalize_food_query(query)
         if not normalized:
             return []
-        nutrition, data = await self._resolve(normalized)
+        nutrition, data, display_name = await self._resolve(normalized, query.strip())
         if nutrition is None:
             return []
         return [
@@ -253,7 +260,10 @@ class AINutritionProvider:
                 rank=1,
                 source=self.source,
                 source_food_id=normalized,
-                name=normalized,
+                # The candidate name is user-facing (it becomes
+                # canonical_food_name), so it stays in the caller's own words
+                # rather than the lowercased/reordered identifier below.
+                name=display_name,
                 data=dict(data),
                 nutrition_per_100g=nutrition,
             )
@@ -264,7 +274,7 @@ class AINutritionProvider:
         cached = self._cache.get(self._cache_key(normalized))
         if cached is None:
             return None
-        nutrition, data = cached
+        nutrition, data, display_name = cached
         if nutrition is None:
             return None
         return CanonicalFood(
@@ -273,7 +283,10 @@ class AINutritionProvider:
             # mints it from the same normalization, so a food resolved via search
             # and then looked up via get_food must agree on this identifier.
             source_food_id=normalized,
-            name=normalized,
+            # The readable name is cached alongside the nutrition/data at
+            # search time, so get_food (an identifier-keyed cache read here,
+            # not an independent lookup) returns the exact same display name.
+            name=display_name,
             nutrition_per_100g=nutrition,
             data=dict(data),
         )
