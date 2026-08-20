@@ -133,8 +133,13 @@ class MealReviewService:
         value = option.get("value", {}) if option else {}
         if clarification.type == "CANONICAL_SELECTION":
             assert item is not None
-            if value.get("action") == "MANUAL_SEARCH":
+            action = value.get("action")
+            if action == "MANUAL_SEARCH":
                 satisfied = False
+            elif action == "REMOVE_ITEM":
+                self._record(meal, item, "removed_item", False, True)
+                item.is_removed = True
+                item.recalculate()
             else:
                 before = self._canonical_value(item)
                 await self.grounding.ground_selected_candidate(item, int(value["candidate_rank"]))
@@ -226,7 +231,12 @@ class MealReviewService:
                         "id": "manual-search",
                         "label": "Search for another food",
                         "value": {"action": "MANUAL_SEARCH"},
-                    }
+                    },
+                    {
+                        "id": "remove-item",
+                        "label": "This food is not in my meal",
+                        "value": {"action": "REMOVE_ITEM"},
+                    },
                 ]
             )
             clarification_type = "CANONICAL_SELECTION"
