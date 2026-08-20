@@ -27,7 +27,9 @@ are measured; product-specific owned-capture accuracy is not.
 - A standalone Android debug APK built, installed, and cold-launched on the SDK emulator.
 - P0 hardening blocks staging/production startup while only development authentication, repository,
   and storage adapters exist; the backend dependency audit is clean after upgrading the HTTP/upload
-  stack.
+  stack. The production validator accepts `NUTRITION_PROVIDER=usda` or `ai` and requires
+  `USDA_API_KEY` only when `usda` is selected; `demo` is still rejected and startup otherwise remains
+  fail-closed.
 - Licensed 12-dish Nutrition5k secondary subset, frozen split, real-provider development iteration,
   threshold simulation, and one untouched three-dish holdout run.
 - Licensed SNAPMe intake builder, independent visible-label sign-off workflow, recognition-only

@@ -13,8 +13,8 @@ development benchmark, but not product-specific owned-capture accuracy evidence.
 
 Nutrition can be resolved in one of two ways, selected by `NUTRITION_PROVIDER`. With `usda`, values
 come from FoodData Central and every number traces to an FDC ID. With `ai`, values are model
-estimates: the model is sampled several times per food and agreement between samples becomes the
-confidence signal, since no external provenance exists. AI-estimated nutrition is marked
+estimates: the model is sampled several times per food and agreement between the calorie estimates
+becomes the confidence signal, since no external provenance exists. AI-estimated nutrition is marked
 `AI_ESTIMATE` and is not database-verified.
 
 ## Current state — P8.5 measured evidence complete on a public secondary subset

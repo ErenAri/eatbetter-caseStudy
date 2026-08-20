@@ -102,8 +102,8 @@ the final snapshot without detail retrieval.
 
 `NutritionProvider` now has three implementations selected by `NUTRITION_PROVIDER`: `demo`, `usda`
 (FoodData Central), and `ai` (`AINutritionProvider`, source `AI_ESTIMATE`). The AI provider samples
-the model several times per food, takes the per-field median, and turns sample disagreement into a
-confidence value instead of external provenance. All three satisfy the same two-method protocol, so
+the model several times per food, takes the per-field median, and turns calorie-sample disagreement into
+a confidence value instead of external provenance. All three satisfy the same two-method protocol, so
 they are interchangeable at the seam above without caller changes.
 
 `MealRecognitionService` owns recognition and its AI run. `MealCanonicalizationService` separately
