@@ -175,6 +175,7 @@ class MealReviewService:
             assert item is not None
             action = value.get("action")
             if action == "REMOVE_ITEM":
+                self._record(meal, item, "removed_item", False, True)
                 item.is_removed = True
                 item.recalculate()
             else:

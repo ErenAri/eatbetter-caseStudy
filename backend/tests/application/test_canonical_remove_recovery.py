@@ -127,3 +127,50 @@ async def test_canonical_remove_resolves_without_grounding_and_reassesses_remain
         and correction.corrected_value is True
         for correction in meal.corrections
     )
+
+
+@pytest.mark.asyncio
+async def test_identity_remove_records_a_correction_like_canonical_remove() -> None:
+    """An unmatched food removed through FOOD_IDENTITY must leave an audit trail.
+
+    A hidden ingredient the user affirmed (for example cooking oil) has no
+    retrieved candidates, so its only recovery options are manual search or
+    removal. Removing it drops calories the user explicitly said were present,
+    so the correction history has to record it exactly as the canonical path does.
+    """
+    repository = InMemoryMealRepository()
+    meal = _meal()
+    unmatched = MealItem(
+        meal.id,
+        0,
+        "cooking oil",
+        observation_certainty="LOW",
+        is_user_added=True,
+    )
+    remaining = _grounded_item(meal, position=1)
+    meal.items.extend([unmatched, remaining])
+    await repository.create(meal)
+
+    service = MealReviewService(
+        repository,
+        ForbiddenGrounding(),
+        UnusedDependency(),
+        UncertaintyPolicy(),
+    )
+    await service.assess_meal(meal)
+    clarification = next(
+        value
+        for value in meal.clarifications
+        if value.type == "FOOD_IDENTITY" and value.meal_item_id == unmatched.id
+    )
+
+    await service.answer(meal, clarification.id, option_id="remove-item", custom_grams=None)
+
+    assert unmatched.is_removed is True
+    assert clarification.resolution_satisfied is True
+    assert any(
+        correction.meal_item_id == unmatched.id
+        and correction.field_name == "removed_item"
+        and correction.corrected_value is True
+        for correction in meal.corrections
+    )
