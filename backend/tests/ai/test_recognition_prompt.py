@@ -7,6 +7,11 @@ PROMPTS_DIR = Path(__file__).parents[2] / "app" / "ai" / "prompts"
 V2_PATH = PROMPTS_DIR / "meal_recognition_v2.md"
 V4_PATH = PROMPTS_DIR / "meal_recognition_v4.md"
 
+# Mirrors vision_configuration.prompt_source_sha256 in
+# evals/private/snapme/subset_v1/recognition_configuration_lock.json. meal_recognition_v2.md
+# must stay byte-identical to what that eval was locked and measured against, so if this
+# assertion fails, the prompt file was edited and should be reverted -- do not "fix" this by
+# updating the constant to match the new file.
 V2_FROZEN_SHA256 = "252885239b2cac2f307c42b2da6e216abd042721b3aafaa3493b14f3bdb50849"
 
 
