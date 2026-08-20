@@ -11,6 +11,12 @@ It demonstrates the architecture, native workflow, safety policy, provider bound
 harness. It includes a small measured public secondary benchmark and a licensed external phone-photo
 development benchmark, but not product-specific owned-capture accuracy evidence.
 
+Nutrition can be resolved in one of two ways, selected by `NUTRITION_PROVIDER`. With `usda`, values
+come from FoodData Central and every number traces to an FDC ID. With `ai`, values are model
+estimates: the model is sampled several times per food and agreement between samples becomes the
+confidence signal, since no external provenance exists. AI-estimated nutrition is marked
+`AI_ESTIMATE` and is not database-verified.
+
 ## Current state — P8.5 measured evidence complete on a public secondary subset
 
 The normal analysis endpoint now runs independently audited P4 recognition, P3 retrieval, P5
@@ -39,6 +45,7 @@ rejected. This is secondary rig-captured evidence, not a product-specific smartp
 | FastAPI meal lifecycle | Implemented and tested with in-memory adapters |
 | OpenAI vision and constrained selector adapters | Implemented; live execution requires a private key |
 | USDA FoodData Central adapter | Implemented; live execution requires a private key |
+| AI nutrition provider | Implemented; sampled consensus with per-food caching. Not benchmarked. |
 | PostgreSQL/Supabase schema and RLS | Defined in migrations; runtime persistence adapter is deferred |
 | Accuracy benchmark | 12 Nutrition5k dishes plus 30 SNAPMe development and 10 participant-disjoint holdout phone photos |
 | Production authentication/deployment | Not implemented |
@@ -62,7 +69,7 @@ backend/app/api/           /health and /api/v1 transport contracts
 backend/app/application/   meal lifecycle orchestration and stable errors
 backend/app/ai/            strict observation schemas, providers, versioned prompts
 backend/app/domain/        entities, Decimal nutrition, states, uncertainty
-backend/app/nutrition/     USDA adapter, parsing, normalization, ranking
+backend/app/nutrition/     USDA and AI nutrition providers, parsing, normalization, ranking
 backend/app/repositories/  in-memory P2 repository adapter
 backend/app/infrastructure typed config and private storage adapter
 backend/tests/             deterministic unit/integration/contract tests

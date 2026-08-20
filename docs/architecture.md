@@ -100,6 +100,12 @@ provider boundary; application and domain code receive only canonical candidates
 lookup when a candidate is selected. Search-result nutrition can inform review, but it never becomes
 the final snapshot without detail retrieval.
 
+`NutritionProvider` now has three implementations selected by `NUTRITION_PROVIDER`: `demo`, `usda`
+(FoodData Central), and `ai` (`AINutritionProvider`, source `AI_ESTIMATE`). The AI provider samples
+the model several times per food, takes the per-field median, and turns sample disagreement into a
+confidence value instead of external provenance. All three satisfy the same two-method protocol, so
+they are interchangeable at the seam above without caller changes.
+
 `MealRecognitionService` owns recognition and its AI run. `MealCanonicalizationService` separately
 retrieves candidates and makes one bounded selector call per active item. `MealContractService` keeps
 the public operation unified. Successful observations, selector decisions, and candidate sets are
@@ -189,9 +195,10 @@ access logs, and embedded in the consistent error envelope.
 ## Configuration and trust boundaries
 
 `Settings` loads typed values from process environment or `backend/.env`. Local and test modes allow
-missing vendor credentials. Production startup validates required database, Supabase, OpenAI, and
-USDA configuration and fails with the missing variable names. Secret values use `SecretStr` and are
-never returned to mobile.
+missing vendor credentials. Production startup validates required database, Supabase, and OpenAI
+configuration always, and USDA configuration only when `NUTRITION_PROVIDER=usda`; it fails with the
+missing variable names. `demo` is rejected in production; `usda` and `ai` are both accepted. Secret
+values use `SecretStr` and are never returned to mobile.
 
 Images, free text, request headers, provider responses, and future LLM output are untrusted. USDA
 responses receive typed validation, allowlisted metadata, nutrient-unit validation, and explicit

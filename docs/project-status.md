@@ -1,6 +1,6 @@
 # Project status and owner inputs
 
-Status date: 2026-08-19.
+Status date: 2026-08-20.
 
 This is a public, time-boxed engineering case study. The repository is runnable in deterministic demo
 mode and contains live provider adapters, but it is not deployed or clinically validated. A small
@@ -42,6 +42,9 @@ are measured; product-specific owned-capture accuracy is not.
   `evals/private/`. This directory is intentionally absent from the public repository.
 - The 100 kcal / 20% auto-accept thresholds survived a seven-item conditional development simulation,
   but are not calibrated for a product population.
+- `AINutritionProvider` has unit tests but no accuracy measurement. Every published Nutrition5k and
+  SNAPMe result in this repository was produced with USDA grounding under `meal_recognition_v2`.
+  Those numbers do not describe the AI nutrition path and must not be cited as evidence for it.
 
 ## Exploratory QA status
 
