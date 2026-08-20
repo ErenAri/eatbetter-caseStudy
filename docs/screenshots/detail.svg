@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="390" height="820" viewBox="0 0 390 820">
+  <rect width="390" height="820" rx="36" fill="#182019"/>
+  <rect x="10" y="10" width="370" height="800" rx="30" fill="#F7F5EF"/>
+  <text x="28" y="58" font-family="Arial, sans-serif" font-size="15" font-weight="700" fill="#286544">‹ Today</text>
+  <text x="28" y="104" font-family="Arial, sans-serif" font-size="31" font-weight="700" fill="#182019">Meal saved</text>
+  <text x="28" y="132" font-family="Arial, sans-serif" font-size="14" fill="#667069">Thu · 12:45 PM</text>
+  <rect x="28" y="150" width="70" height="30" rx="15" fill="#E3EFE7"/>
+  <text x="63" y="170" text-anchor="middle" font-family="Arial, sans-serif" font-size="12" font-weight="700" fill="#286544">Saved</text>
+  <rect x="28" y="206" width="334" height="118" rx="18" fill="#FFFFFF" stroke="#DDE2DC"/>
+  <text x="46" y="246" font-family="Arial, sans-serif" font-size="34" font-weight="700" fill="#182019">524 kcal</text>
+  <text x="46" y="280" font-family="Arial, sans-serif" font-size="13" fill="#667069">Protein 38 g   Carbs 52 g   Fat 18 g</text>
+  <text x="28" y="370" font-family="Arial, sans-serif" font-size="20" font-weight="700" fill="#182019">Foods</text>
+  <rect x="28" y="388" width="334" height="86" rx="16" fill="#FFFFFF" stroke="#DDE2DC"/>
+  <text x="46" y="420" font-family="Arial, sans-serif" font-size="16" font-weight="700" fill="#182019">Chicken breast, roasted</text>
+  <text x="46" y="450" font-family="Arial, sans-serif" font-size="13" fill="#667069">140 g · 231 kcal</text>
+  <rect x="28" y="486" width="334" height="86" rx="16" fill="#FFFFFF" stroke="#DDE2DC"/>
+  <text x="46" y="518" font-family="Arial, sans-serif" font-size="16" font-weight="700" fill="#182019">Rice, white, cooked</text>
+  <text x="46" y="548" font-family="Arial, sans-serif" font-size="13" fill="#667069">180 g · 234 kcal</text>
+  <rect x="28" y="584" width="334" height="86" rx="16" fill="#FFFFFF" stroke="#DDE2DC"/>
+  <text x="46" y="616" font-family="Arial, sans-serif" font-size="16" font-weight="700" fill="#182019">Mixed salad</text>
+  <text x="46" y="646" font-family="Arial, sans-serif" font-size="13" fill="#667069">90 g · 59 kcal</text>
+  <text x="28" y="714" font-family="Arial, sans-serif" font-size="12" fill="#667069">Nutrition data: USDA FoodData Central</text>
+  <text x="28" y="736" font-family="Arial, sans-serif" font-size="12" fill="#667069">Analyzed from your photo</text>
+  <text x="195" y="786" text-anchor="middle" font-family="Arial, sans-serif" font-size="11" fill="#667069">Illustrative UI preview — live app shown in Loom</text>
+</svg>

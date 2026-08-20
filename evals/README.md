@@ -1,126 +1,124 @@
 # Real-world evaluation protocol
 
-The primary evaluation unit is one ordinary, consented smartphone meal photo. Target 30–40 meals,
-split approximately 75% development and 25% case-study holdout. Split by meal and contributor; never
-place the same `case_id` in both. Include simple foods without letting them dominate, multi-component
-meals, calorie-dense portions, measured sauce/oil, composite dishes, Turkish/local foods, difficult
-images, and non-meal negatives.
+The primary product evaluation unit is one ordinary, consented smartphone meal photo. Target 30–40 meals, split approximately 75% development and 25% final holdout. Split by meal and contributor; never place the same `case_id` in both. Include simple foods without letting them dominate, multi-component meals, calorie-dense portions, measured sauce/oil, composite dishes, Turkish/local foods, difficult images, and non-meal negatives.
 
 ## Collection and ground truth
 
 - Use a normal eating angle, ordinary lighting, and one phone photo—the same conditions as the app.
-- Weigh evaluable portions with a kitchen scale. Serialize decimal values as strings. A missing weight
-  is `null` and is excluded from portion metrics.
+- Weigh evaluable portions with a kitchen scale. Serialize decimal values as strings. A missing weight is `null` and is excluded from portion metrics.
 - Measure oil, butter, dressing, sauce, or cheese directly or by a documented before/after method.
-- Independently inspect USDA search and detail results with `backend/scripts/search_usda.py`. Mark an
-  item `VERIFIED` only after human review; the pipeline's own choice cannot label itself. Use
-  `UNMAPPABLE` when no defensible USDA representation exists.
-- Derive meal nutrition truth independently from verified ingredients and measured amounts. Never
-  derive it from the prediction being graded.
+- Independently inspect USDA search and detail results with `backend/scripts/search_usda.py`. Mark an item `VERIFIED` only after human review; the pipeline's own choice cannot label itself. Use `UNMAPPABLE` when no defensible USDA representation exists.
+- Derive meal nutrition truth independently from verified ingredients and measured amounts. Never derive it from the prediction being graded.
 - Record only pseudonymous provenance and ownership/consent. Do not collect people or private context.
 
-The strict contract in `dataset.py` rejects missing images, unsafe relative paths, duplicate case or
-item IDs, development/holdout overlap, invalid categories/splits/FDC IDs, negative weights, and
-inconsistent verified/unmappable labels. Raw labels are read-only inputs; run output goes elsewhere.
+The strict contract in `dataset.py` rejects missing images, unsafe relative paths, duplicate case/item IDs, development/holdout overlap, invalid categories/splits/FDC IDs, negative weights, and inconsistent verified/unmappable labels. Raw labels are read-only inputs; run output goes elsewhere.
 
 ## Privacy
 
-`evals/private/**` is ignored by Git. Keep real manifests and images there unless publication is
-separately and intentionally approved. Public reports contain aggregate metrics and image reference
-IDs, not image bytes. The checked-in example is synthetic schema documentation and has no result.
+`evals/private/**` is ignored by Git. Keep real manifests and images there unless publication is separately and intentionally approved. Public reports contain aggregate metrics and image reference IDs, not image bytes.
 
-## Configurations and execution
+## Configurations
 
-- `BASELINE_TOP1`: same P4 observation and P3 ranked candidates, always rank 1, portion midpoint, no
-  selective clarification. This isolates the downstream value of P5/P6.
-- `HYBRID_AUTO`: P4→P3→P5→P6 state captured before human answers.
-- `HYBRID_ORACLE_HITL`: clearly labeled evaluation-only upper bound. Ground truth becomes visible only
-  after P6 generated a question, and only answers representable questions. Pre-HITL output remains
-  unchanged.
+- `BASELINE_TOP1`: same vision observation and ranked candidates, always rank 1, portion midpoint, no selective clarification.
+- `HYBRID_AUTO`: production recognition → retrieval → constrained canonicalization → deterministic uncertainty state captured before human answers.
+- `HYBRID_ORACLE_HITL`: evaluation-only staged upper bound. Ground truth becomes visible only after a clarification already exists and may answer only representable questions. Pre-HITL output remains unchanged.
 
-Real runs reject demo or unconfigured providers. From the repository root:
+Real runs reject demo or unconfigured providers.
 
 ```powershell
 .\backend\.venv\Scripts\python.exe -m evals.run_benchmark `
   --manifest evals/private/manifest.json `
   --split development `
-  --output evals/reports/2026-08-18_dev_v1
+  --output evals/reports/dev_run
 ```
 
-The local runner reads secrets from ignored `backend/.env`; explicitly exported process variables
-override that file. Each new output directory contains `summary.json`, `cases.jsonl`, `errors.json`, `metrics.json`,
-`configuration.json`, and `summary.md`; existing outputs are never overwritten. After 2–3 isolated
-development iterations, create `evals/reports/final_configuration.json` with
-`--write-final-configuration`. A holdout run requires that file via `--frozen-configuration` and
-rejects configuration drift.
+Each new output directory contains machine-readable case, metric, error, and configuration artifacts; existing outputs are never overwritten. Freeze configuration only after development work is complete. A genuine final holdout must use previously unseen cases and reject configuration drift.
 
-Metrics are stage-specific and retain numerator/denominator or label count. Null labels are excluded,
-MAPE excludes zero truth, retrieval excludes unverified/unmappable labels, selector metrics exclude
-retrieval misses, and provider timeouts count as infrastructure failures. Materially wrong auto-accept
-means an incorrect canonical item or calorie error above 20%. Interval coverage is reported beside
-median interval width. Cost is omitted because no reliable versioned pricing configuration exists.
+## Metrics
 
-## Current dataset status
+Metrics are stage-specific and retain numerator/denominator or label count.
 
-The private product dataset remains empty. A fixed public secondary subset is checked in under
-`evals/public/nutrition5k/`: 12 licensed rig-captured dishes, split into nine development and three
-untouched holdout cases. All have published measured portions; 30/34 visible item instances have
-independently reviewed USDA mappings and four are `UNMAPPABLE`. The live benchmark ran with real
-OpenAI and USDA providers, one prompt iteration, a frozen configuration, and no holdout rerun. See
-`docs/measured-evaluation.md` for measured aggregates and limitations. Raw per-case run directories
-and credentials remain ignored.
+- Recognition: precision / recall / F1, misses, hallucinations, preparation where eligible.
+- Retrieval: Recall@1/@3/@5 only for verified/mappable truth.
+- Selector: accuracy/coverage/abstention only when the expected candidate is retrievable.
+- Portion/nutrition: MAE, interval coverage, MAPE where defined, meal error bands.
+- Selective safety: unsafe auto-accept and auto-accept coverage.
+- HITL: clarification rate, question burden, representable/oracle completion.
+- Infrastructure: latency, provider failures, token usage where available.
+- Hidden ingredients: exact identity metrics are separate from weaker risk-surfacing metrics and question false-positive burden.
 
-Known limitations: a very small public subset, rig capture rather than ordinary phone photos, a
-three-meal holdout, single evaluator, limited cuisines,
-USDA-centered canonical coverage, single-view portion inference, external-model nondeterminism, and no
-clinical validation. Fine-tuning is not justified before repeated systematic errors are measured and
-prompt/retrieval improvements plateau with enough separated training data.
+Ground truth is never provided to the production stages being graded.
 
-## Optional SNAPMe phone-photo recognition queue
+## Current Nutrition5k secondary dataset status
 
-`scripts/build_snapme_recognition_subset.py` creates a deterministic 40-photo private intake queue
-from the USDA SNAPMe archive: one “before” photo per participant, 30 development and 10 participant-
-disjoint holdout cases. The source archive is CC BY-SA 4.0 and belongs under ignored
-`evals/private/snapme/`; do not commit it or the extracted photos.
+A fixed public secondary subset is checked in under `evals/public/nutrition5k/`: 12 licensed rig-captured dishes with published measured portions and reviewed visible/canonical truth.
 
-SNAPMe links phone photos to same-day ASA24 food records. Its `FoodAmt` and nutrition fields are
-dietary-record-derived, not kitchen-scale measurements, and record lines may describe visually hidden
-recipe components. The builder therefore marks recognition labels pending manual visible-label review,
-canonical truth unverified, and portion/hidden-ingredient truth ineligible. It must not be used to
-claim measured portion accuracy.
+`nutrition5k-public-secondary-v1` used nine development and three secondary holdout IDs. Those results were observed before the evaluation truth semantics were corrected.
 
-```powershell
-.\backend\.venv\Scripts\python.exe evals\scripts\build_snapme_recognition_subset.py `
-  --archive evals\private\snapme\source\snapme_db_09Dec2022.tar.gz `
-  --link-file evals\private\snapme\metadata\snapme_db_09Dec2022\snapme_cs_db\master_SNAPME_linkfile.csv `
-  --output evals\private\snapme\subset_v1 `
-  --count 40
-```
+`nutrition5k-public-secondary-v2` preserves the same IDs while versioning the corrected truth contract and portable split lock. **The three v2 secondary holdout IDs are historical cases inherited from v1 and must not be described as a new untouched holdout.** They are retained for historical comparison only. A future final holdout requires previously unseen cases.
 
-After an independent human has accepted or corrected every proposed development label in
-`human_signoff.csv`, promote only those reviewed visible identities into a strict private manifest:
+The v2 public subset contains:
 
-```powershell
-.\backend\.venv\Scripts\python.exe evals\scripts\promote_snapme_recognition_manifest.py `
-  --selection evals\private\snapme\subset_v1\selection.json `
-  --provisional evals\private\snapme\subset_v1\provisional_visible_labels.json `
-  --signoff evals\private\snapme\subset_v1\human_signoff.csv `
-  --output evals\private\snapme\subset_v1\manifest.recognition.json
-```
+- 12 total dishes: 9 development / 3 historical holdout IDs;
+- 34 visible item labels;
+- 30 independently reviewed USDA mappings;
+- 4 `UNMAPPABLE` visible items;
+- 13 recorded hidden ingredients with v2 hidden-truth semantics.
 
-The promotion command rejects missing decisions, mismatched proposals, duplicate cases, and partial
-case sets. Its manifest includes no portion, hidden-ingredient, nutrition, preparation, or verified
-canonical truth. Unreviewed holdout cases remain excluded.
+See `docs/measured-evaluation.md` for measured aggregates, controlled ablations, limitations, and the corrected provenance boundary.
 
-Run that manifest with the recognition-only runner. It deliberately stops before USDA retrieval and
-canonicalization so unrelated downstream failures cannot erase a valid vision result:
+## Frozen recognition for downstream ablations
+
+For development-only retrieval/selector experiments, capture recognition once and replay it so upstream vision sampling is identical across variants.
 
 ```powershell
 .\backend\.venv\Scripts\python.exe -m evals.run_recognition_benchmark `
-  --manifest evals\private\snapme\subset_v1\manifest.recognition.json `
+  --manifest evals\public\nutrition5k\manifest_v2.json `
   --split development `
-  --output evals\private\snapme\subset_v1\reports\recognition_development_v1.json
+  --output evals\reports\dev_recognition_freeze.json `
+  --write-fixture evals\private\frozen\nutrition5k_v2_dev_recognition.json
 ```
 
-The scorer uses strict normalized exact labels or aliases approved in the manifest. Semantically
-reasonable wording differences count as errors unless an independent reviewer adds them as aliases.
+Then replay with `--frozen-recognition`. The fixture writer refuses overwrite and binds observations to source-image SHA-256. Do not regenerate the fixture during the same experiment series, do not use frozen recognition to test an upstream prompt change, and never use the development fixture as a holdout substitute.
+
+See [`FROZEN_RECOGNITION.md`](FROZEN_RECOGNITION.md).
+
+## Vision prompt experiments
+
+Prompt changes require live vision calls because the prompt itself is the intervention. Predeclare a directional screen, run only on development cases, preserve the report, and reject candidates that fail the screen rather than tuning repeatedly on the same images.
+
+The `meal_recognition_v3_experimental` candidate is retained as a rejected experiment: it reduced some hallucinations but materially reduced recall/F1 across all three paired repeats. Production remains `meal_recognition_v2`.
+
+See [`VISION_PROMPT_ABLATION.md`](VISION_PROMPT_ABLATION.md).
+
+## Hidden ingredient metrics
+
+Exact invisible-ingredient name recall and hidden-risk surfacing answer different questions and must not be conflated. Always report false-positive/question burden beside risk coverage, and distinguish initial `HYBRID_AUTO` question state from oracle-progressed staged reachability.
+
+See [`HIDDEN_RISK_METRICS.md`](HIDDEN_RISK_METRICS.md).
+
+## SNAPMe phone-photo recognition
+
+The USDA SNAPMe intake is used only for visible-food recognition evidence. One before-photo per participant was selected deterministically: 30 development and 10 participant-disjoint holdout cases. Diary-only details that are not visually verifiable are excluded before scoring.
+
+The recognition-only runner deliberately stops before USDA retrieval/canonicalization. SNAPMe amounts and nutrients are dietary-record outputs rather than weighed truth, so this dataset must not be used to claim portion or end-to-end nutrition accuracy.
+
+Current public aggregate reports:
+
+- `evals/reports/snapme_recognition_development.json`
+- `evals/reports/snapme_recognition_holdout.json`
+
+Raw photos and sign-off artifacts remain private/ignored.
+
+## Guardrails
+
+- Never mutate a published truth artifact in place; create a new dataset/evaluation-contract version.
+- Never add benchmark-specific aliases or acceptable FDC IDs after inspecting model outcomes.
+- Never regenerate a frozen recognition fixture mid-ablation.
+- Never tune against an already-inspected holdout and then keep calling it untouched.
+- Candidate unavailability is a retrieval failure, not a selector failure.
+- Risk-surface coverage is not exact hidden-ingredient recall.
+- Exact-ID selector sensitivity may include semantically near-equivalent USDA records; do not overstate it as product harm without adjudication.
+- Cost is omitted unless a reliable versioned pricing configuration is available.
+
+Fine-tuning is not justified before systematic errors are measured on enough separated product data and prompt/retrieval improvements have plateaued.

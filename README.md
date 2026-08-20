@@ -1,114 +1,163 @@
 # EatBetter — confidence-aware AI meal logger
 
-## Goal and thesis
+A native Expo + FastAPI case study focused on one failure mode: **a confident wrong food or portion silently corrupts the nutrition log**.
 
-Build a mobile meal logger that minimizes confidently wrong nutrition entries. AI will produce
-observations and uncertainty; canonical retrieval, deterministic nutrition, and human review remain
-authoritative.
+The design treats model output as uncertain observation. Food identity is grounded against retrieved USDA candidates, nutrition comes from authoritative detail snapshots, arithmetic is deterministic, and material uncertainty becomes targeted human review instead of a silent guess.
 
-This repository is a time-boxed full-stack case study, not a production nutrition or medical product.
-It demonstrates the architecture, native workflow, safety policy, provider boundaries, and evaluation
-harness. It includes a small measured public secondary benchmark and a licensed external phone-photo
-development benchmark, but not product-specific owned-capture accuracy evidence.
+This is a seven-day engineering case study, not a production, clinical, or competitor-validation claim.
 
-## Current state — P8.5 measured evidence complete on a public secondary subset
+## Submission snapshot
 
-The normal analysis endpoint now runs independently audited P4 recognition, P3 retrieval, P5
-SELECT-or-ABSTAIN matching, USDA detail verification, and deterministic P6 uncertainty review before
-returning `NEEDS_REVIEW`. P6 auto-accepts only safe portion midpoints, records resolution provenance,
-and creates idempotent blocking clarifications in identity → hidden ingredient → portion order.
-
-P7 exposes that pipeline as a native Expo flow: Today → Capture → Analysis → Review → Confirm → Meal
-Detail. The interface does not expose raw model confidence. Instead, it converts uncertainty into
-actionable review only when the backend determines that the uncertainty can materially affect the meal
-result. Nutrition is always displayed from backend responses; the client never recalculates it.
-
-Local/test analysis uses clearly labeled deterministic providers. OpenAI selectors receive candidate
-ranks and allowlisted descriptions—not FDC IDs or nutrition. SELECT is validated server-side and then
-detail-grounded; ABSTAIN preserves candidates and leaves the food unresolved.
-
-P8 adds a strict private-dataset contract, real-provider-only benchmark runner, rank-1 baseline,
-automatic hybrid snapshot, evaluation-only oracle clarification, stage metrics, immutable run
-artifacts, error taxonomy, and holdout configuration lock. P8.5 ran those components on a licensed
-12-dish Nutrition5k subset with nine development and three untouched holdout dishes. Demo fixtures were
-rejected. This is secondary rig-captured evidence, not a product-specific smartphone benchmark.
-
-| Area | Public repository status |
+| Question | Answer |
 |---|---|
-| Native Expo capture/review flow | Implemented; full image upload → analysis → clarification → confirmation flow verified on an Android SDK emulator |
-| FastAPI meal lifecycle | Implemented and tested with in-memory adapters |
-| OpenAI vision and constrained selector adapters | Implemented; live execution requires a private key |
-| USDA FoodData Central adapter | Implemented; live execution requires a private key |
-| PostgreSQL/Supabase schema and RLS | Defined in migrations; runtime persistence adapter is deferred |
-| Accuracy benchmark | 12 Nutrition5k dishes plus 30 SNAPMe development and 10 participant-disjoint holdout phone photos |
-| Production authentication/deployment | Not implemented |
+| What is the product? | Native mobile meal logging: Today → Capture → Analysis → Review → Confirm → Meal Detail |
+| Accuracy strategy | Vision observation → USDA retrieval → constrained SELECT/ABSTAIN selector → deterministic uncertainty/HITL → USDA-grounded nutrition |
+| Strongest phone-photo evidence | SNAPMe participant-disjoint recognition holdout: semantic precision **0.853**, recall **0.806**, F1 **0.829** across 10 photos / 36 reviewed visible labels |
+| Important limitation | SNAPMe measures visible-food recognition only. It does not validate weighed portions, hidden ingredients, USDA selection, or end-to-end nutrition |
+| End-to-end secondary evidence | Nutrition5k exposes unresolved retrieval/clarification limits; its three v2 secondary holdout IDs were already observed under v1 and are retained only for historical comparison—not claimed as a newly untouched holdout |
+| Safety trade-off | Prefer selective friction over confidently wrong auto-accept when identity/portion uncertainty can materially change the result |
+| Production boundary | Persistent runtime repository/storage, production JWT verification, deployment, and monitoring sink are intentionally deferred and staging/production startup fails closed |
 
-See [project status and owner inputs](docs/project-status.md) for the exact boundary between working,
-demonstrated, and deferred behavior.
+### Current verification — 2026-08-20
 
-The latest real-provider Android exploratory pass and follow-up are documented in
-[the 2026-08-18 QA report](docs/exploratory-qa-2026-08-18.md). All original P1 and P2 workflow
-findings are fixed and regression-tested, along with the stale-loading P3 finding. The report keeps
-the original observations and records the remediation evidence and remaining device-test boundary.
-The follow-up [P0/P3 closeout](docs/qa-closeout-2026-08-19.md) records production fail-closed
-hardening, dependency-audit results, destructive-action confirmation, accessibility polish, and the
-remaining Expo build-tool advisory boundary.
+Latest locally verified state after the canonical `REMOVE_ITEM` recovery work:
+
+- Backend: **156 passed**
+- Mobile: **28/28 passed** across 7 suites
+- TypeScript: **clean** (`tsc --noEmit`)
+- GitHub Actions: submission CI added in this cleanup to run backend, evaluation, mobile tests, and mobile typecheck on pushes/PRs
+
+Historical QA reports keep the test counts that were true when those reports were recorded; they are not rewritten retroactively.
+
+## Mobile experience
+
+The app is a native Expo experience, not a web shell. The client never calculates nutrition or interprets raw confidence; each mutation replaces client state from the backend response.
+
+<table>
+<tr>
+<td width="25%"><img src="docs/screenshots/today.svg" alt="Illustrative Today screen preview" /></td>
+<td width="25%"><img src="docs/screenshots/capture.svg" alt="Illustrative Capture screen preview" /></td>
+<td width="25%"><img src="docs/screenshots/review.svg" alt="Illustrative Review screen preview" /></td>
+<td width="25%"><img src="docs/screenshots/detail.svg" alt="Illustrative Meal Detail screen preview" /></td>
+</tr>
+<tr>
+<td align="center">Today</td><td align="center">Capture</td><td align="center">Review</td><td align="center">Meal Detail</td>
+</tr>
+</table>
+
+These are **illustrative UI previews derived from the current implementation**, not fabricated emulator captures. The Loom walkthrough is the live app proof. The actual flow has been exercised on an Android SDK emulator with image upload, analysis, clarification, confirmation, and a saved meal.
+
+## Architecture
+
+```text
+Meal photo
+   ↓
+OpenAI vision → strict MealObservation
+   ↓
+USDA search + deterministic ranking
+   ↓
+Constrained selector: SELECT supplied rank or ABSTAIN
+   ↓
+Server validates rank → USDA detail lookup
+   ↓
+Canonical nutrition snapshot
+   ↓
+Deterministic uncertainty policy
+   ↓
+identity → hidden ingredient → portion clarification
+   ↓
+user correction / recovery
+   ↓
+Decimal nutrition recalculation → confirm
+```
+
+Key authority boundaries:
+
+- Vision cannot provide final nutrition.
+- The canonical selector does not receive FDC IDs or nutrition and cannot invent a database identity.
+- Search-result nutrition never becomes the final snapshot without detail retrieval.
+- `LOW` / `MEDIUM` / `HIGH` are decision categories, not correctness probabilities.
+- Confirmation requires every active item to have resolved identity, nutrition, portion provenance, and no blocking clarification.
+- Production-like environments are rejected until verified auth, persistent repository, and private object storage exist.
+
+See [architecture](docs/architecture.md), [API contract](docs/api-contract.md), [USDA grounding](docs/usda-grounding.md), [uncertainty and clarification](docs/uncertainty-and-clarification.md), and [mobile UX](docs/mobile-ux.md).
+
+## Accuracy work: experiments and decisions
+
+The evaluation process is intentionally stage-specific. Ground truth is never passed into recognition, retrieval, selection, or clarification generation.
+
+| Experiment / diagnosis | Measured observation | Decision |
+|---|---|---|
+| Recognition v1 → v2 | Nutrition5k development food F1 **0.286 → 0.615** with retrieval/selector/thresholds held fixed | **Accepted** as the production recognition prompt |
+| Semantic retrieval/ranker analysis | Frozen-recognition ablations exposed downstream ranking/selector sensitivity; exact Recall@5 did not improve | Keep as controlled evidence; do not claim a Recall@5 win |
+| Selector permutation robustness | Same candidate identities could produce different exact IDs under reranking; exact-ID sensitivity includes near-equivalent candidates | Treat as robustness evidence, not proof of harmful bias |
+| Recognition v3 granularity prompt | Mean F1 **57.52% → 49.32%**; all 3 paired repeats regressed despite fewer hallucinations | **Rejected**; production stays on v2 |
+| Hidden-ingredient evaluation | Exact hidden identity remained weak while recognition surfaced hidden risk on the measured positive cases; question reachability was blocked upstream | Separate exact identity from risk-surfacing metrics |
+| Hidden-risk reachability trace | Both hidden-positive cases were deferred by earlier canonical blockers; no unexplained routing gap | Do **not** change hidden-question stage ordering |
+| Clarification recovery trace | 11 unresolved blockers: 5 missing direct-remove recovery, 3 retrieval misses, 2 association/composite cases, 1 unmappable truth | Add direct `REMOVE_ITEM` to candidate clarification; avoid unsafe evaluator relaxation |
+| Canonical `REMOVE_ITEM` recovery | User can now resolve a hallucinated candidate-bearing item directly without grounding/model work | **Shipped and regression-tested** |
+
+The rejected v3 prompt is intentionally retained as evidence that iteration was governed by measurements rather than cherry-picked improvements. See [`evals/VISION_PROMPT_ABLATION.md`](evals/VISION_PROMPT_ABLATION.md), [`evals/FROZEN_RECOGNITION.md`](evals/FROZEN_RECOGNITION.md), and [`evals/HIDDEN_RISK_METRICS.md`](evals/HIDDEN_RISK_METRICS.md).
+
+## Measured evidence
+
+### SNAPMe phone-photo recognition
+
+A separate licensed recognition-only evaluation used 30 development and 10 participant-disjoint holdout phone photos. Human review removed diary-only details that were not visually verifiable, and semantic adjudication was performed separately from model execution.
+
+| Split | Strict lexical F1 | Semantic precision | Semantic recall | Semantic F1 |
+|---|---:|---:|---:|---:|
+| Development: 30 photos / 77 labels | 0.216 | 0.845 | 0.779 | **0.811** |
+| Holdout: 10 photos / 36 labels | 0.371 | 0.853 | 0.806 | **0.829** |
+
+The phone-photo result is **recognition-only**. SNAPMe portions/nutrients are dietary-record outputs rather than weighed ground truth, so this benchmark does not support claims about portion estimation, hidden ingredients, nutrition totals, USDA retrieval, canonical selection, or product-level superiority.
+
+### Nutrition5k secondary end-to-end evidence
+
+Nutrition5k provides measured portions and nutrition but uses a custom scanning rig, so it is secondary evidence rather than ordinary phone-capture validation.
+
+The corrected `nutrition5k-public-secondary-v2` contract keeps the same 9 development and 3 historical secondary holdout IDs as v1 while correcting evaluation truth semantics. Because the three holdout IDs had already been observed before v2, **v2 does not describe them as a newly untouched holdout**. A future final holdout requires previously unseen cases.
+
+Historical three-dish secondary holdout results include food F1 **0.353**, USDA Recall@5 **0.333**, and hybrid auto-accept coverage **0%**. The baseline produced totals for two meals but both accepted meals were materially wrong due to missing/incorrect verified foods. The hybrid chose review instead of silent acceptance, but completion/usability remained poor.
+
+Detailed denominators, latency, threshold simulation, limitations, and the historical evidence boundary are in [measured evaluation](docs/measured-evaluation.md). The reproducible protocol is in [`evals/README.md`](evals/README.md).
+
+No clinical, production-level, or numerical “better than EatBetter” claim is made.
+
+## Reliability and observability
+
+- Stable meal lifecycle and ownership-scoped repository access.
+- Idempotent meal creation keyed by `(user_id, meal_request_id)`.
+- Bounded provider retries with explicit timeout/429/5xx handling.
+- Typed provider responses and fail-closed parsing.
+- Append-only correction/audit history.
+- Correlation IDs via `X-Request-ID` and structured JSON request logs with status and latency.
+- AI-run metadata records provider/model/prompt version/status/latency/token usage without exposing secrets.
+- Private images and raw benchmark artifacts remain under ignored paths.
+
+The mobile analytics API is deliberately a provider-neutral no-op seam until a privacy-reviewed sink is selected.
 
 ## Repository structure
 
 ```text
-mobile/                    Expo application and typed backend service layer
-backend/app/api/           /health and /api/v1 transport contracts
-backend/app/application/   meal lifecycle orchestration and stable errors
-backend/app/ai/            strict observation schemas, providers, versioned prompts
-backend/app/domain/        entities, Decimal nutrition, states, uncertainty
-backend/app/nutrition/     USDA adapter, parsing, normalization, ranking
-backend/app/repositories/  in-memory P2 repository adapter
-backend/app/infrastructure typed config and private storage adapter
-backend/tests/             deterministic unit/integration/contract tests
-supabase/migrations/       authoritative PostgreSQL schema
-docs/                      architecture, API, database workflow, ADRs
-evals/                     private-data contract, benchmark runner, metrics, reports
+mobile/                    Expo app, screens, typed backend client, tests
+backend/app/api/           FastAPI transport contracts
+backend/app/application/   meal lifecycle orchestration
+backend/app/ai/            strict schemas, providers, versioned prompts
+backend/app/domain/        entities, Decimal nutrition, uncertainty policy
+backend/app/nutrition/     USDA provider, parser, normalization, ranking
+backend/app/observability/ correlation IDs and structured logging
+backend/tests/             unit/integration/provider/contract tests
+supabase/migrations/       authoritative PostgreSQL schema and RLS
+evals/                     benchmark runners, metrics, frozen experiments
+docs/                      architecture, QA, evaluation, walkthrough
 ```
 
-See [architecture](docs/architecture.md), [project status](docs/project-status.md),
-[canonicalization](docs/canonicalization.md), [vision recognition](docs/vision-recognition.md),
-[USDA grounding](docs/usda-grounding.md), [API contract](docs/api-contract.md),
-[uncertainty and clarification](docs/uncertainty-and-clarification.md),
-[mobile UX](docs/mobile-ux.md), [measured evaluation](docs/measured-evaluation.md),
-[evaluation protocol](docs/evaluation.md),
-[database workflow](docs/database.md), and [ADR 0001](docs/decisions/0001-modular-monolith.md).
+## Run locally
 
-We intentionally traded some zero-friction logging for selective confirmation. The system interrupts
-only when unresolved uncertainty can materially change the logged result. A 20 g range matters far
-more for oil than parsley because P6 evaluates calorie impact, not gram spread alone. The initial
-100 kcal / 20% limits are configurable hypotheses, not calibrated or clinically validated thresholds.
-No calibrated numeric confidence exists, so `canonical_confidence` remains null.
+### Backend
 
-## API endpoints
-
-| Method | Path |
-|---|---|
-| `GET` | `/health` |
-| `POST`, `GET` | `/api/v1/meals` |
-| `GET`, `DELETE` | `/api/v1/meals/{meal_id}` |
-| `POST` | `/api/v1/meals/{meal_id}/image` |
-| `POST` | `/api/v1/meals/{meal_id}/analysis` |
-| `PATCH`, `DELETE` | `/api/v1/meals/{meal_id}/items/{item_id}` |
-| `POST` | `/api/v1/meals/{meal_id}/items` |
-| `POST` | `/api/v1/meals/{meal_id}/items/{item_id}/replacement` |
-| `POST` | `/api/v1/meals/{meal_id}/clarifications/{clarification_id}/answer` |
-| `POST` | `/api/v1/meals/{meal_id}/confirm` |
-| `GET` | `/api/v1/daily-summary?date=YYYY-MM-DD&timezone=Europe/Istanbul` |
-| `POST` | `/api/v1/dev/fixtures/review-meal` (local/test only) |
-
-Create replay semantics are deterministic: a new `(user_id, meal_request_id)` returns `201`; the same
-authenticated user and request ID returns the existing resource with `200`.
-
-## Backend setup
-
-Prerequisites: Python 3.13 (matching the Dockerfile) and, for live analysis only, private OpenAI and
-USDA credentials. Demo mode is the default and requires no external credentials.
+Prerequisites: Python 3.13. Demo mode requires no external credentials; live providers require private OpenAI and USDA keys.
 
 ```powershell
 cd backend
@@ -119,50 +168,17 @@ Copy-Item .env.example .env
 uvicorn app.main:app --reload
 ```
 
-OpenAPI is available at `http://127.0.0.1:8000/docs`. Local endpoints accept a development bearer
-token such as `Authorization: Bearer dev-11111111-1111-4111-8111-111111111111`; production must verify
-Supabase JWTs.
-
-Run tests:
+Run backend tests:
 
 ```powershell
-cd backend
-.\.venv\Scripts\python.exe -m pytest -q
+.\.venv\Scripts\python.exe -m pytest tests -q
 ```
 
-To inspect live USDA candidates without exposing the API key in output:
+OpenAPI: `http://127.0.0.1:8000/docs`.
 
-```powershell
-cd backend
-$env:NUTRITION_PROVIDER = "usda"
-$env:USDA_API_KEY = "your-real-key"
-.\.venv\Scripts\python.exe scripts\search_usda.py "white rice cooked"
-```
+### Mobile
 
-To run P4-only observation against a local private image (no USDA call):
-
-```powershell
-cd backend
-$env:VISION_PROVIDER = "openai"
-$env:OPENAI_API_KEY = "your-real-key"
-.\.venv\Scripts\python.exe scripts\analyze_meal.py .\meal.jpg --context "Cooked at home"
-```
-
-## Database setup
-
-The baseline references Supabase `auth.users` and uses RLS as defense in depth:
-
-```powershell
-npx supabase start
-npx supabase db reset
-```
-
-See [database workflow](docs/database.md) before resetting or pushing a linked database.
-
-## Mobile setup
-
-Prerequisites: Node.js 20+ and npm. A physical phone must use the development computer's LAN address
-instead of `127.0.0.1` in `mobile/.env`.
+Prerequisites: Node.js 20+ and npm. A physical phone must point `mobile/.env` to the development computer's LAN address rather than `127.0.0.1`.
 
 ```powershell
 cd mobile
@@ -179,74 +195,34 @@ npm run typecheck
 npx expo-doctor
 ```
 
-## Data and privacy decisions
+### Evaluation tests
 
-- Auth passwords are never stored; `profiles.id` corresponds to `auth.users.id`.
-- Every repository lookup includes authenticated ownership; RLS repeats that constraint.
-- Original observations, offered candidates, AI structured output, corrections, and clarification
-  answers remain separately auditable.
-- Confirmed items snapshot the canonical nutrition used, so history never depends on a future API call.
-- Meal deletion cascades relational children and the application deletes the generated private image
-  path. Original filenames are never trusted as storage keys.
-- Daily summary converts `logged_at` using the explicitly requested IANA timezone; UTC is the default.
+From repository root with backend dependencies installed:
 
-## Accuracy evaluation
+```powershell
+.\backend\.venv\Scripts\python.exe -m pytest evals\tests -q
+```
 
-The measured portion/nutrition dataset is a fixed, licensed 12-dish Nutrition5k secondary subset: nine development meals
-and a three-meal untouched holdout. All 12 have published measured portions; 30/34 visible item labels
-have independently reviewed USDA mappings and four are explicitly `UNMAPPABLE`. Nutrition5k uses a
-custom scanning rig, and the private product-specific owned-capture dataset remains at 0 cases.
+Do not regenerate frozen recognition fixtures or tune against already-inspected holdout cases. See [`evals/README.md`](evals/README.md).
 
-On the three-meal case-study holdout, food F1 was 0.353 (9 labeled items) and USDA Recall@5 was 0.333
-(3 verified recognized items). Rank-1 produced nutrition totals for two meals, with 20.177 kcal MAE,
-but both accepted meals were materially wrong because required verified foods were missing or wrong.
-The hybrid auto-accepted 0/3 meals, asked 1.667 blocking questions per meal, and produced no complete
-nutrition totals. None of five generated questions was validly oracle-resolvable, so oracle-assisted
-results equaled automatic results.
+## Data, privacy, and production boundary
 
-The single development iteration, `meal_recognition_v2`, raised development food F1 from 0.286 to
-0.615 while holding retrieval, selection, thresholds, and labels fixed. It did not produce consistent
-end-to-end nutrition improvement. See [measured evaluation](docs/measured-evaluation.md) for all
-denominators, before/after results, error attribution, threshold simulation, latency, and limitations;
-see [`evals/README.md`](evals/README.md) for the reproducible protocol. No clinical, production-level,
-or competitor-comparison claim is made.
+- Credentials remain server-side; `.env`, private meal photos, raw benchmark runs, and service-role secrets must never be committed.
+- Uploaded image MIME/signature/size are validated and original filenames are not trusted as storage keys.
+- PostgreSQL/Supabase schema and RLS are defined, but the case-study runtime intentionally uses in-memory repository/storage adapters.
+- Development bearer tokens are fixtures, not deployable authentication.
+- Staging/production startup fails closed until production JWT, persistent repository, and private object storage adapters exist.
+- Deployment, monitoring backend integration, backups, incident response, physical-device QA, and product-specific owned/consented weighed evaluation remain deferred.
 
-A separate recognition-only evaluation used 30 licensed SNAPMe development phone photos and 77 visible labels accepted by
-an independent human reviewer. All 30 development cases completed. Under strict exact normalized
-label matching, precision was 0.225 (n=71 predictions), recall 0.208 (n=77 labels), and F1 0.216;
-there were 55 hallucinated and 61 missed labels. This is a lexical lower bound: reasonable synonyms
-still count as errors unless independently approved as aliases. A completed one-to-one human semantic
-adjudication counted 60/71 predictions correct against 77 labels: precision 0.845, recall 0.779, and
-F1 0.811, with 11 false positives and 17 misses. The frozen 10-photo participant-disjoint holdout
-then completed without infrastructure failures. Its strict lexical precision was 0.382 (13/34),
-recall 0.361 (13/36), and F1 0.371. Completed one-to-one adjudication of all 21 non-exact predictions
-produced semantic precision 0.853, recall 0.806, and F1 0.829 (29 true positives, 5 false positives,
-7 misses). No portion, hidden-ingredient, nutrition, USDA, canonicalization,
-preparation, or owned-product claim is supported by SNAPMe.
-
-Raw benchmark directories and private meal photos are ignored by Git. Only deliberately reviewed,
-aggregate, non-sensitive reports should ever be committed to this public repository.
+See [project status](docs/project-status.md), [QA closeout](docs/qa-closeout-2026-08-19.md), and [security policy](SECURITY.md).
 
 ## AI-tool disclosure
 
-OpenAI Codex was used as an implementation and analysis assistant for repository scaffolding, code,
-tests, documentation, research workflow, and evaluation tooling. Human review remained authoritative
-for visible-food labels, uncertainty exclusions, semantic adjudication, scope decisions, and final
-submission claims. Generated work was validated through deterministic tests, frozen evaluation
-configuration, manual review, and explicit evidence boundaries.
+OpenAI Codex was used as an implementation and analysis assistant for scaffolding, code, tests, documentation, and evaluation tooling. Human review remained authoritative for visible-food labels, uncertainty exclusions, semantic adjudication, scope decisions, and final claims. Generated work was validated through deterministic tests, frozen configurations, manual review, and explicit evidence boundaries.
 
-## Public repository safety
+## Submission
 
-- Never commit `.env` files, API keys, Supabase service-role credentials, private meal photos, or raw
-  benchmark case output.
-- The local development bearer token is a fixture, not authentication suitable for deployment.
-- Meal and nutrition output is not medical advice and has not been clinically validated.
-- See [security policy](SECURITY.md) before reporting a vulnerability or sharing a private image.
-- Contributions should follow [CONTRIBUTING.md](CONTRIBUTING.md).
-
-## Deferred
-
-Production Supabase/JWT adapters, a standalone manual food-search endpoint, persistent navigation state
-across process death, OCR, barcode recognition, calibrated confidence research, and product-specific
-phone-photo collection remain incomplete. Recognition, retrieval, selector, portion,
-nutrition, review, clarification, and infrastructure failures remain independently attributable.
+- Technical write-up: this README + linked evidence docs
+- Live app walkthrough: follow [`docs/WALKTHROUGH.md`](docs/WALKTHROUGH.md)
+- Email summary: [`docs/EMAIL_SUMMARY.md`](docs/EMAIL_SUMMARY.md)
+- Exact implemented/deferred boundary: [`docs/project-status.md`](docs/project-status.md)
