@@ -53,9 +53,11 @@ supabase/.temp/
 supabase/.env
 
 # Private evaluation inputs and generated raw benchmark runs
+# final_configuration.json is deliberately tracked: it is the frozen, aggregate
+# reproducibility record (models, prompt versions, thresholds, search limit,
+# seed) and contains no case data, paths, or credentials.
 evals/private/
 evals/reports/*/
-evals/reports/final_configuration.json
 evals/reports/*.jsonl
 
 # Local databases, logs, and temporary files

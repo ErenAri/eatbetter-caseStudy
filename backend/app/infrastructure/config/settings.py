@@ -45,7 +45,7 @@ class Settings(BaseSettings):
     nutrition_provider: Literal["demo", "usda"] = "demo"
     usda_base_url: str = "https://api.nal.usda.gov/fdc/v1"
     usda_timeout_seconds: float = Field(default=8.0, gt=0, le=60)
-    usda_search_limit: int = Field(default=50, ge=5, le=100)
+    usda_search_limit: int = Field(default=15, ge=5, le=100)
     usda_max_attempts: int = Field(default=3, ge=1, le=5)
     sentry_dsn: SecretStr | None = None
     max_upload_bytes: int = Field(default=8 * 1024 * 1024, gt=0)
