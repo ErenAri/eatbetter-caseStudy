@@ -270,3 +270,97 @@ async def test_grounding_leaves_nutrition_familiarity_none_for_providers_without
     await service.ground_selected_candidate(item, candidates[0].rank)
 
     assert item.nutrition_familiarity is None
+
+
+class SpreadReportingProvider:
+    source = "AI_ESTIMATE"
+
+    async def search_foods(self, query: str, *, meal_item_id: UUID, limit: int = 5):
+        return [
+            CanonicalFoodCandidate(
+                meal_item_id=meal_item_id,
+                rank=1,
+                source=self.source,
+                source_food_id="ai-food",
+                name="AI food",
+                data={"spread": "1.4"},
+                nutrition_per_100g=NutritionPer100g(200, 20, 10, 5),
+            )
+        ]
+
+    async def get_food(self, source_food_id: str):
+        return CanonicalFood(
+            source=self.source,
+            source_food_id=source_food_id,
+            name="AI food",
+            nutrition_per_100g=NutritionPer100g(200, 20, 10, 5),
+            data={"spread": "1.4"},
+        )
+
+
+@pytest.mark.asyncio
+async def test_grounding_sets_nutrition_consensus_spread_from_canonical_data() -> None:
+    service = FoodGroundingService(SpreadReportingProvider())
+    item = MealItem(meal_id=UUID(int=1), position=0, observed_name="shredded cabbage salad")
+
+    candidates = await service.retrieve_candidates(item)
+    await service.ground_selected_candidate(item, candidates[0].rank)
+
+    assert item.nutrition_consensus_spread == Decimal("1.4")
+
+
+@pytest.mark.asyncio
+async def test_grounding_leaves_nutrition_consensus_spread_none_for_providers_without_it() -> None:
+    """The demo and USDA providers do not supply spread in `data`, so
+    behaviour must be unchanged: the field stays None.
+    """
+    provider = DetailAuthoritativeProvider()
+    service = FoodGroundingService(provider)
+    item = MealItem(
+        meal_id=UUID(int=1),
+        position=0,
+        observed_name="  Grilled Chicken Breast  ",
+        confirmed_portion_g=Decimal("50"),
+    )
+
+    candidates = await service.retrieve_candidates(item)
+    await service.ground_selected_candidate(item, candidates[0].rank)
+
+    assert item.nutrition_consensus_spread is None
+
+
+class UnparseableSpreadProvider:
+    source = "AI_ESTIMATE"
+
+    async def search_foods(self, query: str, *, meal_item_id: UUID, limit: int = 5):
+        return [
+            CanonicalFoodCandidate(
+                meal_item_id=meal_item_id,
+                rank=1,
+                source=self.source,
+                source_food_id="ai-food",
+                name="AI food",
+                data={"spread": "not-a-number"},
+                nutrition_per_100g=NutritionPer100g(200, 20, 10, 5),
+            )
+        ]
+
+    async def get_food(self, source_food_id: str):
+        return CanonicalFood(
+            source=self.source,
+            source_food_id=source_food_id,
+            name="AI food",
+            nutrition_per_100g=NutritionPer100g(200, 20, 10, 5),
+            data={"spread": "not-a-number"},
+        )
+
+
+@pytest.mark.asyncio
+async def test_grounding_leaves_nutrition_consensus_spread_none_when_unparseable() -> None:
+    service = FoodGroundingService(UnparseableSpreadProvider())
+    item = MealItem(meal_id=UUID(int=1), position=0, observed_name="mystery dish")
+
+    candidates = await service.retrieve_candidates(item)
+    await service.ground_selected_candidate(item, candidates[0].rank)
+
+    assert item.nutrition_consensus_spread is None

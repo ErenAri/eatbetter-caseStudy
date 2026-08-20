@@ -22,6 +22,7 @@ class UncertaintyReason(StrEnum):
     RELATIVE_CALORIE_UNCERTAINTY = "RELATIVE_CALORIE_UNCERTAINTY"
     LOW_OBSERVATION_CERTAINTY = "LOW_OBSERVATION_CERTAINTY"
     LOW_NUTRITION_FAMILIARITY = "LOW_NUTRITION_FAMILIARITY"
+    LOW_NUTRITION_CONSENSUS = "LOW_NUTRITION_CONSENSUS"
     MATERIAL_HIDDEN_INGREDIENT = "MATERIAL_HIDDEN_INGREDIENT"
     UNKNOWN_HIDDEN_INGREDIENT = "UNKNOWN_HIDDEN_INGREDIENT"
     INVALID_PORTION_RANGE = "INVALID_PORTION_RANGE"
@@ -59,6 +60,7 @@ class UncertaintyPolicy:
     max_absolute_calorie_uncertainty: Decimal = Decimal("100")
     max_relative_calorie_uncertainty: Decimal = Decimal("0.20")
     min_relative_trigger_kcal: Decimal = Decimal("25")
+    max_nutrition_consensus_spread: Decimal = Decimal("0.25")
 
     def assess_portion(self, item: MealItem) -> PortionAssessment:
         estimate = item.portion_estimate
@@ -104,6 +106,13 @@ class UncertaintyPolicy:
             reasons.append(UncertaintyReason.LOW_OBSERVATION_CERTAINTY)
         if item.nutrition_familiarity == "LOW":
             reasons.append(UncertaintyReason.LOW_NUTRITION_FAMILIARITY)
+        # Boundary is inclusive-safe: exactly the threshold is fine; only
+        # greater blocks (matches the comment in assess_portion above).
+        if (
+            item.nutrition_consensus_spread is not None
+            and item.nutrition_consensus_spread > self.max_nutrition_consensus_spread
+        ):
+            reasons.append(UncertaintyReason.LOW_NUTRITION_CONSENSUS)
         for impact in hidden_impacts:
             if impact == "MATERIAL":
                 reasons.append(UncertaintyReason.MATERIAL_HIDDEN_INGREDIENT)

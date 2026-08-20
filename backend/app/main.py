@@ -117,6 +117,9 @@ def create_app(settings: Settings | None = None) -> FastAPI:
             min_relative_trigger_kcal=Decimal(
                 str(application_settings.min_relative_trigger_kcal)
             ),
+            max_nutrition_consensus_spread=Decimal(
+                str(application_settings.max_nutrition_consensus_spread)
+            ),
         ),
     )
     meal_service = MealContractService(

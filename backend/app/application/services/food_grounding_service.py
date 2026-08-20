@@ -1,9 +1,23 @@
 from dataclasses import replace
+from decimal import Decimal, InvalidOperation
 
 from app.application.errors import CanonicalFoodNotFoundError
 from app.domain.entities import CanonicalFood, CanonicalFoodCandidate, MealItem
 from app.domain.ports import NutritionProvider
 from app.nutrition.normalization import build_grounding_query
+
+
+def _parse_consensus_spread(raw: object) -> Decimal | None:
+    """Defensively parse the AI provider's `spread` value. A missing, null, or
+    unparseable value must leave the field `None` rather than raise -- this
+    runs on every grounding call, including providers that never set it.
+    """
+    if raw is None:
+        return None
+    try:
+        return Decimal(str(raw))
+    except (InvalidOperation, ValueError):
+        return None
 
 
 class FoodGroundingService:
@@ -95,5 +109,8 @@ class FoodGroundingService:
         meal_item.nutrition_snapshot = canonical.nutrition_per_100g
         meal_item.nutrition_retrieved_at = canonical.retrieved_at
         meal_item.nutrition_familiarity = (canonical.data or {}).get("familiarity")
+        meal_item.nutrition_consensus_spread = _parse_consensus_spread(
+            (canonical.data or {}).get("spread")
+        )
         meal_item.recalculate()
         return canonical

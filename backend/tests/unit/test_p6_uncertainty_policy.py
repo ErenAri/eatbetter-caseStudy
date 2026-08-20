@@ -17,6 +17,7 @@ def item(
     canonical: bool = True,
     certainty: str = "HIGH",
     familiarity: str | None = None,
+    consensus_spread: Decimal | None = None,
 ) -> MealItem:
     value = MealItem(
         uuid4(), 0, "food",
@@ -24,6 +25,7 @@ def item(
         portion_estimate=PortionEstimate(minimum, maximum),
         observation_certainty=certainty,
         nutrition_familiarity=familiarity,
+        nutrition_consensus_spread=consensus_spread,
     )
     if calories is not None:
         value.nutrition_snapshot = NutritionPer100g(calories, 0, 0, 0)
@@ -159,3 +161,57 @@ def test_missing_nutrition_familiarity_is_not_flagged():
     assessment = policy.assess_item(no_familiarity)
 
     assert UncertaintyReason.LOW_NUTRITION_FAMILIARITY not in assessment.reasons
+
+
+def test_high_nutrition_consensus_spread_is_flagged_and_blocks_auto_accept():
+    """Mirrors the familiarity gate: the model can be confident it recognizes a
+    food (nutrition_familiarity is fine) while still disagreeing wildly across
+    samples about its calorie density. That disagreement must block auto-accept
+    on its own.
+    """
+    policy = UncertaintyPolicy()
+    high_spread = item(Decimal("90"), Decimal("110"), consensus_spread=Decimal("1.4"))
+
+    assessment = policy.assess_item(high_spread)
+
+    assert UncertaintyReason.LOW_NUTRITION_CONSENSUS in assessment.reasons
+    assert assessment.level == RiskLevel.HIGH
+    assert assessment.auto_accept_eligible is False
+
+
+def test_nutrition_consensus_spread_at_threshold_does_not_block():
+    policy = UncertaintyPolicy()
+    at_threshold = item(
+        Decimal("90"), Decimal("110"), consensus_spread=policy.max_nutrition_consensus_spread
+    )
+
+    assessment = policy.assess_item(at_threshold)
+
+    assert UncertaintyReason.LOW_NUTRITION_CONSENSUS not in assessment.reasons
+
+
+def test_missing_nutrition_consensus_spread_is_not_flagged():
+    """The USDA and demo paths never set nutrition_consensus_spread, so None
+    must not be mistaken for a high spread and must not add a reason.
+    """
+    policy = UncertaintyPolicy()
+    no_spread = item(Decimal("90"), Decimal("110"), consensus_spread=None)
+
+    assessment = policy.assess_item(no_spread)
+
+    assert UncertaintyReason.LOW_NUTRITION_CONSENSUS not in assessment.reasons
+
+
+def test_low_familiarity_and_high_consensus_spread_both_report():
+    policy = UncertaintyPolicy()
+    both = item(
+        Decimal("90"),
+        Decimal("110"),
+        familiarity="LOW",
+        consensus_spread=Decimal("1.4"),
+    )
+
+    assessment = policy.assess_item(both)
+
+    assert UncertaintyReason.LOW_NUTRITION_FAMILIARITY in assessment.reasons
+    assert UncertaintyReason.LOW_NUTRITION_CONSENSUS in assessment.reasons

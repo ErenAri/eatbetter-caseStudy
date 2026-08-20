@@ -33,7 +33,7 @@ class DemoNutritionProvider:
                 source=self.source,
                 source_food_id=source_id,
                 name=name,
-                data={"data_type": "TEST/DEMO DATA — NOT USDA RESULTS"},
+                data={"provenance_note": "TEST/DEMO DATA — NOT USDA RESULTS"},
                 nutrition_per_100g=nutrition,
             )
             for rank, (source_id, name, nutrition) in enumerate(matches, start=1)
@@ -49,5 +49,5 @@ class DemoNutritionProvider:
             source_food_id=source_food_id,
             name=name,
             nutrition_per_100g=nutrition,
-            data={"data_type": "TEST/DEMO DATA — NOT USDA RESULTS"},
+            data={"provenance_note": "TEST/DEMO DATA — NOT USDA RESULTS"},
         )

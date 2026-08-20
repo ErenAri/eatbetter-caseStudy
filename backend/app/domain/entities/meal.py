@@ -57,6 +57,7 @@ class MealItem:
     portion_resolution_source: PortionResolutionSource | None = None
     observation_certainty: str | None = None
     nutrition_familiarity: str | None = None
+    nutrition_consensus_spread: Decimal | None = None
     canonical_confidence: Decimal | None = None
     requires_clarification: bool = False
     clarification_resolved: bool = False
@@ -74,6 +75,10 @@ class MealItem:
             raise ValueError("item position cannot be negative")
         if self.confirmed_portion_g is not None:
             self.confirmed_portion_g = decimal_value(self.confirmed_portion_g)
+        if self.nutrition_consensus_spread is not None:
+            self.nutrition_consensus_spread = decimal_value(self.nutrition_consensus_spread)
+            if self.nutrition_consensus_spread < 0:
+                raise ValueError("nutrition consensus spread cannot be negative")
         if self.canonical_confidence is not None:
             self.canonical_confidence = decimal_value(self.canonical_confidence)
             if not Decimal("0") <= self.canonical_confidence <= Decimal("1"):
