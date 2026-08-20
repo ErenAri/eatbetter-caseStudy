@@ -1,194 +1,248 @@
-# Measured evaluation — public Nutrition5k secondary subset
+# Measured evaluation — public secondary and phone-photo evidence
 
-Status date: 2026-08-18.
+Status date: 2026-08-20.
 
 ## Evidence boundary
 
-This is measured evidence on a fixed 12-dish subset of Google Research's Nutrition5k dataset, not an
-EatBetter product benchmark. Nine official RGB-training dishes form the development split and three
-official RGB-test dishes form the untouched case-study holdout. Nutrition5k uses a custom scanning
-rig, so these images do not reproduce ordinary single-phone capture. The holdout is far too small for
-generalization or clinical claims.
+This case study uses two complementary external datasets:
 
-All 12 images and published labels are licensed under CC BY 4.0. The checked-in builder records source
-URLs and SHA-256 hashes. The locked dataset SHA-256 is
-`99f5fd54d7d3aac353a839fb4e1499d547caa18c0f7e9843cf32b26b26539a68`.
+1. **Nutrition5k secondary subset** — 12 rig-captured dishes with published measured portions/nutrition and reviewed USDA mappings. It supports stage-level end-to-end diagnostics but does not reproduce ordinary single-phone capture.
+2. **SNAPMe phone-photo subset** — 30 development and 10 participant-disjoint holdout phone photos with reviewed visible-food labels. It supports recognition-only evidence; its dietary-record amounts are not weighed ground truth.
 
-| Dataset fact | Count |
+The private product-specific owned/consented dataset remains empty. No result below establishes clinical accuracy, production-level generalization, or numerical superiority to EatBetter.
+
+### Nutrition5k versioning boundary
+
+`nutrition5k-public-secondary-v1` was the original frozen 9-development / 3-holdout secondary evaluation. After those results were observed, the evaluation truth contract was corrected and versioned as `nutrition5k-public-secondary-v2` while preserving the same case IDs.
+
+Therefore the three v2 secondary holdout IDs are **historical holdout cases inherited from v1, not a newly untouched v2 holdout**. They remain useful for historical comparison only. A future final holdout requires previously unseen cases.
+
+The v2 dataset uses canonical JSON + image SHA-256 split locking and adds complete hidden-truth semantics and measured hidden calories where supported by Nutrition5k metadata.
+
+| Nutrition5k v2 fact | Count |
 |---|---:|
-| Total / development / holdout dishes | 12 / 9 / 3 |
+| Total / development / historical holdout IDs | 12 / 9 / 3 |
 | Dishes with measured portions | 12 |
 | Visible labeled items | 34 |
 | Visible items with independently reviewed USDA mappings | 30 |
 | Visible items marked `UNMAPPABLE` | 4 |
 | Recorded hidden ingredients | 13 |
 
-Category membership is overlapping: 4 simple, 8 multi-component, 7 portion-sensitive, 3 composite,
-3 sauce-or-oil, and 3 hidden-ingredient dishes. The local `evals/private/` product dataset still has
-0 cases; owned or consented phone photos remain necessary.
+## Production evaluation pipeline
 
-## Live configuration and gate
+Real runs reject demo/unconfigured providers. The measured pipeline uses:
 
-The runner rejected demo providers and used `OpenAIVisionProvider`,
-`USDAFoodDataCentralProvider`, and `OpenAICanonicalizationProvider`. Both required keys were present
-but were never printed. A pre-benchmark smoke test loaded all three production adapters, retrieved a
-live USDA banana result (FDC 2709224), and completed a constrained selector call. The vision smoke test
-correctly rejected a synthetic non-meal illustration as unusable.
+```text
+image
+  ↓
+OpenAI structured vision observation
+  ↓
+USDA retrieval/ranking
+  ↓
+OpenAI rank-only SELECT/ABSTAIN canonicalization
+  ↓
+USDA detail grounding
+  ↓
+deterministic uncertainty / clarification
+```
 
-The frozen final configuration uses `gpt-5.6-terra` for vision and selection, `high` image detail,
-`low` reasoning effort, `meal_recognition_v2`, `canonicalization_v1`, USDA search limit 15 with
-normalized multi-query top-five retrieval, and the 100 kcal / 20% P6 limits.
+The frozen product configuration uses `gpt-5.6-terra`, high image detail, low reasoning effort, `meal_recognition_v2`, `canonicalization_v1`, USDA normalized multi-query retrieval, and the 100 kcal / 20% uncertainty limits.
 
-## One development iteration
+Ground truth is loaded only by the grader. It is never sent into recognition, retrieval, selection, or clarification generation.
 
-The first nine-dish run attributed 18 misses and 17 hallucinations to recognition. Descriptions such
-as “dark olives” and combined labels such as “bagel with white spread” were poor deterministic
-grounding keys, while visual variants could be duplicated. The sole primary iteration created
-`meal_recognition_v2`; it requests concise common food identities, merges duplicate visible portions,
-separates clearly visible nutritionally meaningful components, and avoids confident identity from
-shape or color alone. Retrieval, canonicalization, thresholds, and labels were unchanged.
+## Primary Nutrition5k development iteration
 
-| Development metric | Before v1 | After v2 | Change |
+The first nine-dish run exposed recognition as the largest early failure source. The single primary prompt iteration created `meal_recognition_v2`: concise common identities, duplicate merging, separation of clearly visible nutritionally meaningful components, and less confident identity from shape/color alone.
+
+Retrieval, canonicalization, thresholds, and labels were held fixed.
+
+| Development metric | v1 prompt | v2 prompt | Change |
 |---|---:|---:|---:|
-| Food precision | 0.292 (n=24 predictions) | 0.593 (n=27) | +0.301 |
-| Food recall | 0.280 (n=25 labels) | 0.640 (n=25) | +0.360 |
-| Food F1 | 0.286 (n=25 labels) | 0.615 (n=25) | +0.330 |
+| Food precision | 0.292 | 0.593 | +0.301 |
+| Food recall | 0.280 | 0.640 | +0.360 |
+| Food F1 | 0.286 | 0.615 | +0.330 |
 | Missed / hallucinated foods | 18 / 17 | 9 / 11 | −9 / −6 |
-| Preparation accuracy | 1.000 (n=5) | 0.778 (n=9) | −0.222; denominator grew |
-| USDA Recall@5 | 0.571 (n=7) | 0.500 (n=14) | −0.071; twice as many verified items reached retrieval |
-| Baseline calorie MAE | 217.349 kcal (n=9) | 208.395 kcal (n=9) | −8.954 kcal |
-| Baseline meals within ±20% | 0.333 (n=9) | 0.222 (n=9) | −0.111 |
-| End-to-end p50 / p95 | 13.913 / 29.260 s (n=9) | 14.142 / 22.347 s (n=9) | +0.229 / −6.913 s |
+| Preparation accuracy | 1.000 (n=5) | 0.778 (n=9) | denominator grew |
+| USDA Recall@5 | 0.571 (n=7) | 0.500 (n=14) | more verified items reached retrieval |
+| Baseline calorie MAE | 217.349 kcal | 208.395 kcal | −8.954 kcal |
+| Baseline meals within ±20% | 0.333 | 0.222 | −0.111 |
+| End-to-end p50 / p95 | 13.913 / 29.260 s | 14.142 / 22.347 s | p95 improved |
 
-The recognition hypothesis was supported, but end-to-end nutrition did not improve consistently.
-The larger recognized set exposed retrieval misses and portion errors that were previously hidden.
+Recognition improved substantially, but end-to-end nutrition did not improve consistently. Better recognition exposed downstream retrieval and portion errors that the earlier prompt had hidden.
 
-## Development error attribution after v2
+## Error attribution after recognition v2
 
-Counts below are from `HYBRID_AUTO` and assign each failure to the earliest responsible stage.
+`HYBRID_AUTO` assigns each failure to the earliest responsible stage.
 
-| Error | Count | Affected dishes | Estimated consequence | Recommended intervention |
-|---|---:|---:|---|---|
-| `HALLUCINATED_FOOD` | 11 | 5 | Extra foods can inflate totals or force needless review | Add synonym-aware grading, then improve recognition only for remaining semantic errors |
-| `MISSED_FOOD` | 9 | 5 | Omitted calories/macros; high impact for staples and fats | Test multi-component recognition on a larger phone-photo development set |
-| `RETRIEVAL_MISS` | 7 | 6 | Correct USDA choice is unavailable to the selector | Improve Foundation/Survey preference, aliases, and query/ranking diagnostics |
-| `HIDDEN_INGREDIENT` | 5 | 2 | Oils/sauces can materially understate calories | Make hidden-ingredient suggestions more specific and answerable |
-| `WRONG_COOKING_METHOD` | 2 | 2 | Can select a nutritionally different database entry | Preserve preparation only when visually supported |
+| Error | Count | Affected dishes | Interpretation |
+|---|---:|---:|---|
+| `HALLUCINATED_FOOD` | 11 | 5 | extra foods can inflate totals or force review |
+| `MISSED_FOOD` | 9 | 5 | omitted foods can understate calories/macros |
+| `RETRIEVAL_MISS` | 7 | 6 | correct USDA identity unavailable to selector |
+| `HIDDEN_INGREDIENT` | 5 | 2 | invisible oils/sauces can materially alter totals |
+| `WRONG_COOKING_METHOD` | 2 | 2 | preparation can change canonical choice/nutrition |
 
-Recognition remains the largest combined category (20 errors), while retrieval is the largest next
-actionable downstream category. No selector error is assigned when the expected USDA candidate was
-absent.
+Recognition remained the largest combined category; retrieval was the largest downstream actionable category.
 
 ## Threshold decision
 
-P6 simulation used seven development items with an exact recognition match, verified USDA truth,
-nutrition, and a portion interval. “Materially wrong” means wrong canonical selection or midpoint
-portion error above 20%. This conditional sample excludes recognition and retrieval misses.
+The 100 kcal / 20% P6 limits were retained after a seven-item conditional simulation containing exact recognition matches, verified USDA truth, nutrition, and portion intervals.
 
-| Absolute / relative limit | Portion auto-accept | Portion clarification | Unsafe among accepted | Cumulative questions/meal* |
-|---|---:|---:|---:|---:|
-| 50 kcal / 15% | 0.000 | 1.000 | 0.000 | 2.889 |
-| 75 kcal / 20% | 0.000 | 1.000 | 0.000 | 2.889 |
-| **100 kcal / 20%** | **0.000** | **1.000** | **0.000** | **2.889** |
-| 125 kcal / 25% | 0.000 | 1.000 | 0.000 | 2.889 |
-| 150 kcal / 30% | 0.000 | 1.000 | 0.000 | 2.889 |
-| 150 kcal / 50% | 0.571 | 0.429 | 0.750 | 2.444 |
-| 200 kcal / 60% | 1.000 | 0.000 | 0.857 | 2.111 |
+| Absolute / relative limit | Portion auto-accept | Portion clarification | Unsafe among accepted |
+|---|---:|---:|---:|
+| 50 kcal / 15% | 0.000 | 1.000 | 0.000 |
+| 75 kcal / 20% | 0.000 | 1.000 | 0.000 |
+| **100 kcal / 20%** | **0.000** | **1.000** | **0.000** |
+| 125 kcal / 25% | 0.000 | 1.000 | 0.000 |
+| 150 kcal / 30% | 0.000 | 1.000 | 0.000 |
+| 150 kcal / 50% | 0.571 | 0.429 | 0.750 |
+| 200 kcal / 60% | 1.000 | 0.000 | 0.857 |
 
-\*Cumulative questions/meal adds simulated portion questions to the 19 canonical/hidden questions
-already observed across nine dishes. It is a counterfactual friction estimate, not a second model run.
-The 100 kcal / 20% limits were retained: looser settings bought coverage only by accepting too many
-materially wrong portions. This is a conservative small-sample decision, not calibration.
+This is a conservative small-sample engineering choice, not calibration.
 
-## Untouched three-dish holdout
+## Historical Nutrition5k three-dish secondary holdout
 
-The configuration and dataset hash were frozen before the holdout run. The holdout was run once with
-zero infrastructure failures and no post-holdout tuning. Oracle-assisted output equals automatic
-output because none of the five generated holdout questions had a valid ground-truth answer among
-its offered options; no answer was fabricated.
+The table below preserves the original one-time secondary holdout evidence from the v1 experiment series. The same three IDs are present in v2 for historical comparison, but because they had already been observed they are not presented as a newly untouched v2 holdout.
 
 | Metric | Baseline top-1 | Hybrid auto | Hybrid + oracle HITL |
 |---|---:|---:|---:|
-| Food precision | 0.375 (n=8 predictions) | 0.375 (n=8) | 0.375 (n=8) |
-| Food recall | 0.333 (n=9 labels) | 0.333 (n=9) | 0.333 (n=9) |
-| Food F1 | 0.353 (n=9 labels) | 0.353 (n=9) | 0.353 (n=9) |
+| Food precision | 0.375 (n=8 predictions) | 0.375 | 0.375 |
+| Food recall | 0.333 (n=9 labels) | 0.333 | 0.333 |
+| Food F1 | 0.353 | 0.353 | 0.353 |
 | Missed / hallucinated foods | 6 / 5 | 6 / 5 | 6 / 5 |
-| Preparation accuracy | 0.500 (n=2) | 0.500 (n=2) | 0.500 (n=2) |
+| Preparation accuracy | 0.500 (n=2) | 0.500 | 0.500 |
 | USDA Recall@1 / @3 / @5 | 0.333 / 0.333 / 0.333 (n=3) | same | same |
-| Selector accuracy / coverage | 1.000 / 1.000 (n=1) | 1.000 / 1.000 (n=1) | 1.000 / 1.000 (n=1) |
-| Selector abstention / wrong / wrong-strong | 0 / 0 / 0 (n=1) | 0 / 0 / 0 (n=1) | 0 / 0 / 0 (n=1) |
-| Portion MAE / interval coverage | — (n=0) | — (n=0) | — (n=0) |
-| Calorie MAE / median AE | 20.177 / 20.177 kcal (n=2) | — (n=0) | — (n=0) |
-| Calorie MAPE | 0.100 (n=2) | — (n=0) | — (n=0) |
-| Meals within ±10% / ±20% / ±30% | 0.500 / 1.000 / 1.000 (n=2) | — (n=0) | — (n=0) |
-| Protein / carbs / fat MAE | 9.594 / 10.387 / 1.318 g (n=2) | — (n=0) | — (n=0) |
-| Unsafe auto-accept | 1.000 (n=2 accepted) | — (n=0 accepted) | — (n=0 accepted) |
-| Auto-accept coverage | 0.667 (n=3) | 0.000 (n=3) | 0.000 (n=3) |
-| Clarification rate | 0.000 (n=3) | 1.000 (n=3) | 1.000 (n=3) |
-| Blocking questions/meal | 0.000 (n=3) | 1.667 (n=3) | 1.667 (n=3) |
-| End-to-end p50 / p95 | 13.688 / 17.066 s (n=3) | same shared run | same shared run |
+| Selector accuracy / coverage | 1.000 / 1.000 (n=1) | 1.000 / 1.000 | 1.000 / 1.000 |
+| Calorie MAE / median AE | 20.177 / 20.177 kcal (n=2) | — | — |
+| Meals within ±20% | 1.000 (n=2 totals) | — | — |
+| Unsafe auto-accept | 1.000 (2/2 accepted) | — | — |
+| Auto-accept coverage | 0.667 (n=3) | 0.000 | 0.000 |
+| Clarification rate | 0.000 | 1.000 | 1.000 |
+| Blocking questions/meal | 0.000 | 1.667 | 1.667 |
+| End-to-end p50 / p95 | 13.688 / 17.066 s | shared run | shared run |
 
-The baseline's low calorie error applies only to the two meals for which it produced totals and does
-not make the run safe: both accepted meals were materially wrong because verified foods were missing
-or incorrect. The hybrid made the safer choice—no automatic acceptance—but failed usability and
-completion: every meal required review and no complete nutrition total was available.
+The low baseline calorie MAE applies only to the two meals for which totals were produced and is not a safety win: both accepted meals were materially wrong because required verified foods were missing or incorrect. The hybrid avoided silent acceptance but failed completion/usability on this tiny secondary sample.
 
-## Licensed SNAPMe phone-photo development recognition
+## Controlled downstream ablations on frozen recognition
 
-A separate private intake used the USDA SNAPMe archive under CC BY-SA 4.0. One before-photo per
-participant was selected deterministically: 30 development cases and 10 participant-disjoint holdout
-cases. A provisional visual pass deliberately removed diary-only details such as cooking oil, sugar,
-milk fat percentage, brands, and hidden recipe ingredients. An independent human accepted or corrected
-the visible labels and uncertainty exclusions before each split was run. The recognition configuration
-was frozen before holdout visual review and execution, and no post-holdout tuning was performed.
+To isolate retrieval/selector behavior from vision nondeterminism, the nine development observations were captured once into an immutable frozen recognition fixture. Downstream experiments replay the same fixture and validate case IDs, image hashes, schema, dataset version, and fixture SHA before execution.
 
-The final runner stopped after vision recognition, preventing ineligible USDA or canonicalization
-failures from erasing recognition results. All 30 development cases completed with 77 visible labels.
-Strict normalized exact-label-or-approved-alias grading produced:
+### Ranker ablation
 
-| Metric | Result |
+| Metric | Semantic production ranker | Score-first ablation |
+|---|---:|---:|
+| Food F1 | 55.6% | 55.6% |
+| USDA Recall@1 | 3/13 = 23.08% | 4/13 = 30.77% |
+| USDA Recall@3 | 8/13 = 61.54% | 8/13 = 61.54% |
+| USDA Recall@5 | 8/13 = 61.54% | 8/13 = 61.54% |
+| Selector accuracy | 3/8 = 37.5% | 6/8 = 75.0% |
+| Wrong strong selection | 5/8 = 62.5% | 2/8 = 25.0% |
+| Calorie MAE | 100.84 kcal | 164.20 kcal |
+| Meals within ±20% | 25.0% | 37.5% |
+
+Interpretation: score-first improved exact Recall@1 and selector exact-ID accuracy on this frozen development input, but **did not improve Recall@3 or Recall@5** and produced worse calorie MAE. It remains an ablation control, not an automatic product promotion.
+
+### Selector permutation robustness
+
+Eight eligible items received repeated controls and candidate-order/rerank perturbations.
+
+- Control selector accuracy: 6/8 = 75%.
+- Control repeat instability: 0/8.
+- Array-position sensitivity: 2/8 = 25%.
+- Rank-label/rerank sensitivity: 3/8 = 37.5%.
+- Condition exact-ID accuracies: controls 75%, array reversed 75%, array rotate-left 50%, rerank reversed 50%, rerank rotate-left 62.5%.
+
+Exact-ID sensitivity can overstate meaningful harm because near-equivalent USDA records may differ by ID. These numbers are robustness diagnostics, not a claim that 37.5% of selections are semantically harmful.
+
+## Recognition error diagnostics and rejected v3 prompt
+
+A frozen lexical segmentation diagnostic conserved the primary strict error units rather than silently approving new aliases. It found 24 strict errors across 15 structural events, including both under-segmentation and extra-modifier/partial-overlap patterns. The errors pointed in opposing directions; a generic “split more” or “split less” prompt change was not justified.
+
+A paired live v2-vs-v3 prompt ablation was therefore predeclared and run three times on the same nine development images.
+
+| Mean strict metric | v2 production | v3 experimental | Delta |
+|---|---:|---:|---:|
+| F1 | 57.52% | 49.32% | **−8.20 pp** |
+| Precision | 54.20% | 52.31% | −1.89 pp |
+| Recall | 61.33% | 46.67% | **−14.67 pp** |
+| Hallucinated foods | 13.00 | 10.67 | −2.33 |
+| Missed foods | 9.67 | 13.33 | +3.67 |
+
+All three paired repeats had worse F1. The v3 candidate reduced some false positives but paid an unacceptable recall cost, so it was **rejected** and production stayed on `meal_recognition_v2`. No further prompt tuning was performed on the same nine cases.
+
+## Hidden ingredients: identity vs risk surfacing
+
+Invisible ingredients are not reliably identifiable by name from pixels, so exact identity and risk surfacing are reported separately.
+
+On the frozen development artifact:
+
+- Exact hidden recognition recall: **0/5**.
+- Recognition risk-surface case coverage: **2/2 hidden-positive meals = 100%**.
+- Recognition calorie-weighted risk-surface coverage: **100%**.
+- Recognition risk-surface false-positive rate on complete negatives: **5/7 = 71.43%**.
+- Initial `HYBRID_AUTO` hidden-question risk-surface coverage: **0/2**.
+- Initial hidden-question false-positive rate: **2/7 = 28.57%**.
+
+The high risk-surface number is **not hidden ingredient recall**; it only means the system did not silently treat the measured hidden-positive meals as fully known.
+
+An oracle-progressed staged run still produced 0/2 hidden-question coverage. A dedicated reachability trace then showed both positive meals were deferred behind earlier `CANONICAL_SELECTION` blockers and found **0 unexplained hidden-routing gaps**. The hidden-stage ordering was therefore not changed.
+
+## Clarification recovery root-cause trace
+
+The next artifact-only trace classified 11 unresolved canonical/identity blockers:
+
+| Root cause | Count |
 |---|---:|
-| Food precision | 0.225 (16/71 predictions) |
-| Food recall | 0.208 (16/77 labels) |
-| Food F1 | 0.216 (n=77 labels) |
-| Missed / hallucinated foods | 61 / 55 |
-| Vision p50 / p95 latency | 5.723 / 9.792 s (n=30) |
-| Input / output tokens | 61,292 / 10,286 |
-| Vision infrastructure failures | 0/30 |
+| `NO_TRUTH_ASSOCIATION_REMOVE_MISSING` | 5 |
+| `RETRIEVAL_OPTION_MISS` | 3 |
+| `OBSERVED_NAME_ASSOCIATION_GAP_CORRECT_FDC_OFFERED` | 2 |
+| `UNMAPPABLE_TRUTH_REQUIRES_MANUAL_RECOVERY` | 1 |
 
-This result is a strict lexical lower bound, not a semantic recognition score: predictions such as
-`pistachio kernels` for `pistachios` are counted wrong unless the alias is independently approved in
-advance. A subsequent one-to-one human adjudication reviewed all 55 non-exact predictions: 44 were
-semantic matches and 11 were rejected. Combined with 16 automatic exact matches, the adjudicated
-result was 60 true positives, 11 false positives, and 17 misses—precision 0.845, recall 0.779, and F1
-0.811. No `TOO_BROAD` or unresolved judgments remained.
+The two association cases included composite/component ambiguity, so the oracle evaluator was **not** relaxed simply because an acceptable component FDC ID appeared in the options.
 
-The development set was not used for a new prompt iteration. The configuration was frozen before the
-10 participant-disjoint holdout photos were visually reviewed or run. The holdout contained 36
-independently reviewed visible labels and produced 34 predictions across 10/10 completed cases with
-no infrastructure failures. Strict lexical scoring gave 13 true positives, 21 false positives, and
-23 misses: precision 0.382, recall 0.361, and F1 0.371. Vision latency was 10.824 s p50 and 16.175 s
-p95. Completed one-to-one adjudication of all 21 non-exact predictions accepted 16 semantic matches,
-rejected four, and marked one too broad; no `UNSURE` judgments remained. With the 13 automatic exact
-matches, the final semantic result was 29 true positives, 5 false positives, and 7 misses—precision
-0.853, recall 0.806, and F1 0.829.
+The product-supported fix was narrower: candidate-bearing `CANONICAL_SELECTION` clarifications now include a direct **“This food is not in my meal” / `REMOVE_ITEM`** recovery. This lets a user remove a hallucinated food without forcing additional grounding or model work. Regression tests cover the path.
 
-SNAPMe amounts and nutrients are ASA24 dietary-record outputs rather than weighed truth, so portion,
-hidden-ingredient, nutrition, USDA retrieval, canonical selection, and preparation metrics remain
-unmeasured. These are licensed external phone photos, not owned product captures.
+## SNAPMe phone-photo recognition
 
-## Next improvements and limitations
+A private intake used the licensed USDA SNAPMe archive. One before-photo per participant was selected deterministically: 30 development and 10 participant-disjoint holdout cases. Diary-only details such as hidden oil, sugar, milk-fat percentage, brands, and invisible recipe ingredients were excluded from visible-food truth before scoring.
 
-1. Improve and diagnose USDA retrieval: Recall@5 was 0.333 on three verified holdout matches and
-   retrieval misses were the largest next downstream development failure.
-2. Diagnose multi-component recognition errors on new development data; do not tune or relabel against
-   the now-inspected SNAPMe holdout.
-3. Make clarification options resolvable: 0/5 holdout questions could be answered from ground truth,
-   so oracle assistance could not complete a meal.
+### Development
 
-The evidence is limited by 12 rig-captured dishes, only three measured holdout meals, one 30-case
-licensed phone-photo development run, one 10-case licensed phone-photo recognition holdout, completed
-single-reviewer semantic adjudication, strict lexical recognition matching,
-incomplete canonical denominators, external model nondeterminism, USDA-centered ground truth, and no
-product-specific owned-capture data. It does not establish clinical accuracy,
-production-level generalization, or superiority to another product.
+- 30/30 cases completed.
+- 77 reviewed visible labels; 71 predictions.
+- Strict lexical precision 0.225, recall 0.208, F1 0.216.
+- One-to-one semantic adjudication: 60 TP, 11 FP, 17 misses.
+- Semantic precision **0.845**, recall **0.779**, F1 **0.811**.
+
+No new prompt iteration was performed on this development result.
+
+### Participant-disjoint holdout
+
+- 10/10 cases completed with no vision infrastructure failures.
+- 36 reviewed visible labels; 34 predictions.
+- Strict lexical precision 0.382, recall 0.361, F1 0.371.
+- One-to-one semantic adjudication: 29 TP, 5 FP, 7 misses.
+- Semantic precision **0.853**, recall **0.806**, F1 **0.829**.
+
+SNAPMe amounts/nutrients are ASA24 dietary-record outputs rather than weighed truth. This result therefore supports **visible-food recognition only** and does not measure portion, hidden ingredients, nutrition, USDA grounding, canonical selection, preparation, or owned-product captures.
+
+## Final interpretation
+
+The evidence supports the following case-study conclusions:
+
+1. The hybrid architecture makes model uncertainty measurable and recoverable instead of letting the LLM directly author nutrition.
+2. Phone-photo visible-food recognition is promising on the small participant-disjoint SNAPMe holdout, but that is not end-to-end nutrition validation.
+3. Nutrition5k secondary experiments show that retrieval and clarification completion remain major downstream bottlenecks.
+4. Controlled ablations matter: the v3 prompt was rejected despite reducing hallucinations because total F1/recall regressed.
+5. Hidden-ingredient safety requires separate exact-identity, risk-surface, and question-burden metrics.
+6. The latest product fix came from a root-cause trace (`REMOVE_ITEM` recovery), not benchmark-specific aliases or post-hoc truth edits.
+
+## Remaining limitations / next improvements
+
+1. Collect owned or explicitly consented ordinary phone meals with kitchen-scale portions and measured oil/sauce.
+2. Create a genuinely unseen final holdout; do not reuse the already-inspected Nutrition5k historical holdout IDs as untouched evidence.
+3. Improve USDA retrieval on new development evidence without adding benchmark-specific acceptable FDC IDs post hoc.
+4. Measure clarification completion, user burden, and unsafe auto-accept on a larger representative product set.
+5. Add production JWT/persistence/storage/monitoring before deployment.
+
+The repository deliberately keeps these limitations visible instead of turning incomplete denominators into a single headline “accuracy” percentage.
