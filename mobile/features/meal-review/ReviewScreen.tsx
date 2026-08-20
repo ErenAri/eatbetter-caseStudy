@@ -1,14 +1,17 @@
 import { useEffect, useState } from "react";
-import { Alert, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
+import { Alert, Image, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
 import { ClarificationCard } from "../../components/ClarificationCard";
 import { FoodReviewCard } from "../../components/FoodReviewCard";
+import { NutritionSummary } from "../../components/NutritionSummary";
 import { Button, ErrorState, Screen } from "../../components/Primitives";
 import { colors, radius, spacing } from "../../theme/tokens";
 import { Meal, MealItem } from "../../types/api";
+import { LocalImage } from "../../types/meal";
 
 type Update = { candidate_rank?: number; portion_g?: number; preparation_method?: string | null };
-export function ReviewScreen({ meal, busyKey, error, onAnswer, onUpdate, onRemove, onAdd, onReplace, onConfirm, onBack }: {
+export function ReviewScreen({ meal, image = null, busyKey, error, onAnswer, onUpdate, onRemove, onAdd, onReplace, onConfirm, onBack }: {
   meal: Meal;
+  image?: LocalImage | null;
   busyKey: string | null;
   error: string | null;
   onAnswer: (clarificationId: string, answer: { option_id: string } | { custom_grams: number }) => void;
@@ -24,6 +27,10 @@ export function ReviewScreen({ meal, busyKey, error, onAnswer, onUpdate, onRemov
   const blockers = meal.clarifications.filter((value) => value.status === "PENDING" && value.blocking && !value.resolution_satisfied && (value.meal_item_id === null || activeIds.has(value.meal_item_id)));
   const current = blockers[0];
   const canSave = blockers.length === 0 && activeItems.every((item) => item.review_status === "READY" && item.nutrition !== null);
+  const blockerItemIds = new Set(blockers.map((value) => value.meal_item_id).filter((id): id is string => id !== null));
+  const anticipatedCount = activeItems.filter((item) => item.review_status !== "READY" && !blockerItemIds.has(item.id)).length;
+  const remainingCount = blockers.length + anticipatedCount;
+  const isPartialTotal = !canSave;
   const [editor, setEditor] = useState<{ item: MealItem; kind: "amount" | "food" } | null>(null);
   const [amount, setAmount] = useState("");
   const [adding, setAdding] = useState<{ replacing: MealItem | null } | null>(null);
@@ -42,9 +49,14 @@ export function ReviewScreen({ meal, busyKey, error, onAnswer, onUpdate, onRemov
   );
   return <Screen>
     <Text accessibilityRole="button" onPress={onBack} style={styles.back}>‹ Today</Text>
-    <View style={styles.header}><View><Text style={styles.title}>Review meal</Text><Text style={styles.subtitle}>{activeItems.length} {activeItems.length === 1 ? "food" : "foods"} found</Text></View><Text style={styles.count}>{blockers.length ? `${blockers.length} quick ${blockers.length === 1 ? "check" : "checks"}` : "Ready to save"}</Text></View>
+    <View style={styles.header}><View><Text style={styles.title}>Review meal</Text><Text style={styles.subtitle}>{activeItems.length} {activeItems.length === 1 ? "food" : "foods"} found</Text></View><Text style={styles.count}>{remainingCount ? `${remainingCount} quick ${remainingCount === 1 ? "check" : "checks"}` : "Ready to save"}</Text></View>
+    <View style={styles.totals}>
+      <NutritionSummary totals={meal.totals} />
+      <Text accessibilityRole="text" style={styles.totalsNote}>{isPartialTotal ? "Only includes foods confirmed so far" : "Meal total"}</Text>
+    </View>
     <ScrollView contentContainerStyle={styles.scroll}>
-      {current ? <ClarificationCard clarification={current} busy={busyKey === current.id} onAnswer={(answer) => onAnswer(current.id, answer)} onManualSearch={() => { const replacing = meal.items.find((item) => item.id === current.meal_item_id) ?? null; setAdding({ replacing }); setQuery(replacing?.observed_name ?? ""); setAddGrams(replacing?.portion.confirmed_g === null || replacing?.portion.confirmed_g === undefined ? "" : String(Math.round(replacing.portion.confirmed_g))); }} /> : null}
+      {image ? <Image accessibilityLabel="Meal photo" source={{ uri: image.uri }} style={styles.photo} /> : null}
+      {current ? <><Text accessibilityRole="text" style={styles.progress}>{`Question 1 of ${remainingCount}`}</Text><ClarificationCard clarification={current} busy={busyKey === current.id} onAnswer={(answer) => onAnswer(current.id, answer)} onManualSearch={() => { const replacing = meal.items.find((item) => item.id === current.meal_item_id) ?? null; setAdding({ replacing }); setQuery(replacing?.observed_name ?? ""); setAddGrams(replacing?.portion.confirmed_g === null || replacing?.portion.confirmed_g === undefined ? "" : String(Math.round(replacing.portion.confirmed_g))); }} /></> : null}
       <Text style={styles.section}>Foods</Text>
       {activeItems.map((item) => <FoodReviewCard key={item.id} item={item} busy={busyKey === item.id} onEditAmount={() => openAmount(item)} onEditFood={() => setEditor({ item, kind: "food" })} onRemove={() => confirmRemove(item)} />)}
       {editor ? <View style={styles.editor}><Text style={styles.editorTitle}>{editor.kind === "amount" ? `Change amount for ${editor.item.canonical?.name ?? editor.item.observed_name}` : "Choose a different food"}</Text>
@@ -58,4 +70,4 @@ export function ReviewScreen({ meal, busyKey, error, onAnswer, onUpdate, onRemov
   </Screen>;
 }
 
-const styles = StyleSheet.create({ back: { color: colors.primary, fontWeight: "800", minHeight: 34 }, header: { flexDirection: "row", justifyContent: "space-between", gap: spacing.md, alignItems: "flex-end" }, title: { color: colors.text, fontSize: 31, fontWeight: "900" }, subtitle: { color: colors.textMuted, marginTop: 3 }, count: { color: colors.attention, fontWeight: "800", maxWidth: 110, textAlign: "right" }, scroll: { paddingVertical: spacing.lg, paddingBottom: 60, gap: spacing.md }, section: { color: colors.text, fontSize: 20, fontWeight: "900", marginTop: spacing.xs }, editor: { backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.border, borderRadius: radius.md, padding: spacing.md, gap: spacing.sm }, editorTitle: { color: colors.text, fontSize: 18, fontWeight: "900" }, help: { color: colors.textMuted, lineHeight: 20 }, input: { minHeight: 52, borderWidth: 1, borderColor: colors.border, borderRadius: radius.md, paddingHorizontal: spacing.md, color: colors.text }, choice: { minHeight: 52, justifyContent: "center", paddingHorizontal: spacing.md, borderWidth: 1, borderColor: colors.border, borderRadius: radius.md }, choiceText: { color: colors.text, fontWeight: "700" }, save: { marginTop: spacing.sm } });
+const styles = StyleSheet.create({ back: { color: colors.primary, fontWeight: "800", minHeight: 34 }, header: { flexDirection: "row", justifyContent: "space-between", gap: spacing.md, alignItems: "flex-end" }, title: { color: colors.text, fontSize: 31, fontWeight: "900" }, subtitle: { color: colors.textMuted, marginTop: 3 }, count: { color: colors.attention, fontWeight: "800", maxWidth: 110, textAlign: "right" }, totals: { marginTop: spacing.md, paddingTop: spacing.sm, borderTopWidth: 1, borderTopColor: colors.border }, totalsNote: { color: colors.textMuted, fontSize: 12, marginTop: spacing.xs }, scroll: { paddingVertical: spacing.lg, paddingBottom: 60, gap: spacing.md }, photo: { width: 84, height: 84, borderRadius: radius.md, backgroundColor: colors.border }, progress: { color: colors.textMuted, fontSize: 12, fontWeight: "700" }, section: { color: colors.text, fontSize: 20, fontWeight: "900", marginTop: spacing.xs }, editor: { backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.border, borderRadius: radius.md, padding: spacing.md, gap: spacing.sm }, editorTitle: { color: colors.text, fontSize: 18, fontWeight: "900" }, help: { color: colors.textMuted, lineHeight: 20 }, input: { minHeight: 52, borderWidth: 1, borderColor: colors.border, borderRadius: radius.md, paddingHorizontal: spacing.md, color: colors.text }, choice: { minHeight: 52, justifyContent: "center", paddingHorizontal: spacing.md, borderWidth: 1, borderColor: colors.border, borderRadius: radius.md }, choiceText: { color: colors.text, fontWeight: "700" }, save: { marginTop: spacing.sm } });

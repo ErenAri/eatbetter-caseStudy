@@ -1,6 +1,7 @@
 import { act, fireEvent, render } from "@testing-library/react-native";
 import { Alert } from "react-native";
 import { ReviewScreen } from "../features/meal-review/ReviewScreen";
+import { MealItem } from "../types/api";
 import { baseMeal, canonicalClarification, hiddenClarification, portionClarification, readyItem, reviewMeal } from "./fixtures";
 
 const props = { busyKey: null, error: null, onAnswer: jest.fn(), onUpdate: jest.fn().mockResolvedValue(true), onRemove: jest.fn(), onAdd: jest.fn().mockResolvedValue(true), onReplace: jest.fn().mockResolvedValue(true), onConfirm: jest.fn(), onBack: jest.fn() };
@@ -86,6 +87,44 @@ test("ordinary amount editors require positive finite grams", async () => {
   expect(view.getByRole("button", { name: "Save amount" }).props.accessibilityState.disabled).toBe(true);
   await act(async () => { fireEvent.changeText(view.getByLabelText("Amount in grams"), "Infinity"); });
   expect(view.getByRole("button", { name: "Save amount" }).props.accessibilityState.disabled).toBe(true);
+});
+
+test("meal photo renders as a thumbnail when supplied, and nothing when absent", async () => {
+  const meal = { ...baseMeal, status: "NEEDS_REVIEW" as const, confirmed_at: null };
+  const withPhoto = await render(<ReviewScreen meal={meal} image={{ uri: "file:///cache/meal.jpg", mimeType: "image/jpeg", fileName: "meal.jpg" }} {...props} />);
+  expect(withPhoto.getByLabelText("Meal photo")).toBeTruthy();
+
+  const withoutPhoto = await render(<ReviewScreen meal={meal} {...props} />);
+  expect(withoutPhoto.queryByLabelText("Meal photo")).toBeNull();
+});
+
+test("running total reflects meal.totals and reads as final once every item is ready", async () => {
+  const meal = { ...baseMeal, status: "NEEDS_REVIEW" as const, confirmed_at: null };
+  const view = await render(<ReviewScreen meal={meal} {...props} />);
+  expect(view.getByLabelText("264 calories, 50 grams protein, 0 grams carbs, 6 grams fat")).toBeTruthy();
+  expect(view.getByText("Meal total")).toBeTruthy();
+});
+
+test("running total is marked partial while foods are still unresolved", async () => {
+  const meal = { ...reviewMeal(portionClarification), totals: { calories_kcal: 120, protein_g: 10, carbs_g: 5, fat_g: 3 } };
+  const view = await render(<ReviewScreen meal={meal} {...props} />);
+  expect(view.getByText("120 kcal")).toBeTruthy();
+  expect(view.getByText("Only includes foods confirmed so far")).toBeTruthy();
+});
+
+test("header count includes items with anticipated questions that have no blocker yet", async () => {
+  const base = reviewMeal(portionClarification);
+  const anticipatedItem: MealItem = { ...readyItem, id: "item-2", review_status: "NEEDS_PORTION", nutrition: null, portion: { ...readyItem.portion, confirmed_g: null, resolution_source: null } };
+  const meal = { ...base, items: [...base.items, anticipatedItem] };
+  const view = await render(<ReviewScreen meal={meal} {...props} />);
+  expect(view.getByText("2 quick checks")).toBeTruthy();
+  expect(view.getByText("Question 1 of 2")).toBeTruthy();
+});
+
+test("does not overstate the remaining count when only one question truly remains", async () => {
+  const view = await render(<ReviewScreen meal={reviewMeal(portionClarification)} {...props} />);
+  expect(view.getByText("1 quick check")).toBeTruthy();
+  expect(view.getByText("Question 1 of 1")).toBeTruthy();
 });
 
 test("successful amount edit closes the editor while failure retains it", async () => {
