@@ -35,6 +35,12 @@ const FRIENDLY_ERRORS: Record<string, string> = {
   USDA_FOOD_NOT_FOUND: "That food is no longer available. Choose another match.",
   USDA_INCOMPLETE_NUTRITION: "That food lacks complete nutrition data. Choose another match.",
   USDA_INVALID_RESPONSE: "Nutrition data could not be verified. Try a different food match.",
+  AI_NUTRITION_ERROR: "Nutrition estimation failed. Please try again.",
+  AI_NUTRITION_CONFIGURATION: "Nutrition estimation is not configured on this server.",
+  AI_NUTRITION_INVALID_RESPONSE: "Nutrition estimation returned an unusable result. Please try again.",
+  AI_NUTRITION_TIMEOUT: "Nutrition estimation took too long. Please try again.",
+  AI_NUTRITION_RATE_LIMITED: "Nutrition estimation is busy right now. Please try again shortly.",
+  AI_NUTRITION_UNAVAILABLE: "Nutrition estimation is temporarily unavailable. Please try again.",
 };
 
 export class ApiError extends Error {
