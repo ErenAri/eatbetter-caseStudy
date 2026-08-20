@@ -42,11 +42,13 @@ class Settings(BaseSettings):
     openai_canonicalization_timeout_seconds: float = Field(default=25.0, gt=0, le=120)
     openai_canonicalization_max_attempts: int = Field(default=3, ge=1, le=5)
     usda_api_key: SecretStr | None = None
-    nutrition_provider: Literal["demo", "usda"] = "demo"
+    nutrition_provider: Literal["demo", "usda", "ai"] = "demo"
     usda_base_url: str = "https://api.nal.usda.gov/fdc/v1"
     usda_timeout_seconds: float = Field(default=8.0, gt=0, le=60)
     usda_search_limit: int = Field(default=15, ge=5, le=100)
     usda_max_attempts: int = Field(default=3, ge=1, le=5)
+    ai_nutrition_model: str = "gpt-5.6-terra"
+    ai_nutrition_sample_count: int = Field(default=3, ge=1, le=5)
     sentry_dsn: SecretStr | None = None
     max_upload_bytes: int = Field(default=8 * 1024 * 1024, gt=0)
     allowed_mime_types: tuple[str, ...] = ("image/jpeg", "image/png", "image/webp")
@@ -58,8 +60,10 @@ class Settings(BaseSettings):
     def require_production_configuration(self) -> "Settings":
         if self.app_env != AppEnvironment.PRODUCTION:
             return self
-        if self.nutrition_provider != "usda":
-            raise ValueError("production configuration requires NUTRITION_PROVIDER=usda")
+        if self.nutrition_provider not in ("usda", "ai"):
+            raise ValueError(
+                "production configuration requires NUTRITION_PROVIDER=usda or ai"
+            )
         if self.vision_provider != "openai":
             raise ValueError("production configuration requires VISION_PROVIDER=openai")
         if self.canonicalization_provider != "openai":
@@ -73,8 +77,9 @@ class Settings(BaseSettings):
             "SUPABASE_SERVICE_ROLE_KEY": self.supabase_service_role_key,
             "SUPABASE_STORAGE_BUCKET": self.supabase_storage_bucket,
             "OPENAI_API_KEY": self.openai_api_key,
-            "USDA_API_KEY": self.usda_api_key,
         }
+        if self.nutrition_provider == "usda":
+            required["USDA_API_KEY"] = self.usda_api_key
 
         def is_missing(value: object) -> bool:
             if value is None or value == "":
