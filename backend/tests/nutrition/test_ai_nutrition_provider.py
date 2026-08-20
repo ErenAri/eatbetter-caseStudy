@@ -167,6 +167,23 @@ async def test_agreeing_samples_produce_high_confidence() -> None:
 
 
 @pytest.mark.asyncio
+async def test_candidate_data_carries_provenance_note_not_data_type() -> None:
+    """Regression guard: the "AI ESTIMATE — NOT A DATABASE RECORD" label is
+    written for humans (CanonicalFoodCandidate.display_name()). It must not
+    travel under the `data_type` key, because meal_canonicalization_service
+    forwards `data_type` to the constrained OpenAI selector — being told a
+    candidate is "NOT A DATABASE RECORD" made the selector abstain on almost
+    every AI-estimated food.
+    """
+    provider = _provider([_payload("200")])
+
+    candidates = await provider.search_foods("grilled chicken", meal_item_id=uuid4())
+
+    assert "data_type" not in candidates[0].data
+    assert candidates[0].data["provenance_note"] == "AI ESTIMATE — NOT A DATABASE RECORD"
+
+
+@pytest.mark.asyncio
 async def test_disagreeing_samples_lower_confidence() -> None:
     provider = _provider([_payload("100"), _payload("200"), _payload("300")])
 
