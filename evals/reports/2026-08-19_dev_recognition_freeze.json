@@ -1,0 +1,851 @@
+{
+  "cases": [
+    {
+      "case_id": "nutrition5k_dish_1556572657",
+      "image_sha256": "e5707ef717c93d9556e8f3ce9e3181e9cce863369bf86c4731e1a32d5b337e51",
+      "input_tokens": 1507,
+      "latency_ms": 10477,
+      "observation": {
+        "image_quality": {
+          "issues": [],
+          "usable": true
+        },
+        "items": [
+          {
+            "alternatives": [],
+            "observation_certainty": "HIGH",
+            "observed_name": "olives",
+            "portion_estimate": {
+              "max_g": 70,
+              "min_g": 40
+            },
+            "preparation_method": null,
+            "uncertainties": [
+              "Olive variety and whether they are pitted are not clear."
+            ],
+            "visible_evidence": [
+              "About 12 dark purple-brown, glossy oval fruits are visible on the plate."
+            ]
+          }
+        ],
+        "meal_level_uncertainties": [
+          "No packaging or serving information is visible; the portion estimate is based only on the visible olives."
+        ],
+        "possible_hidden_ingredients": []
+      },
+      "output_tokens": 136,
+      "predicted_visible_labels": [
+        "olives"
+      ],
+      "status": "completed"
+    },
+    {
+      "case_id": "nutrition5k_dish_1557853229",
+      "image_sha256": "a524aff2fe48ddf80c366b01f26ebf5111a1c1c823e41e052746c870935e88df",
+      "input_tokens": 1507,
+      "latency_ms": 4053,
+      "observation": {
+        "image_quality": {
+          "issues": [],
+          "usable": true
+        },
+        "items": [
+          {
+            "alternatives": [],
+            "observation_certainty": "HIGH",
+            "observed_name": "scrambled eggs",
+            "portion_estimate": {
+              "max_g": 200,
+              "min_g": 120
+            },
+            "preparation_method": "scrambled",
+            "uncertainties": [
+              "Exact portion and whether other ingredients are mixed in are unclear."
+            ],
+            "visible_evidence": [
+              "A bowl contains a yellow, soft curd-like egg dish with irregular scrambled pieces."
+            ]
+          }
+        ],
+        "meal_level_uncertainties": [
+          "The bowl size provides only approximate scale.",
+          "Small orange-colored bits are visible but are not distinct enough to identify as a separate ingredient."
+        ],
+        "possible_hidden_ingredients": [
+          {
+            "name": "butter or cooking oil",
+            "potential_impact": "MATERIAL",
+            "reason": "A cooking fat may have been used in preparing the scrambled eggs, but it is not visually distinguishable."
+          },
+          {
+            "name": "milk or cream",
+            "potential_impact": "MATERIAL",
+            "reason": "A dairy ingredient may have been mixed into the eggs, but this cannot be confirmed visually."
+          }
+        ]
+      },
+      "output_tokens": 216,
+      "predicted_visible_labels": [
+        "scrambled eggs"
+      ],
+      "status": "completed"
+    },
+    {
+      "case_id": "nutrition5k_dish_1558116001",
+      "image_sha256": "b45e4ac7b7f9d58b4676420c9211c3f9273e76d8d1f89e6b3365f4838a6bdfd9",
+      "input_tokens": 1507,
+      "latency_ms": 4857,
+      "observation": {
+        "image_quality": {
+          "issues": [],
+          "usable": true
+        },
+        "items": [
+          {
+            "alternatives": [],
+            "observation_certainty": "HIGH",
+            "observed_name": "bacon",
+            "portion_estimate": {
+              "max_g": 45,
+              "min_g": 25
+            },
+            "preparation_method": "cooked",
+            "uncertainties": [],
+            "visible_evidence": [
+              "Several curled, browned strips of bacon are visible."
+            ]
+          },
+          {
+            "alternatives": [],
+            "observation_certainty": "HIGH",
+            "observed_name": "sausage",
+            "portion_estimate": {
+              "max_g": 75,
+              "min_g": 45
+            },
+            "preparation_method": "cooked",
+            "uncertainties": [
+              "Exact sausage type is not visually identifiable."
+            ],
+            "visible_evidence": [
+              "Several browned round sausage slices and one larger sausage segment are visible."
+            ]
+          },
+          {
+            "alternatives": [],
+            "observation_certainty": "HIGH",
+            "observed_name": "pineapple",
+            "portion_estimate": {
+              "max_g": 80,
+              "min_g": 45
+            },
+            "preparation_method": null,
+            "uncertainties": [],
+            "visible_evidence": [
+              "Several pale yellow fruit chunks with the appearance of pineapple are visible."
+            ]
+          },
+          {
+            "alternatives": [],
+            "observation_certainty": "HIGH",
+            "observed_name": "grapes",
+            "portion_estimate": {
+              "max_g": 90,
+              "min_g": 55
+            },
+            "preparation_method": null,
+            "uncertainties": [],
+            "visible_evidence": [
+              "A small cluster of red/purple grapes and one green grape are visible."
+            ]
+          },
+          {
+            "alternatives": [],
+            "observation_certainty": "HIGH",
+            "observed_name": "almonds",
+            "portion_estimate": {
+              "max_g": 35,
+              "min_g": 20
+            },
+            "preparation_method": null,
+            "uncertainties": [
+              "Roasting and salt status are not clear."
+            ],
+            "visible_evidence": [
+              "A small pile of whole brown almonds is visible."
+            ]
+          }
+        ],
+        "meal_level_uncertainties": [
+          "Portion estimates are approximate because plate size and food thickness are not precisely known."
+        ],
+        "possible_hidden_ingredients": []
+      },
+      "output_tokens": 379,
+      "predicted_visible_labels": [
+        "bacon",
+        "sausage",
+        "pineapple",
+        "grapes",
+        "almonds"
+      ],
+      "status": "completed"
+    },
+    {
+      "case_id": "nutrition5k_dish_1559590202",
+      "image_sha256": "7ce23b981baffbe7f67cda8cfcb4b7bf1f25600bb6f60b822c534dc8aa3e5aa0",
+      "input_tokens": 1507,
+      "latency_ms": 9334,
+      "observation": {
+        "image_quality": {
+          "issues": [],
+          "usable": true
+        },
+        "items": [
+          {
+            "alternatives": [],
+            "observation_certainty": "HIGH",
+            "observed_name": "chicken",
+            "portion_estimate": {
+              "max_g": 130,
+              "min_g": 80
+            },
+            "preparation_method": "cooked, chopped",
+            "uncertainties": [
+              "Seasoning or sauce is not clearly identifiable."
+            ],
+            "visible_evidence": [
+              "A pile of pale, browned chopped meat pieces is visible on the upper-left area of the plate."
+            ]
+          },
+          {
+            "alternatives": [
+              "bulgur"
+            ],
+            "observation_certainty": "HIGH",
+            "observed_name": "couscous",
+            "portion_estimate": {
+              "max_g": 180,
+              "min_g": 120
+            },
+            "preparation_method": "cooked",
+            "uncertainties": [
+              "The exact grain type is slightly uncertain.",
+              "Small mixed-in vegetables and dark dried-fruit-like pieces are visible but not individually identifiable with confidence."
+            ],
+            "visible_evidence": [
+              "A mound of small yellow cooked grains occupies the upper-right portion of the plate.",
+              "Scattered green pieces and a few dark round pieces are visible within the grains."
+            ]
+          },
+          {
+            "alternatives": [],
+            "observation_certainty": "HIGH",
+            "observed_name": "green beans",
+            "portion_estimate": {
+              "max_g": 90,
+              "min_g": 50
+            },
+            "preparation_method": "cooked",
+            "uncertainties": [],
+            "visible_evidence": [
+              "Several whole green bean pods are arranged along the lower-left side of the plate."
+            ]
+          },
+          {
+            "alternatives": [],
+            "observation_certainty": "HIGH",
+            "observed_name": "lettuce salad",
+            "portion_estimate": {
+              "max_g": 110,
+              "min_g": 60
+            },
+            "preparation_method": null,
+            "uncertainties": [
+              "Some pale topping pieces and brown toasted-looking cubes are present but not clearly identifiable."
+            ],
+            "visible_evidence": [
+              "Light-green lettuce leaves form a salad portion in the lower-right area of the plate.",
+              "The leaves have a visible glossy, coated appearance."
+            ]
+          }
+        ],
+        "meal_level_uncertainties": [
+          "Portion estimates are approximate and based on the visible plate serving."
+        ],
+        "possible_hidden_ingredients": [
+          {
+            "name": "salad dressing",
+            "potential_impact": "MATERIAL",
+            "reason": "The lettuce appears glossy or coated, but a specific dressing is not visibly identifiable."
+          },
+          {
+            "name": "cooking oil or butter",
+            "potential_impact": "MATERIAL",
+            "reason": "May have been used in the cooked chicken, couscous, or green beans but is not visually established."
+          },
+          {
+            "name": "seasoning sauce",
+            "potential_impact": "UNKNOWN",
+            "reason": "Some chicken pieces appear coated, but no distinct sauce can be identified."
+          }
+        ]
+      },
+      "output_tokens": 655,
+      "predicted_visible_labels": [
+        "chicken",
+        "couscous",
+        "green beans",
+        "lettuce salad"
+      ],
+      "status": "completed"
+    },
+    {
+      "case_id": "nutrition5k_dish_1565637123",
+      "image_sha256": "3421716cab382e5296fb8af395426e954b23ee8dfd9bec78a5088d2b793c207a",
+      "input_tokens": 1507,
+      "latency_ms": 5904,
+      "observation": {
+        "image_quality": {
+          "issues": [],
+          "usable": true
+        },
+        "items": [
+          {
+            "alternatives": [],
+            "observation_certainty": "HIGH",
+            "observed_name": "mixed salad greens",
+            "portion_estimate": null,
+            "preparation_method": "raw",
+            "uncertainties": [],
+            "visible_evidence": [
+              "Leafy green and dark-purple leaves are visible in the bowl."
+            ]
+          },
+          {
+            "alternatives": [],
+            "observation_certainty": "HIGH",
+            "observed_name": "shredded carrots",
+            "portion_estimate": null,
+            "preparation_method": "raw",
+            "uncertainties": [],
+            "visible_evidence": [
+              "Thin orange vegetable shreds are visible among the greens."
+            ]
+          },
+          {
+            "alternatives": [
+              "yellow bell pepper",
+              "chickpeas"
+            ],
+            "observation_certainty": "MEDIUM",
+            "observed_name": "corn",
+            "portion_estimate": null,
+            "preparation_method": null,
+            "uncertainties": [
+              "Small yellow pieces are partly obscured by the greens."
+            ],
+            "visible_evidence": [
+              "Several small yellow pieces are visible in the salad."
+            ]
+          },
+          {
+            "alternatives": [
+              "shredded cabbage"
+            ],
+            "observation_certainty": "MEDIUM",
+            "observed_name": "pasta",
+            "portion_estimate": null,
+            "preparation_method": null,
+            "uncertainties": [
+              "The pale curled pieces are partially covered and their exact type is unclear."
+            ],
+            "visible_evidence": [
+              "Pale curved, ribbon-like pieces are visible near the left and lower portions of the salad."
+            ]
+          },
+          {
+            "alternatives": [
+              "red bell pepper"
+            ],
+            "observation_certainty": "MEDIUM",
+            "observed_name": "tomato",
+            "portion_estimate": null,
+            "preparation_method": "raw",
+            "uncertainties": [
+              "The red-orange chunks are partially obscured."
+            ],
+            "visible_evidence": [
+              "Small red-orange chunks are visible in the salad."
+            ]
+          }
+        ],
+        "meal_level_uncertainties": [
+          "No reliable scale reference is available for estimating portions.",
+          "Some ingredients are obscured by overlapping greens."
+        ],
+        "possible_hidden_ingredients": [
+          {
+            "name": "salad dressing",
+            "potential_impact": "MATERIAL",
+            "reason": "A dressing may be present on the mixed salad but is not clearly distinguishable in the image."
+          }
+        ]
+      },
+      "output_tokens": 416,
+      "predicted_visible_labels": [
+        "mixed salad greens",
+        "shredded carrots",
+        "corn",
+        "pasta",
+        "tomato"
+      ],
+      "status": "completed"
+    },
+    {
+      "case_id": "nutrition5k_dish_1559235815",
+      "image_sha256": "cd0ffcbeb83b6809138ac0377dc4b097408190b06e3f554e85f5e12ebab3b809",
+      "input_tokens": 1507,
+      "latency_ms": 4244,
+      "observation": {
+        "image_quality": {
+          "issues": [],
+          "usable": true
+        },
+        "items": [
+          {
+            "alternatives": [],
+            "observation_certainty": "HIGH",
+            "observed_name": "scrambled eggs",
+            "portion_estimate": {
+              "max_g": 190,
+              "min_g": 120
+            },
+            "preparation_method": "scrambled",
+            "uncertainties": [],
+            "visible_evidence": [
+              "Pile of soft pale-yellow egg curds on the upper half of the plate."
+            ]
+          },
+          {
+            "alternatives": [],
+            "observation_certainty": "HIGH",
+            "observed_name": "bagel with cream cheese",
+            "portion_estimate": {
+              "max_g": 130,
+              "min_g": 80
+            },
+            "preparation_method": null,
+            "uncertainties": [
+              "Only one bagel half is visible; the amount of cream cheese is estimated from the visible spread."
+            ],
+            "visible_evidence": [
+              "A sliced bagel half is visibly covered with a thick white creamy spread."
+            ]
+          },
+          {
+            "alternatives": [],
+            "observation_certainty": "HIGH",
+            "observed_name": "strawberries",
+            "portion_estimate": {
+              "max_g": 170,
+              "min_g": 100
+            },
+            "preparation_method": "raw",
+            "uncertainties": [],
+            "visible_evidence": [
+              "Several whole and halved red strawberries are visible on the lower right of the plate."
+            ]
+          }
+        ],
+        "meal_level_uncertainties": [
+          "The image does not establish whether the eggs contain additions such as milk, cheese, or seasoning."
+        ],
+        "possible_hidden_ingredients": [
+          {
+            "name": "butter or cooking oil",
+            "potential_impact": "MATERIAL",
+            "reason": "Scrambled eggs may have been cooked with added fat, but none is distinctly visible."
+          }
+        ]
+      },
+      "output_tokens": 313,
+      "predicted_visible_labels": [
+        "scrambled eggs",
+        "bagel with cream cheese",
+        "strawberries"
+      ],
+      "status": "completed"
+    },
+    {
+      "case_id": "nutrition5k_dish_1562173200",
+      "image_sha256": "61c1a6a27b2f39c1a95f2e5ed930d876ac6be8d045611d666297edd67eec7eca",
+      "input_tokens": 1507,
+      "latency_ms": 5722,
+      "observation": {
+        "image_quality": {
+          "issues": [],
+          "usable": true
+        },
+        "items": [
+          {
+            "alternatives": [],
+            "observation_certainty": "HIGH",
+            "observed_name": "pineapple",
+            "portion_estimate": {
+              "max_g": 180,
+              "min_g": 100
+            },
+            "preparation_method": "cut into chunks",
+            "uncertainties": [],
+            "visible_evidence": [
+              "Several yellow fibrous fruit chunks are visible on top of the bowl contents."
+            ]
+          },
+          {
+            "alternatives": [
+              "chia seed yogurt",
+              "chia seed porridge"
+            ],
+            "observation_certainty": "MEDIUM",
+            "observed_name": "chia pudding",
+            "portion_estimate": {
+              "max_g": 200,
+              "min_g": 120
+            },
+            "preparation_method": null,
+            "uncertainties": [
+              "The gray, seed-speckled base is visible, but its liquid or dairy base cannot be determined from the image."
+            ],
+            "visible_evidence": [
+              "A gray, gel-like mixture with many small dark seeds fills much of the bowl beneath the fruit."
+            ]
+          },
+          {
+            "alternatives": [
+              "banana",
+              "apple",
+              "pear"
+            ],
+            "observation_certainty": "LOW",
+            "observed_name": "pale fruit chunks",
+            "portion_estimate": {
+              "max_g": 90,
+              "min_g": 40
+            },
+            "preparation_method": "cut into chunks",
+            "uncertainties": [
+              "The partially covered pale chunks are not distinct enough to identify reliably."
+            ],
+            "visible_evidence": [
+              "Small pale yellow-beige chunks are visible around the edge of the seed-speckled mixture."
+            ]
+          }
+        ],
+        "meal_level_uncertainties": [
+          "The recipe and ingredients used to make the seed-speckled base cannot be determined visually."
+        ],
+        "possible_hidden_ingredients": [
+          {
+            "name": "milk or plant-based milk",
+            "potential_impact": "UNKNOWN",
+            "reason": "May be part of the seed-speckled pudding base, but is not visually identifiable."
+          },
+          {
+            "name": "sweetener or syrup",
+            "potential_impact": "UNKNOWN",
+            "reason": "Could have been mixed into the pudding or fruit, but none is clearly visible."
+          }
+        ]
+      },
+      "output_tokens": 382,
+      "predicted_visible_labels": [
+        "pineapple",
+        "chia pudding",
+        "pale fruit chunks"
+      ],
+      "status": "completed"
+    },
+    {
+      "case_id": "nutrition5k_dish_1559332418",
+      "image_sha256": "f9cc59d6f1a673361ad7a2f0036cae0ab88b157b2360e5805bf54a2b8078c46b",
+      "input_tokens": 1507,
+      "latency_ms": 9826,
+      "observation": {
+        "image_quality": {
+          "issues": [],
+          "usable": true
+        },
+        "items": [
+          {
+            "alternatives": [],
+            "observation_certainty": "HIGH",
+            "observed_name": "cooked rice",
+            "portion_estimate": {
+              "max_g": 230,
+              "min_g": 150
+            },
+            "preparation_method": null,
+            "uncertainties": [
+              "May be seasoned or mixed with small ingredients not clearly distinguishable."
+            ],
+            "visible_evidence": [
+              "A mound of light-brown cooked grains occupies most of the plate."
+            ]
+          },
+          {
+            "alternatives": [
+              "other cooked fish"
+            ],
+            "observation_certainty": "MEDIUM",
+            "observed_name": "cooked salmon",
+            "portion_estimate": {
+              "max_g": 140,
+              "min_g": 80
+            },
+            "preparation_method": "browned or grilled",
+            "uncertainties": [
+              "Some browned fish portions are partly obscured by rice and greens."
+            ],
+            "visible_evidence": [
+              "Pink flaky fish pieces are visible among the rice.",
+              "A larger browned piece with a darker outer surface is visible at the top of the plate."
+            ]
+          },
+          {
+            "alternatives": [
+              "spinach",
+              "other cooked greens"
+            ],
+            "observation_certainty": "MEDIUM",
+            "observed_name": "leafy greens",
+            "portion_estimate": {
+              "max_g": 55,
+              "min_g": 25
+            },
+            "preparation_method": "cooked",
+            "uncertainties": [
+              "The specific type of leafy green is unclear."
+            ],
+            "visible_evidence": [
+              "Dark green wilted leaves are visible across the rice."
+            ]
+          },
+          {
+            "alternatives": [
+              "red chili pepper"
+            ],
+            "observation_certainty": "MEDIUM",
+            "observed_name": "red bell pepper",
+            "portion_estimate": {
+              "max_g": 30,
+              "min_g": 10
+            },
+            "preparation_method": "cooked",
+            "uncertainties": [
+              "Only a few red strips are visible."
+            ],
+            "visible_evidence": [
+              "Thin red vegetable strips are visible near the lower portion of the rice."
+            ]
+          }
+        ],
+        "meal_level_uncertainties": [
+          "The exact fish type and the recipe or seasoning of the rice mixture cannot be confirmed from the image."
+        ],
+        "possible_hidden_ingredients": [
+          {
+            "name": "cooking oil",
+            "potential_impact": "MATERIAL",
+            "reason": "The fish and mixed rice dish have a browned, glossy appearance consistent with possible oil use."
+          },
+          {
+            "name": "sauce or seasoning",
+            "potential_impact": "UNKNOWN",
+            "reason": "The rice and fish appear seasoned, but no specific sauce is visually identifiable."
+          }
+        ]
+      },
+      "output_tokens": 716,
+      "predicted_visible_labels": [
+        "cooked rice",
+        "cooked salmon",
+        "leafy greens",
+        "red bell pepper"
+      ],
+      "status": "completed"
+    },
+    {
+      "case_id": "nutrition5k_dish_1565370004",
+      "image_sha256": "b2c76942a0fa7bfc54d8d287340d54f0363d433925498fa0d1e187e15aabd357",
+      "input_tokens": 1507,
+      "latency_ms": 5052,
+      "observation": {
+        "image_quality": {
+          "issues": [],
+          "usable": true
+        },
+        "items": [
+          {
+            "alternatives": [],
+            "observation_certainty": "HIGH",
+            "observed_name": "scrambled eggs",
+            "portion_estimate": {
+              "max_g": 200,
+              "min_g": 120
+            },
+            "preparation_method": "scrambled",
+            "uncertainties": [
+              "Possible added dairy or fat is not visually distinguishable."
+            ],
+            "visible_evidence": [
+              "Large mound of soft, pale yellow egg curds on the plate."
+            ]
+          },
+          {
+            "alternatives": [],
+            "observation_certainty": "HIGH",
+            "observed_name": "green beans",
+            "portion_estimate": {
+              "max_g": 170,
+              "min_g": 100
+            },
+            "preparation_method": "cooked",
+            "uncertainties": [
+              "Seasoning and cooking fat are not clearly visible."
+            ],
+            "visible_evidence": [
+              "Pile of long, dark green cooked bean pods."
+            ]
+          },
+          {
+            "alternatives": [
+              "ham",
+              "thin sliced cooked meat"
+            ],
+            "observation_certainty": "MEDIUM",
+            "observed_name": "bacon",
+            "portion_estimate": {
+              "max_g": 55,
+              "min_g": 25
+            },
+            "preparation_method": "cooked",
+            "uncertainties": [
+              "The browned strips are partly covered by the eggs and their exact identity is obscured."
+            ],
+            "visible_evidence": [
+              "Several thin, reddish-brown cooked strips visible beneath the eggs."
+            ]
+          }
+        ],
+        "meal_level_uncertainties": [
+          "Portion estimates are approximate because the plate size and food depth are uncertain."
+        ],
+        "possible_hidden_ingredients": [
+          {
+            "name": "butter or cooking oil",
+            "potential_impact": "MATERIAL",
+            "reason": "May have been used to cook the eggs, beans, or meat, but is not separately visible."
+          },
+          {
+            "name": "cream or milk",
+            "potential_impact": "LOW",
+            "reason": "Could be mixed into the scrambled eggs but cannot be confirmed visually."
+          },
+          {
+            "name": "seasonings",
+            "potential_impact": "LOW",
+            "reason": "Possible on the cooked foods but individual seasonings are not identifiable."
+          }
+        ]
+      },
+      "output_tokens": 378,
+      "predicted_visible_labels": [
+        "scrambled eggs",
+        "green beans",
+        "bacon"
+      ],
+      "status": "completed"
+    }
+  ],
+  "completed_case_count": 9,
+  "configuration": {
+    "image_detail": "high",
+    "model": "gpt-5.6-terra",
+    "prompt_version": "meal_recognition_v2",
+    "provider": "openai",
+    "reasoning_effort": "low"
+  },
+  "dataset_version": "nutrition5k-public-secondary-v2",
+  "grading": "strict normalized exact label or pre-approved alias match",
+  "ineligible_metrics": [
+    "portion",
+    "hidden ingredients",
+    "nutrition",
+    "USDA retrieval",
+    "canonical selection",
+    "preparation"
+  ],
+  "infrastructure_failure_count": 0,
+  "latency": {
+    "vision_p50_latency_ms": {
+      "denominator": 9,
+      "exclusion": "missing timings excluded",
+      "numerator": null,
+      "unit": "ms",
+      "value": 5722.0
+    },
+    "vision_p95_latency_ms": {
+      "denominator": 9,
+      "exclusion": "missing timings excluded",
+      "numerator": null,
+      "unit": "ms",
+      "value": 10477.0
+    }
+  },
+  "metrics": {
+    "food_f1": {
+      "denominator": 25,
+      "exclusion": "derived harmonic mean",
+      "numerator": null,
+      "unit": "ratio",
+      "value": 0.5555555555555556
+    },
+    "food_precision": {
+      "denominator": 29,
+      "exclusion": null,
+      "numerator": 15,
+      "unit": "ratio",
+      "value": 0.5172413793103449
+    },
+    "food_recall": {
+      "denominator": 25,
+      "exclusion": null,
+      "numerator": 15,
+      "unit": "ratio",
+      "value": 0.6
+    },
+    "hallucinated_food_count": {
+      "denominator": 29,
+      "exclusion": null,
+      "numerator": 14,
+      "unit": "count",
+      "value": 14.0
+    },
+    "missed_food_count": {
+      "denominator": 25,
+      "exclusion": null,
+      "numerator": 10,
+      "unit": "count",
+      "value": 10.0
+    }
+  },
+  "requested_case_count": 9,
+  "scope": "visible-food recognition only",
+  "split": "development",
+  "status": "measured",
+  "token_usage": {
+    "input": 13563,
+    "output": 3591
+  }
+}

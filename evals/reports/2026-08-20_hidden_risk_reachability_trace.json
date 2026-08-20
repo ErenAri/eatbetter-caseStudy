@@ -1,0 +1,215 @@
+{
+  "cases": [
+    {
+      "auto_clarifications": {
+        "pending_blocking": [
+          {
+            "ingredient_name": null,
+            "observed_name": "cooked salmon",
+            "resolvable": false,
+            "status": "PENDING",
+            "type": "CANONICAL_SELECTION"
+          },
+          {
+            "ingredient_name": null,
+            "observed_name": "leafy greens",
+            "resolvable": false,
+            "status": "PENDING",
+            "type": "CANONICAL_SELECTION"
+          },
+          {
+            "ingredient_name": null,
+            "observed_name": "red bell pepper",
+            "resolvable": false,
+            "status": "PENDING",
+            "type": "CANONICAL_SELECTION"
+          }
+        ],
+        "type_counts": {
+          "CANONICAL_SELECTION": 3
+        }
+      },
+      "case_id": "nutrition5k_dish_1559332418",
+      "classification": "DEFERRED_BY_PENDING_EARLIER_BLOCKER",
+      "details": {
+        "eligible_signal_count_after_visible_overlap": 2,
+        "material_or_unknown_signal_count": 2,
+        "oracle_hidden_question_names": [],
+        "pending_earlier_blockers": [
+          {
+            "observed_name": "cooked salmon",
+            "resolvable": null,
+            "status": "PENDING",
+            "type": "CANONICAL_SELECTION"
+          },
+          {
+            "observed_name": "leafy greens",
+            "resolvable": null,
+            "status": "PENDING",
+            "type": "CANONICAL_SELECTION"
+          },
+          {
+            "observed_name": "red bell pepper",
+            "resolvable": null,
+            "status": "PENDING",
+            "type": "CANONICAL_SELECTION"
+          }
+        ],
+        "recognition_hidden_signals": [
+          {
+            "name": "cooking oil",
+            "overlaps_active_food": false,
+            "potential_impact": "MATERIAL",
+            "reason": "The fish and mixed rice dish have a browned, glossy appearance consistent with possible oil use."
+          },
+          {
+            "name": "sauce or seasoning",
+            "overlaps_active_food": false,
+            "potential_impact": "UNKNOWN",
+            "reason": "The rice and fish appear seasoned, but no specific sauce is visually identifiable."
+          }
+        ]
+      },
+      "hidden_truth": [
+        {
+          "calories_kcal": 0.25690865,
+          "name": "thyme",
+          "present": true
+        },
+        {
+          "calories_kcal": 68.35690888,
+          "name": "olive oil",
+          "present": true
+        },
+        {
+          "calories_kcal": 4.0698328,
+          "name": "pepper",
+          "present": true
+        },
+        {
+          "calories_kcal": 0.0,
+          "name": "salt",
+          "present": true
+        }
+      ],
+      "oracle_clarifications": {
+        "pending_blocking": [
+          {
+            "ingredient_name": null,
+            "observed_name": "cooked salmon",
+            "resolvable": null,
+            "status": "PENDING",
+            "type": "CANONICAL_SELECTION"
+          },
+          {
+            "ingredient_name": null,
+            "observed_name": "leafy greens",
+            "resolvable": null,
+            "status": "PENDING",
+            "type": "CANONICAL_SELECTION"
+          },
+          {
+            "ingredient_name": null,
+            "observed_name": "red bell pepper",
+            "resolvable": null,
+            "status": "PENDING",
+            "type": "CANONICAL_SELECTION"
+          }
+        ],
+        "type_counts": {
+          "CANONICAL_SELECTION": 3
+        }
+      }
+    },
+    {
+      "auto_clarifications": {
+        "pending_blocking": [
+          {
+            "ingredient_name": null,
+            "observed_name": "bacon",
+            "resolvable": false,
+            "status": "PENDING",
+            "type": "CANONICAL_SELECTION"
+          }
+        ],
+        "type_counts": {
+          "CANONICAL_SELECTION": 1
+        }
+      },
+      "case_id": "nutrition5k_dish_1565370004",
+      "classification": "DEFERRED_BY_PENDING_EARLIER_BLOCKER",
+      "details": {
+        "eligible_signal_count_after_visible_overlap": 1,
+        "material_or_unknown_signal_count": 1,
+        "oracle_hidden_question_names": [],
+        "pending_earlier_blockers": [
+          {
+            "observed_name": "bacon",
+            "resolvable": null,
+            "status": "PENDING",
+            "type": "CANONICAL_SELECTION"
+          }
+        ],
+        "recognition_hidden_signals": [
+          {
+            "name": "butter or cooking oil",
+            "overlaps_active_food": false,
+            "potential_impact": "MATERIAL",
+            "reason": "May have been used to cook the eggs, beans, or meat, but is not separately visible."
+          },
+          {
+            "name": "cream or milk",
+            "overlaps_active_food": false,
+            "potential_impact": "LOW",
+            "reason": "Could be mixed into the scrambled eggs but cannot be confirmed visually."
+          },
+          {
+            "name": "seasonings",
+            "overlaps_active_food": false,
+            "potential_impact": "LOW",
+            "reason": "Possible on the cooked foods but individual seasonings are not identifiable."
+          }
+        ]
+      },
+      "hidden_truth": [
+        {
+          "calories_kcal": 22.763,
+          "name": "olive oil",
+          "present": true
+        }
+      ],
+      "oracle_clarifications": {
+        "pending_blocking": [
+          {
+            "ingredient_name": null,
+            "observed_name": "bacon",
+            "resolvable": null,
+            "status": "PENDING",
+            "type": "CANONICAL_SELECTION"
+          }
+        ],
+        "type_counts": {
+          "CANONICAL_SELECTION": 1
+        }
+      }
+    }
+  ],
+  "classification_counts": {
+    "DEFERRED_BY_PENDING_EARLIER_BLOCKER": 2
+  },
+  "dataset_version": "nutrition5k-public-secondary-v2",
+  "guardrails": [
+    "no provider/model calls",
+    "development only",
+    "no manifest, truth, prompt, or production-policy mutation",
+    "classification explains question reachability and does not grant ingredient identity credit",
+    "pending canonical/identity blockers are distinguished from an unexplained reachability gap"
+  ],
+  "positive_case_count": 2,
+  "scope": "development-only hidden-risk clarification reachability trace",
+  "source_cases_jsonl_sha256": "73b724f6442c7fa6dca1f1ef9f199bb4c8ccede72138980a7f124f40982782a5",
+  "source_manifest_sha256": "3a684d23800e5c85e8e603dd8eb27356c916066988125d57858eefbc64826d57",
+  "source_recognition_fixture_sha256": "fb363a5d5005c182d9beb9b81261930a418927f52715bc98d2267423899396cb",
+  "split": "development",
+  "status": "measured"
+}

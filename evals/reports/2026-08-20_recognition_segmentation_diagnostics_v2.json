@@ -1,0 +1,473 @@
+{
+  "cases": [
+    {
+      "case_id": "nutrition5k_dish_1556572657",
+      "diagnostic": {
+        "category_event_counts": {},
+        "category_strict_error_units": {},
+        "events": [],
+        "exact_match_count": 1,
+        "strict_error_units": 0,
+        "strict_hallucinated_count": 0,
+        "strict_missed_count": 0,
+        "structural_event_count": 0
+      },
+      "expected_visible_labels": [
+        "olives"
+      ],
+      "predicted_visible_labels": [
+        "olives"
+      ]
+    },
+    {
+      "case_id": "nutrition5k_dish_1557853229",
+      "diagnostic": {
+        "category_event_counts": {},
+        "category_strict_error_units": {},
+        "events": [],
+        "exact_match_count": 1,
+        "strict_error_units": 0,
+        "strict_hallucinated_count": 0,
+        "strict_missed_count": 0,
+        "structural_event_count": 0
+      },
+      "expected_visible_labels": [
+        "scrambled eggs"
+      ],
+      "predicted_visible_labels": [
+        "scrambled eggs"
+      ]
+    },
+    {
+      "case_id": "nutrition5k_dish_1558116001",
+      "diagnostic": {
+        "category_event_counts": {
+          "UNEXPLAINED_MISS": 1,
+          "UNEXPLAINED_PREDICTION": 1
+        },
+        "category_strict_error_units": {
+          "UNEXPLAINED_MISS": 1,
+          "UNEXPLAINED_PREDICTION": 1
+        },
+        "events": [
+          {
+            "expected_labels": [
+              "potatoes"
+            ],
+            "kind": "UNEXPLAINED_MISS",
+            "predicted_labels": [],
+            "strict_error_units": 1
+          },
+          {
+            "expected_labels": [],
+            "kind": "UNEXPLAINED_PREDICTION",
+            "predicted_labels": [
+              "pineapple"
+            ],
+            "strict_error_units": 1
+          }
+        ],
+        "exact_match_count": 4,
+        "strict_error_units": 2,
+        "strict_hallucinated_count": 1,
+        "strict_missed_count": 1,
+        "structural_event_count": 2
+      },
+      "expected_visible_labels": [
+        "almonds",
+        "grapes",
+        "sausage",
+        "bacon",
+        "potatoes"
+      ],
+      "predicted_visible_labels": [
+        "bacon",
+        "sausage",
+        "pineapple",
+        "grapes",
+        "almonds"
+      ]
+    },
+    {
+      "case_id": "nutrition5k_dish_1559590202",
+      "diagnostic": {
+        "category_event_counts": {
+          "PARTIAL_IDENTITY_OVERLAP": 1,
+          "UNEXPLAINED_MISS": 1,
+          "UNEXPLAINED_PREDICTION": 1
+        },
+        "category_strict_error_units": {
+          "PARTIAL_IDENTITY_OVERLAP": 2,
+          "UNEXPLAINED_MISS": 1,
+          "UNEXPLAINED_PREDICTION": 1
+        },
+        "events": [
+          {
+            "expected_labels": [
+              "caesar salad"
+            ],
+            "kind": "PARTIAL_IDENTITY_OVERLAP",
+            "predicted_labels": [
+              "lettuce salad"
+            ],
+            "strict_error_units": 2
+          },
+          {
+            "expected_labels": [
+              "asparagus"
+            ],
+            "kind": "UNEXPLAINED_MISS",
+            "predicted_labels": [],
+            "strict_error_units": 1
+          },
+          {
+            "expected_labels": [],
+            "kind": "UNEXPLAINED_PREDICTION",
+            "predicted_labels": [
+              "green beans"
+            ],
+            "strict_error_units": 1
+          }
+        ],
+        "exact_match_count": 2,
+        "strict_error_units": 4,
+        "strict_hallucinated_count": 2,
+        "strict_missed_count": 2,
+        "structural_event_count": 3
+      },
+      "expected_visible_labels": [
+        "couscous",
+        "caesar salad",
+        "chicken",
+        "asparagus"
+      ],
+      "predicted_visible_labels": [
+        "chicken",
+        "couscous",
+        "green beans",
+        "lettuce salad"
+      ]
+    },
+    {
+      "case_id": "nutrition5k_dish_1565637123",
+      "diagnostic": {
+        "category_event_counts": {
+          "COMPOSITE_ALIAS_WITH_EXTRA_PREDICTIONS": 1
+        },
+        "category_strict_error_units": {
+          "COMPOSITE_ALIAS_WITH_EXTRA_PREDICTIONS": 4
+        },
+        "events": [
+          {
+            "expected_labels": [
+              "pasta salad"
+            ],
+            "kind": "COMPOSITE_ALIAS_WITH_EXTRA_PREDICTIONS",
+            "predicted_labels": [
+              "pasta",
+              "mixed salad greens",
+              "shredded carrots",
+              "corn",
+              "tomato"
+            ],
+            "strict_error_units": 4
+          }
+        ],
+        "exact_match_count": 1,
+        "strict_error_units": 4,
+        "strict_hallucinated_count": 4,
+        "strict_missed_count": 0,
+        "structural_event_count": 1
+      },
+      "expected_visible_labels": [
+        "pasta salad"
+      ],
+      "predicted_visible_labels": [
+        "mixed salad greens",
+        "shredded carrots",
+        "corn",
+        "pasta",
+        "tomato"
+      ]
+    },
+    {
+      "case_id": "nutrition5k_dish_1559235815",
+      "diagnostic": {
+        "category_event_counts": {
+          "UNDER_SEGMENTATION": 1
+        },
+        "category_strict_error_units": {
+          "UNDER_SEGMENTATION": 3
+        },
+        "events": [
+          {
+            "expected_labels": [
+              "cream cheese",
+              "bagel"
+            ],
+            "kind": "UNDER_SEGMENTATION",
+            "predicted_labels": [
+              "bagel with cream cheese"
+            ],
+            "strict_error_units": 3
+          }
+        ],
+        "exact_match_count": 2,
+        "strict_error_units": 3,
+        "strict_hallucinated_count": 1,
+        "strict_missed_count": 2,
+        "structural_event_count": 1
+      },
+      "expected_visible_labels": [
+        "cream cheese",
+        "bagel",
+        "strawberries",
+        "scrambled eggs"
+      ],
+      "predicted_visible_labels": [
+        "scrambled eggs",
+        "bagel with cream cheese",
+        "strawberries"
+      ]
+    },
+    {
+      "case_id": "nutrition5k_dish_1562173200",
+      "diagnostic": {
+        "category_event_counts": {
+          "PARTIAL_IDENTITY_OVERLAP": 1,
+          "UNEXPLAINED_MISS": 1,
+          "UNEXPLAINED_PREDICTION": 1
+        },
+        "category_strict_error_units": {
+          "PARTIAL_IDENTITY_OVERLAP": 2,
+          "UNEXPLAINED_MISS": 1,
+          "UNEXPLAINED_PREDICTION": 1
+        },
+        "events": [
+          {
+            "expected_labels": [
+              "chia seeds"
+            ],
+            "kind": "PARTIAL_IDENTITY_OVERLAP",
+            "predicted_labels": [
+              "chia pudding"
+            ],
+            "strict_error_units": 2
+          },
+          {
+            "expected_labels": [
+              "yogurt with milk"
+            ],
+            "kind": "UNEXPLAINED_MISS",
+            "predicted_labels": [],
+            "strict_error_units": 1
+          },
+          {
+            "expected_labels": [],
+            "kind": "UNEXPLAINED_PREDICTION",
+            "predicted_labels": [
+              "pale fruit chunks"
+            ],
+            "strict_error_units": 1
+          }
+        ],
+        "exact_match_count": 1,
+        "strict_error_units": 4,
+        "strict_hallucinated_count": 2,
+        "strict_missed_count": 2,
+        "structural_event_count": 3
+      },
+      "expected_visible_labels": [
+        "pineapple",
+        "yogurt with milk",
+        "chia seeds"
+      ],
+      "predicted_visible_labels": [
+        "pineapple",
+        "chia pudding",
+        "pale fruit chunks"
+      ]
+    },
+    {
+      "case_id": "nutrition5k_dish_1559332418",
+      "diagnostic": {
+        "category_event_counts": {
+          "IDENTITY_WITH_EXTRA_MODIFIERS": 1,
+          "PARTIAL_IDENTITY_OVERLAP": 1,
+          "UNEXPLAINED_MISS": 1,
+          "UNEXPLAINED_PREDICTION": 2
+        },
+        "category_strict_error_units": {
+          "IDENTITY_WITH_EXTRA_MODIFIERS": 2,
+          "PARTIAL_IDENTITY_OVERLAP": 2,
+          "UNEXPLAINED_MISS": 1,
+          "UNEXPLAINED_PREDICTION": 2
+        },
+        "events": [
+          {
+            "expected_labels": [
+              "salmon"
+            ],
+            "kind": "IDENTITY_WITH_EXTRA_MODIFIERS",
+            "predicted_labels": [
+              "cooked salmon"
+            ],
+            "strict_error_units": 2
+          },
+          {
+            "expected_labels": [
+              "brown rice"
+            ],
+            "kind": "PARTIAL_IDENTITY_OVERLAP",
+            "predicted_labels": [
+              "cooked rice"
+            ],
+            "strict_error_units": 2
+          },
+          {
+            "expected_labels": [
+              "arugula"
+            ],
+            "kind": "UNEXPLAINED_MISS",
+            "predicted_labels": [],
+            "strict_error_units": 1
+          },
+          {
+            "expected_labels": [],
+            "kind": "UNEXPLAINED_PREDICTION",
+            "predicted_labels": [
+              "leafy greens"
+            ],
+            "strict_error_units": 1
+          },
+          {
+            "expected_labels": [],
+            "kind": "UNEXPLAINED_PREDICTION",
+            "predicted_labels": [
+              "red bell pepper"
+            ],
+            "strict_error_units": 1
+          }
+        ],
+        "exact_match_count": 0,
+        "strict_error_units": 7,
+        "strict_hallucinated_count": 4,
+        "strict_missed_count": 3,
+        "structural_event_count": 5
+      },
+      "expected_visible_labels": [
+        "salmon",
+        "brown rice",
+        "arugula"
+      ],
+      "predicted_visible_labels": [
+        "cooked rice",
+        "cooked salmon",
+        "leafy greens",
+        "red bell pepper"
+      ]
+    },
+    {
+      "case_id": "nutrition5k_dish_1565370004",
+      "diagnostic": {
+        "category_event_counts": {},
+        "category_strict_error_units": {},
+        "events": [],
+        "exact_match_count": 3,
+        "strict_error_units": 0,
+        "strict_hallucinated_count": 0,
+        "strict_missed_count": 0,
+        "structural_event_count": 0
+      },
+      "expected_visible_labels": [
+        "bacon",
+        "scrambled eggs",
+        "green beans"
+      ],
+      "predicted_visible_labels": [
+        "scrambled eggs",
+        "green beans",
+        "bacon"
+      ]
+    }
+  ],
+  "dataset_version": "nutrition5k-public-secondary-v2",
+  "diagnostic_metrics": {
+    "case_count": 9,
+    "category_event_counts": {
+      "COMPOSITE_ALIAS_WITH_EXTRA_PREDICTIONS": 1,
+      "IDENTITY_WITH_EXTRA_MODIFIERS": 1,
+      "PARTIAL_IDENTITY_OVERLAP": 3,
+      "UNDER_SEGMENTATION": 1,
+      "UNEXPLAINED_MISS": 4,
+      "UNEXPLAINED_PREDICTION": 5
+    },
+    "category_strict_error_units": {
+      "COMPOSITE_ALIAS_WITH_EXTRA_PREDICTIONS": 4,
+      "IDENTITY_WITH_EXTRA_MODIFIERS": 2,
+      "PARTIAL_IDENTITY_OVERLAP": 6,
+      "UNDER_SEGMENTATION": 3,
+      "UNEXPLAINED_MISS": 4,
+      "UNEXPLAINED_PREDICTION": 5
+    },
+    "exact_match_count": 15,
+    "note": "Diagnostic taxonomy only. Primary strict normalized exact label/alias precision/recall/F1 are not modified.",
+    "strict_error_units": 24,
+    "strict_hallucinated_count": 14,
+    "strict_missed_count": 10,
+    "structural_event_count": 15
+  },
+  "methodology": {
+    "diagnostic_policy": "Exact/alias matches are removed first. Residual relationships use only the primary expected label, so broad acceptable aliases such as rice, salad, or greens are not promoted into semantic evidence. Conservative lexical containment/overlap only; no new aliases or equivalences are inferred.",
+    "interpretation": "UNDER_SEGMENTATION and OVER_SEGMENTATION describe direct granularity events; COMPOSITE_ALIAS_WITH_EXTRA_PREDICTIONS records a neutral single-composite pattern after an accepted broader alias; IDENTITY_WITH_EXTRA_MODIFIERS and BROADER_LABEL are primary-label containment mismatches; PARTIAL_IDENTITY_OVERLAP records shared primary wording without asserting equivalence. UNEXPLAINED categories require separate semantic/image review.",
+    "primary_metric_policy": "Strict normalized exact label or pre-approved alias matching remains primary."
+  },
+  "primary_strict_metrics_unchanged": {
+    "food_f1": {
+      "denominator": 25,
+      "exclusion": "derived harmonic mean",
+      "numerator": null,
+      "unit": "ratio",
+      "value": 0.5555555555555556
+    },
+    "food_precision": {
+      "denominator": 29,
+      "exclusion": null,
+      "numerator": 15,
+      "unit": "ratio",
+      "value": 0.5172413793103449
+    },
+    "food_recall": {
+      "denominator": 25,
+      "exclusion": null,
+      "numerator": 15,
+      "unit": "ratio",
+      "value": 0.6
+    },
+    "hallucinated_food_count": {
+      "denominator": 29,
+      "exclusion": null,
+      "numerator": 14,
+      "unit": "count",
+      "value": 14.0
+    },
+    "missed_food_count": {
+      "denominator": 25,
+      "exclusion": null,
+      "numerator": 10,
+      "unit": "count",
+      "value": 10.0
+    }
+  },
+  "recognition_fixture_sha256": "fb363a5d5005c182d9beb9b81261930a418927f52715bc98d2267423899396cb",
+  "scope": "development-only frozen visible-food segmentation diagnostics",
+  "split": "development",
+  "status": "measured",
+  "vision_configuration": {
+    "image_detail": "high",
+    "model": "gpt-5.6-terra",
+    "prompt_version": "meal_recognition_v2",
+    "provider": "openai",
+    "reasoning_effort": "low"
+  }
+}

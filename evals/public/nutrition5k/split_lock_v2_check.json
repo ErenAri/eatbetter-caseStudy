@@ -1,0 +1,40 @@
+{
+  "case_count": 12,
+  "case_ids": [
+    "nutrition5k_dish_1556572657",
+    "nutrition5k_dish_1557853229",
+    "nutrition5k_dish_1558116001",
+    "nutrition5k_dish_1559590202",
+    "nutrition5k_dish_1565637123",
+    "nutrition5k_dish_1559235815",
+    "nutrition5k_dish_1562173200",
+    "nutrition5k_dish_1559332418",
+    "nutrition5k_dish_1565370004",
+    "nutrition5k_dish_1565811061",
+    "nutrition5k_dish_1563478751",
+    "nutrition5k_dish_1562085672"
+  ],
+  "dataset_sha256": "c59b44fb840a1e4c1c7a81fa9c66843eaff18d7f346c7fabc460a4526fe6b2a0",
+  "dataset_version": "nutrition5k-public-secondary-v2",
+  "development_count": 9,
+  "development_ids": [
+    "nutrition5k_dish_1556572657",
+    "nutrition5k_dish_1557853229",
+    "nutrition5k_dish_1558116001",
+    "nutrition5k_dish_1559590202",
+    "nutrition5k_dish_1565637123",
+    "nutrition5k_dish_1559235815",
+    "nutrition5k_dish_1562173200",
+    "nutrition5k_dish_1559332418",
+    "nutrition5k_dish_1565370004"
+  ],
+  "hash_scheme": "canonical-json-v2+image-sha256",
+  "holdout_count": 3,
+  "holdout_ids": [
+    "nutrition5k_dish_1565811061",
+    "nutrition5k_dish_1563478751",
+    "nutrition5k_dish_1562085672"
+  ],
+  "locked_at_utc": "2026-08-19T16:37:46.107270+00:00",
+  "schema_version": 1
+}

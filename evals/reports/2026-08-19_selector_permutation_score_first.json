@@ -1,0 +1,4369 @@
+{
+  "canonicalization_model": "gpt-5.6-terra",
+  "canonicalization_prompt_version": "canonicalization_v1",
+  "canonicalization_provider": "openai",
+  "conditions": [
+    "CONTROL_A",
+    "CONTROL_B",
+    "CONTROL_C",
+    "ARRAY_REVERSED",
+    "ARRAY_ROTATE_LEFT",
+    "RERANK_REVERSED",
+    "RERANK_ROTATE_LEFT"
+  ],
+  "dataset_version": "nutrition5k-public-secondary-v2",
+  "eligible_items": [
+    {
+      "acceptable_food_ids": [
+        "2707198"
+      ],
+      "base_candidates": [
+        {
+          "food_id": "169904",
+          "name": "Eggs, scrambled, frozen mixture",
+          "rank": 1
+        },
+        {
+          "food_id": "2707198",
+          "name": "Egg omelet or scrambled egg, NS as to fat",
+          "rank": 2
+        },
+        {
+          "food_id": "2707199",
+          "name": "Egg omelet or scrambled egg, made with margarine",
+          "rank": 3
+        },
+        {
+          "food_id": "2707200",
+          "name": "Egg omelet or scrambled egg, made with oil",
+          "rank": 4
+        },
+        {
+          "food_id": "2707201",
+          "name": "Egg omelet or scrambled egg, made with butter",
+          "rank": 5
+        }
+      ],
+      "case_id": "nutrition5k_dish_1557853229",
+      "expected_base_rank": 2,
+      "meal_item_position": 0,
+      "observed_name": "scrambled eggs",
+      "preparation_method": "scrambled",
+      "runs": [
+        {
+          "condition": "CONTROL_A",
+          "decision": "SELECT",
+          "input_tokens": 791,
+          "match_quality": "STRONG",
+          "output_tokens": 47,
+          "post_gate_selected_food_id": "2707198",
+          "presented_candidates": [
+            {
+              "array_position": 1,
+              "food_id": "169904",
+              "name": "Eggs, scrambled, frozen mixture",
+              "rank": 1
+            },
+            {
+              "array_position": 2,
+              "food_id": "2707198",
+              "name": "Egg omelet or scrambled egg, NS as to fat",
+              "rank": 2
+            },
+            {
+              "array_position": 3,
+              "food_id": "2707199",
+              "name": "Egg omelet or scrambled egg, made with margarine",
+              "rank": 3
+            },
+            {
+              "array_position": 4,
+              "food_id": "2707200",
+              "name": "Egg omelet or scrambled egg, made with oil",
+              "rank": 4
+            },
+            {
+              "array_position": 5,
+              "food_id": "2707201",
+              "name": "Egg omelet or scrambled egg, made with butter",
+              "rank": 5
+            }
+          ],
+          "raw_selected_food_id": "2707198",
+          "reason_codes": [
+            "FOOD_IDENTITY_MATCH",
+            "PREPARATION_MATCH",
+            "GENERIC_VARIANT_MATCH"
+          ],
+          "retry_count": 0,
+          "selected_candidate_rank": 2
+        },
+        {
+          "condition": "CONTROL_B",
+          "decision": "SELECT",
+          "input_tokens": 791,
+          "match_quality": "STRONG",
+          "output_tokens": 47,
+          "post_gate_selected_food_id": "2707198",
+          "presented_candidates": [
+            {
+              "array_position": 1,
+              "food_id": "169904",
+              "name": "Eggs, scrambled, frozen mixture",
+              "rank": 1
+            },
+            {
+              "array_position": 2,
+              "food_id": "2707198",
+              "name": "Egg omelet or scrambled egg, NS as to fat",
+              "rank": 2
+            },
+            {
+              "array_position": 3,
+              "food_id": "2707199",
+              "name": "Egg omelet or scrambled egg, made with margarine",
+              "rank": 3
+            },
+            {
+              "array_position": 4,
+              "food_id": "2707200",
+              "name": "Egg omelet or scrambled egg, made with oil",
+              "rank": 4
+            },
+            {
+              "array_position": 5,
+              "food_id": "2707201",
+              "name": "Egg omelet or scrambled egg, made with butter",
+              "rank": 5
+            }
+          ],
+          "raw_selected_food_id": "2707198",
+          "reason_codes": [
+            "FOOD_IDENTITY_MATCH",
+            "PREPARATION_MATCH",
+            "GENERIC_VARIANT_MATCH"
+          ],
+          "retry_count": 0,
+          "selected_candidate_rank": 2
+        },
+        {
+          "condition": "CONTROL_C",
+          "decision": "SELECT",
+          "input_tokens": 791,
+          "match_quality": "STRONG",
+          "output_tokens": 47,
+          "post_gate_selected_food_id": "2707198",
+          "presented_candidates": [
+            {
+              "array_position": 1,
+              "food_id": "169904",
+              "name": "Eggs, scrambled, frozen mixture",
+              "rank": 1
+            },
+            {
+              "array_position": 2,
+              "food_id": "2707198",
+              "name": "Egg omelet or scrambled egg, NS as to fat",
+              "rank": 2
+            },
+            {
+              "array_position": 3,
+              "food_id": "2707199",
+              "name": "Egg omelet or scrambled egg, made with margarine",
+              "rank": 3
+            },
+            {
+              "array_position": 4,
+              "food_id": "2707200",
+              "name": "Egg omelet or scrambled egg, made with oil",
+              "rank": 4
+            },
+            {
+              "array_position": 5,
+              "food_id": "2707201",
+              "name": "Egg omelet or scrambled egg, made with butter",
+              "rank": 5
+            }
+          ],
+          "raw_selected_food_id": "2707198",
+          "reason_codes": [
+            "FOOD_IDENTITY_MATCH",
+            "PREPARATION_MATCH",
+            "GENERIC_VARIANT_MATCH"
+          ],
+          "retry_count": 0,
+          "selected_candidate_rank": 2
+        },
+        {
+          "condition": "ARRAY_REVERSED",
+          "decision": "SELECT",
+          "input_tokens": 791,
+          "match_quality": "STRONG",
+          "output_tokens": 36,
+          "post_gate_selected_food_id": "2707198",
+          "presented_candidates": [
+            {
+              "array_position": 1,
+              "food_id": "2707201",
+              "name": "Egg omelet or scrambled egg, made with butter",
+              "rank": 5
+            },
+            {
+              "array_position": 2,
+              "food_id": "2707200",
+              "name": "Egg omelet or scrambled egg, made with oil",
+              "rank": 4
+            },
+            {
+              "array_position": 3,
+              "food_id": "2707199",
+              "name": "Egg omelet or scrambled egg, made with margarine",
+              "rank": 3
+            },
+            {
+              "array_position": 4,
+              "food_id": "2707198",
+              "name": "Egg omelet or scrambled egg, NS as to fat",
+              "rank": 2
+            },
+            {
+              "array_position": 5,
+              "food_id": "169904",
+              "name": "Eggs, scrambled, frozen mixture",
+              "rank": 1
+            }
+          ],
+          "raw_selected_food_id": "2707198",
+          "reason_codes": [
+            "GENERIC_VARIANT_MATCH"
+          ],
+          "retry_count": 0,
+          "selected_candidate_rank": 2
+        },
+        {
+          "condition": "ARRAY_ROTATE_LEFT",
+          "decision": "SELECT",
+          "input_tokens": 791,
+          "match_quality": "EXACT",
+          "output_tokens": 40,
+          "post_gate_selected_food_id": "2707198",
+          "presented_candidates": [
+            {
+              "array_position": 1,
+              "food_id": "2707198",
+              "name": "Egg omelet or scrambled egg, NS as to fat",
+              "rank": 2
+            },
+            {
+              "array_position": 2,
+              "food_id": "2707199",
+              "name": "Egg omelet or scrambled egg, made with margarine",
+              "rank": 3
+            },
+            {
+              "array_position": 3,
+              "food_id": "2707200",
+              "name": "Egg omelet or scrambled egg, made with oil",
+              "rank": 4
+            },
+            {
+              "array_position": 4,
+              "food_id": "2707201",
+              "name": "Egg omelet or scrambled egg, made with butter",
+              "rank": 5
+            },
+            {
+              "array_position": 5,
+              "food_id": "169904",
+              "name": "Eggs, scrambled, frozen mixture",
+              "rank": 1
+            }
+          ],
+          "raw_selected_food_id": "2707198",
+          "reason_codes": [
+            "EXACT_DESCRIPTION_MATCH",
+            "PREPARATION_MATCH"
+          ],
+          "retry_count": 0,
+          "selected_candidate_rank": 2
+        },
+        {
+          "condition": "RERANK_REVERSED",
+          "decision": "SELECT",
+          "input_tokens": 791,
+          "match_quality": "STRONG",
+          "output_tokens": 41,
+          "post_gate_selected_food_id": "2707198",
+          "presented_candidates": [
+            {
+              "array_position": 1,
+              "food_id": "2707201",
+              "name": "Egg omelet or scrambled egg, made with butter",
+              "rank": 1
+            },
+            {
+              "array_position": 2,
+              "food_id": "2707200",
+              "name": "Egg omelet or scrambled egg, made with oil",
+              "rank": 2
+            },
+            {
+              "array_position": 3,
+              "food_id": "2707199",
+              "name": "Egg omelet or scrambled egg, made with margarine",
+              "rank": 3
+            },
+            {
+              "array_position": 4,
+              "food_id": "2707198",
+              "name": "Egg omelet or scrambled egg, NS as to fat",
+              "rank": 4
+            },
+            {
+              "array_position": 5,
+              "food_id": "169904",
+              "name": "Eggs, scrambled, frozen mixture",
+              "rank": 5
+            }
+          ],
+          "raw_selected_food_id": "2707198",
+          "reason_codes": [
+            "PREPARATION_MATCH",
+            "GENERIC_VARIANT_MATCH"
+          ],
+          "retry_count": 0,
+          "selected_candidate_rank": 4
+        },
+        {
+          "condition": "RERANK_ROTATE_LEFT",
+          "decision": "SELECT",
+          "input_tokens": 791,
+          "match_quality": "EXACT",
+          "output_tokens": 35,
+          "post_gate_selected_food_id": "2707198",
+          "presented_candidates": [
+            {
+              "array_position": 1,
+              "food_id": "2707198",
+              "name": "Egg omelet or scrambled egg, NS as to fat",
+              "rank": 1
+            },
+            {
+              "array_position": 2,
+              "food_id": "2707199",
+              "name": "Egg omelet or scrambled egg, made with margarine",
+              "rank": 2
+            },
+            {
+              "array_position": 3,
+              "food_id": "2707200",
+              "name": "Egg omelet or scrambled egg, made with oil",
+              "rank": 3
+            },
+            {
+              "array_position": 4,
+              "food_id": "2707201",
+              "name": "Egg omelet or scrambled egg, made with butter",
+              "rank": 4
+            },
+            {
+              "array_position": 5,
+              "food_id": "169904",
+              "name": "Eggs, scrambled, frozen mixture",
+              "rank": 5
+            }
+          ],
+          "raw_selected_food_id": "2707198",
+          "reason_codes": [
+            "EXACT_DESCRIPTION_MATCH"
+          ],
+          "retry_count": 0,
+          "selected_candidate_rank": 1
+        }
+      ],
+      "summary": {
+        "post_gate": {
+          "array_position_sensitive": false,
+          "array_selected_food_ids": [
+            "2707198",
+            "2707198"
+          ],
+          "condition_correctness": {
+            "ARRAY_REVERSED": true,
+            "ARRAY_ROTATE_LEFT": true,
+            "CONTROL_A": true,
+            "CONTROL_B": true,
+            "CONTROL_C": true,
+            "RERANK_REVERSED": true,
+            "RERANK_ROTATE_LEFT": true
+          },
+          "control_mode_correct": true,
+          "control_mode_food_id": "2707198",
+          "control_selected_food_ids": [
+            "2707198",
+            "2707198",
+            "2707198"
+          ],
+          "control_stable": true,
+          "rank_label_sensitive": false,
+          "rerank_selected_food_ids": [
+            "2707198",
+            "2707198"
+          ]
+        },
+        "raw": {
+          "array_position_sensitive": false,
+          "array_selected_food_ids": [
+            "2707198",
+            "2707198"
+          ],
+          "condition_correctness": {
+            "ARRAY_REVERSED": true,
+            "ARRAY_ROTATE_LEFT": true,
+            "CONTROL_A": true,
+            "CONTROL_B": true,
+            "CONTROL_C": true,
+            "RERANK_REVERSED": true,
+            "RERANK_ROTATE_LEFT": true
+          },
+          "control_mode_correct": true,
+          "control_mode_food_id": "2707198",
+          "control_selected_food_ids": [
+            "2707198",
+            "2707198",
+            "2707198"
+          ],
+          "control_stable": true,
+          "rank_label_sensitive": false,
+          "rerank_selected_food_ids": [
+            "2707198",
+            "2707198"
+          ]
+        }
+      },
+      "truth_label": "scrambled eggs"
+    },
+    {
+      "acceptable_food_ids": [
+        "2709237"
+      ],
+      "base_candidates": [
+        {
+          "food_id": "2709237",
+          "name": "Grapes, raw",
+          "rank": 1
+        },
+        {
+          "food_id": "2709325",
+          "name": "Grape juice, 100%",
+          "rank": 2
+        },
+        {
+          "food_id": "173040",
+          "name": "Grapes, muscadine, raw",
+          "rank": 3
+        },
+        {
+          "food_id": "2709375",
+          "name": "Baby Toddler juice, grape",
+          "rank": 4
+        },
+        {
+          "food_id": "321360",
+          "name": "Tomatoes, grape, raw",
+          "rank": 5
+        }
+      ],
+      "case_id": "nutrition5k_dish_1558116001",
+      "expected_base_rank": 1,
+      "meal_item_position": 3,
+      "observed_name": "grapes",
+      "preparation_method": null,
+      "runs": [
+        {
+          "condition": "CONTROL_A",
+          "decision": "SELECT",
+          "input_tokens": 768,
+          "match_quality": "EXACT",
+          "output_tokens": 35,
+          "post_gate_selected_food_id": "2709237",
+          "presented_candidates": [
+            {
+              "array_position": 1,
+              "food_id": "2709237",
+              "name": "Grapes, raw",
+              "rank": 1
+            },
+            {
+              "array_position": 2,
+              "food_id": "2709325",
+              "name": "Grape juice, 100%",
+              "rank": 2
+            },
+            {
+              "array_position": 3,
+              "food_id": "173040",
+              "name": "Grapes, muscadine, raw",
+              "rank": 3
+            },
+            {
+              "array_position": 4,
+              "food_id": "2709375",
+              "name": "Baby Toddler juice, grape",
+              "rank": 4
+            },
+            {
+              "array_position": 5,
+              "food_id": "321360",
+              "name": "Tomatoes, grape, raw",
+              "rank": 5
+            }
+          ],
+          "raw_selected_food_id": "2709237",
+          "reason_codes": [
+            "EXACT_DESCRIPTION_MATCH"
+          ],
+          "retry_count": 0,
+          "selected_candidate_rank": 1
+        },
+        {
+          "condition": "CONTROL_B",
+          "decision": "SELECT",
+          "input_tokens": 768,
+          "match_quality": "EXACT",
+          "output_tokens": 35,
+          "post_gate_selected_food_id": "2709237",
+          "presented_candidates": [
+            {
+              "array_position": 1,
+              "food_id": "2709237",
+              "name": "Grapes, raw",
+              "rank": 1
+            },
+            {
+              "array_position": 2,
+              "food_id": "2709325",
+              "name": "Grape juice, 100%",
+              "rank": 2
+            },
+            {
+              "array_position": 3,
+              "food_id": "173040",
+              "name": "Grapes, muscadine, raw",
+              "rank": 3
+            },
+            {
+              "array_position": 4,
+              "food_id": "2709375",
+              "name": "Baby Toddler juice, grape",
+              "rank": 4
+            },
+            {
+              "array_position": 5,
+              "food_id": "321360",
+              "name": "Tomatoes, grape, raw",
+              "rank": 5
+            }
+          ],
+          "raw_selected_food_id": "2709237",
+          "reason_codes": [
+            "EXACT_DESCRIPTION_MATCH"
+          ],
+          "retry_count": 0,
+          "selected_candidate_rank": 1
+        },
+        {
+          "condition": "CONTROL_C",
+          "decision": "SELECT",
+          "input_tokens": 768,
+          "match_quality": "EXACT",
+          "output_tokens": 35,
+          "post_gate_selected_food_id": "2709237",
+          "presented_candidates": [
+            {
+              "array_position": 1,
+              "food_id": "2709237",
+              "name": "Grapes, raw",
+              "rank": 1
+            },
+            {
+              "array_position": 2,
+              "food_id": "2709325",
+              "name": "Grape juice, 100%",
+              "rank": 2
+            },
+            {
+              "array_position": 3,
+              "food_id": "173040",
+              "name": "Grapes, muscadine, raw",
+              "rank": 3
+            },
+            {
+              "array_position": 4,
+              "food_id": "2709375",
+              "name": "Baby Toddler juice, grape",
+              "rank": 4
+            },
+            {
+              "array_position": 5,
+              "food_id": "321360",
+              "name": "Tomatoes, grape, raw",
+              "rank": 5
+            }
+          ],
+          "raw_selected_food_id": "2709237",
+          "reason_codes": [
+            "EXACT_DESCRIPTION_MATCH"
+          ],
+          "retry_count": 0,
+          "selected_candidate_rank": 1
+        },
+        {
+          "condition": "ARRAY_REVERSED",
+          "decision": "SELECT",
+          "input_tokens": 768,
+          "match_quality": "EXACT",
+          "output_tokens": 35,
+          "post_gate_selected_food_id": "2709237",
+          "presented_candidates": [
+            {
+              "array_position": 1,
+              "food_id": "321360",
+              "name": "Tomatoes, grape, raw",
+              "rank": 5
+            },
+            {
+              "array_position": 2,
+              "food_id": "2709375",
+              "name": "Baby Toddler juice, grape",
+              "rank": 4
+            },
+            {
+              "array_position": 3,
+              "food_id": "173040",
+              "name": "Grapes, muscadine, raw",
+              "rank": 3
+            },
+            {
+              "array_position": 4,
+              "food_id": "2709325",
+              "name": "Grape juice, 100%",
+              "rank": 2
+            },
+            {
+              "array_position": 5,
+              "food_id": "2709237",
+              "name": "Grapes, raw",
+              "rank": 1
+            }
+          ],
+          "raw_selected_food_id": "2709237",
+          "reason_codes": [
+            "EXACT_DESCRIPTION_MATCH"
+          ],
+          "retry_count": 0,
+          "selected_candidate_rank": 1
+        },
+        {
+          "condition": "ARRAY_ROTATE_LEFT",
+          "decision": "SELECT",
+          "input_tokens": 768,
+          "match_quality": "EXACT",
+          "output_tokens": 35,
+          "post_gate_selected_food_id": "2709237",
+          "presented_candidates": [
+            {
+              "array_position": 1,
+              "food_id": "2709325",
+              "name": "Grape juice, 100%",
+              "rank": 2
+            },
+            {
+              "array_position": 2,
+              "food_id": "173040",
+              "name": "Grapes, muscadine, raw",
+              "rank": 3
+            },
+            {
+              "array_position": 3,
+              "food_id": "2709375",
+              "name": "Baby Toddler juice, grape",
+              "rank": 4
+            },
+            {
+              "array_position": 4,
+              "food_id": "321360",
+              "name": "Tomatoes, grape, raw",
+              "rank": 5
+            },
+            {
+              "array_position": 5,
+              "food_id": "2709237",
+              "name": "Grapes, raw",
+              "rank": 1
+            }
+          ],
+          "raw_selected_food_id": "2709237",
+          "reason_codes": [
+            "EXACT_DESCRIPTION_MATCH"
+          ],
+          "retry_count": 0,
+          "selected_candidate_rank": 1
+        },
+        {
+          "condition": "RERANK_REVERSED",
+          "decision": "SELECT",
+          "input_tokens": 768,
+          "match_quality": "EXACT",
+          "output_tokens": 35,
+          "post_gate_selected_food_id": "2709237",
+          "presented_candidates": [
+            {
+              "array_position": 1,
+              "food_id": "321360",
+              "name": "Tomatoes, grape, raw",
+              "rank": 1
+            },
+            {
+              "array_position": 2,
+              "food_id": "2709375",
+              "name": "Baby Toddler juice, grape",
+              "rank": 2
+            },
+            {
+              "array_position": 3,
+              "food_id": "173040",
+              "name": "Grapes, muscadine, raw",
+              "rank": 3
+            },
+            {
+              "array_position": 4,
+              "food_id": "2709325",
+              "name": "Grape juice, 100%",
+              "rank": 4
+            },
+            {
+              "array_position": 5,
+              "food_id": "2709237",
+              "name": "Grapes, raw",
+              "rank": 5
+            }
+          ],
+          "raw_selected_food_id": "2709237",
+          "reason_codes": [
+            "EXACT_DESCRIPTION_MATCH"
+          ],
+          "retry_count": 0,
+          "selected_candidate_rank": 5
+        },
+        {
+          "condition": "RERANK_ROTATE_LEFT",
+          "decision": "SELECT",
+          "input_tokens": 768,
+          "match_quality": "EXACT",
+          "output_tokens": 35,
+          "post_gate_selected_food_id": "2709237",
+          "presented_candidates": [
+            {
+              "array_position": 1,
+              "food_id": "2709325",
+              "name": "Grape juice, 100%",
+              "rank": 1
+            },
+            {
+              "array_position": 2,
+              "food_id": "173040",
+              "name": "Grapes, muscadine, raw",
+              "rank": 2
+            },
+            {
+              "array_position": 3,
+              "food_id": "2709375",
+              "name": "Baby Toddler juice, grape",
+              "rank": 3
+            },
+            {
+              "array_position": 4,
+              "food_id": "321360",
+              "name": "Tomatoes, grape, raw",
+              "rank": 4
+            },
+            {
+              "array_position": 5,
+              "food_id": "2709237",
+              "name": "Grapes, raw",
+              "rank": 5
+            }
+          ],
+          "raw_selected_food_id": "2709237",
+          "reason_codes": [
+            "EXACT_DESCRIPTION_MATCH"
+          ],
+          "retry_count": 0,
+          "selected_candidate_rank": 5
+        }
+      ],
+      "summary": {
+        "post_gate": {
+          "array_position_sensitive": false,
+          "array_selected_food_ids": [
+            "2709237",
+            "2709237"
+          ],
+          "condition_correctness": {
+            "ARRAY_REVERSED": true,
+            "ARRAY_ROTATE_LEFT": true,
+            "CONTROL_A": true,
+            "CONTROL_B": true,
+            "CONTROL_C": true,
+            "RERANK_REVERSED": true,
+            "RERANK_ROTATE_LEFT": true
+          },
+          "control_mode_correct": true,
+          "control_mode_food_id": "2709237",
+          "control_selected_food_ids": [
+            "2709237",
+            "2709237",
+            "2709237"
+          ],
+          "control_stable": true,
+          "rank_label_sensitive": false,
+          "rerank_selected_food_ids": [
+            "2709237",
+            "2709237"
+          ]
+        },
+        "raw": {
+          "array_position_sensitive": false,
+          "array_selected_food_ids": [
+            "2709237",
+            "2709237"
+          ],
+          "condition_correctness": {
+            "ARRAY_REVERSED": true,
+            "ARRAY_ROTATE_LEFT": true,
+            "CONTROL_A": true,
+            "CONTROL_B": true,
+            "CONTROL_C": true,
+            "RERANK_REVERSED": true,
+            "RERANK_ROTATE_LEFT": true
+          },
+          "control_mode_correct": true,
+          "control_mode_food_id": "2709237",
+          "control_selected_food_ids": [
+            "2709237",
+            "2709237",
+            "2709237"
+          ],
+          "control_stable": true,
+          "rank_label_sensitive": false,
+          "rerank_selected_food_ids": [
+            "2709237",
+            "2709237"
+          ]
+        }
+      },
+      "truth_label": "grapes"
+    },
+    {
+      "acceptable_food_ids": [
+        "2708441"
+      ],
+      "base_candidates": [
+        {
+          "food_id": "169700",
+          "name": "Couscous, cooked",
+          "rank": 1
+        },
+        {
+          "food_id": "2708441",
+          "name": "Couscous, plain, cooked",
+          "rank": 2
+        },
+        {
+          "food_id": "169699",
+          "name": "Couscous, dry",
+          "rank": 3
+        },
+        {
+          "food_id": "2706147",
+          "name": "Dove, cooked, NS as to cooking method",
+          "rank": 4
+        },
+        {
+          "food_id": "2706333",
+          "name": "Calamari, cooked",
+          "rank": 5
+        }
+      ],
+      "case_id": "nutrition5k_dish_1559590202",
+      "expected_base_rank": 2,
+      "meal_item_position": 1,
+      "observed_name": "couscous",
+      "preparation_method": "cooked",
+      "runs": [
+        {
+          "condition": "CONTROL_A",
+          "decision": "SELECT",
+          "input_tokens": 774,
+          "match_quality": "EXACT",
+          "output_tokens": 40,
+          "post_gate_selected_food_id": "169700",
+          "presented_candidates": [
+            {
+              "array_position": 1,
+              "food_id": "169700",
+              "name": "Couscous, cooked",
+              "rank": 1
+            },
+            {
+              "array_position": 2,
+              "food_id": "2708441",
+              "name": "Couscous, plain, cooked",
+              "rank": 2
+            },
+            {
+              "array_position": 3,
+              "food_id": "169699",
+              "name": "Couscous, dry",
+              "rank": 3
+            },
+            {
+              "array_position": 4,
+              "food_id": "2706147",
+              "name": "Dove, cooked, NS as to cooking method",
+              "rank": 4
+            },
+            {
+              "array_position": 5,
+              "food_id": "2706333",
+              "name": "Calamari, cooked",
+              "rank": 5
+            }
+          ],
+          "raw_selected_food_id": "169700",
+          "reason_codes": [
+            "EXACT_DESCRIPTION_MATCH",
+            "PREPARATION_MATCH"
+          ],
+          "retry_count": 0,
+          "selected_candidate_rank": 1
+        },
+        {
+          "condition": "CONTROL_B",
+          "decision": "SELECT",
+          "input_tokens": 774,
+          "match_quality": "EXACT",
+          "output_tokens": 40,
+          "post_gate_selected_food_id": "169700",
+          "presented_candidates": [
+            {
+              "array_position": 1,
+              "food_id": "169700",
+              "name": "Couscous, cooked",
+              "rank": 1
+            },
+            {
+              "array_position": 2,
+              "food_id": "2708441",
+              "name": "Couscous, plain, cooked",
+              "rank": 2
+            },
+            {
+              "array_position": 3,
+              "food_id": "169699",
+              "name": "Couscous, dry",
+              "rank": 3
+            },
+            {
+              "array_position": 4,
+              "food_id": "2706147",
+              "name": "Dove, cooked, NS as to cooking method",
+              "rank": 4
+            },
+            {
+              "array_position": 5,
+              "food_id": "2706333",
+              "name": "Calamari, cooked",
+              "rank": 5
+            }
+          ],
+          "raw_selected_food_id": "169700",
+          "reason_codes": [
+            "EXACT_DESCRIPTION_MATCH",
+            "PREPARATION_MATCH"
+          ],
+          "retry_count": 0,
+          "selected_candidate_rank": 1
+        },
+        {
+          "condition": "CONTROL_C",
+          "decision": "SELECT",
+          "input_tokens": 774,
+          "match_quality": "EXACT",
+          "output_tokens": 40,
+          "post_gate_selected_food_id": "169700",
+          "presented_candidates": [
+            {
+              "array_position": 1,
+              "food_id": "169700",
+              "name": "Couscous, cooked",
+              "rank": 1
+            },
+            {
+              "array_position": 2,
+              "food_id": "2708441",
+              "name": "Couscous, plain, cooked",
+              "rank": 2
+            },
+            {
+              "array_position": 3,
+              "food_id": "169699",
+              "name": "Couscous, dry",
+              "rank": 3
+            },
+            {
+              "array_position": 4,
+              "food_id": "2706147",
+              "name": "Dove, cooked, NS as to cooking method",
+              "rank": 4
+            },
+            {
+              "array_position": 5,
+              "food_id": "2706333",
+              "name": "Calamari, cooked",
+              "rank": 5
+            }
+          ],
+          "raw_selected_food_id": "169700",
+          "reason_codes": [
+            "EXACT_DESCRIPTION_MATCH",
+            "PREPARATION_MATCH"
+          ],
+          "retry_count": 0,
+          "selected_candidate_rank": 1
+        },
+        {
+          "condition": "ARRAY_REVERSED",
+          "decision": "SELECT",
+          "input_tokens": 774,
+          "match_quality": "EXACT",
+          "output_tokens": 40,
+          "post_gate_selected_food_id": "169700",
+          "presented_candidates": [
+            {
+              "array_position": 1,
+              "food_id": "2706333",
+              "name": "Calamari, cooked",
+              "rank": 5
+            },
+            {
+              "array_position": 2,
+              "food_id": "2706147",
+              "name": "Dove, cooked, NS as to cooking method",
+              "rank": 4
+            },
+            {
+              "array_position": 3,
+              "food_id": "169699",
+              "name": "Couscous, dry",
+              "rank": 3
+            },
+            {
+              "array_position": 4,
+              "food_id": "2708441",
+              "name": "Couscous, plain, cooked",
+              "rank": 2
+            },
+            {
+              "array_position": 5,
+              "food_id": "169700",
+              "name": "Couscous, cooked",
+              "rank": 1
+            }
+          ],
+          "raw_selected_food_id": "169700",
+          "reason_codes": [
+            "EXACT_DESCRIPTION_MATCH",
+            "PREPARATION_MATCH"
+          ],
+          "retry_count": 0,
+          "selected_candidate_rank": 1
+        },
+        {
+          "condition": "ARRAY_ROTATE_LEFT",
+          "decision": "SELECT",
+          "input_tokens": 774,
+          "match_quality": "EXACT",
+          "output_tokens": 40,
+          "post_gate_selected_food_id": "169700",
+          "presented_candidates": [
+            {
+              "array_position": 1,
+              "food_id": "2708441",
+              "name": "Couscous, plain, cooked",
+              "rank": 2
+            },
+            {
+              "array_position": 2,
+              "food_id": "169699",
+              "name": "Couscous, dry",
+              "rank": 3
+            },
+            {
+              "array_position": 3,
+              "food_id": "2706147",
+              "name": "Dove, cooked, NS as to cooking method",
+              "rank": 4
+            },
+            {
+              "array_position": 4,
+              "food_id": "2706333",
+              "name": "Calamari, cooked",
+              "rank": 5
+            },
+            {
+              "array_position": 5,
+              "food_id": "169700",
+              "name": "Couscous, cooked",
+              "rank": 1
+            }
+          ],
+          "raw_selected_food_id": "169700",
+          "reason_codes": [
+            "EXACT_DESCRIPTION_MATCH",
+            "PREPARATION_MATCH"
+          ],
+          "retry_count": 0,
+          "selected_candidate_rank": 1
+        },
+        {
+          "condition": "RERANK_REVERSED",
+          "decision": "SELECT",
+          "input_tokens": 774,
+          "match_quality": "EXACT",
+          "output_tokens": 40,
+          "post_gate_selected_food_id": "169700",
+          "presented_candidates": [
+            {
+              "array_position": 1,
+              "food_id": "2706333",
+              "name": "Calamari, cooked",
+              "rank": 1
+            },
+            {
+              "array_position": 2,
+              "food_id": "2706147",
+              "name": "Dove, cooked, NS as to cooking method",
+              "rank": 2
+            },
+            {
+              "array_position": 3,
+              "food_id": "169699",
+              "name": "Couscous, dry",
+              "rank": 3
+            },
+            {
+              "array_position": 4,
+              "food_id": "2708441",
+              "name": "Couscous, plain, cooked",
+              "rank": 4
+            },
+            {
+              "array_position": 5,
+              "food_id": "169700",
+              "name": "Couscous, cooked",
+              "rank": 5
+            }
+          ],
+          "raw_selected_food_id": "169700",
+          "reason_codes": [
+            "EXACT_DESCRIPTION_MATCH",
+            "PREPARATION_MATCH"
+          ],
+          "retry_count": 0,
+          "selected_candidate_rank": 5
+        },
+        {
+          "condition": "RERANK_ROTATE_LEFT",
+          "decision": "SELECT",
+          "input_tokens": 774,
+          "match_quality": "EXACT",
+          "output_tokens": 40,
+          "post_gate_selected_food_id": "2708441",
+          "presented_candidates": [
+            {
+              "array_position": 1,
+              "food_id": "2708441",
+              "name": "Couscous, plain, cooked",
+              "rank": 1
+            },
+            {
+              "array_position": 2,
+              "food_id": "169699",
+              "name": "Couscous, dry",
+              "rank": 2
+            },
+            {
+              "array_position": 3,
+              "food_id": "2706147",
+              "name": "Dove, cooked, NS as to cooking method",
+              "rank": 3
+            },
+            {
+              "array_position": 4,
+              "food_id": "2706333",
+              "name": "Calamari, cooked",
+              "rank": 4
+            },
+            {
+              "array_position": 5,
+              "food_id": "169700",
+              "name": "Couscous, cooked",
+              "rank": 5
+            }
+          ],
+          "raw_selected_food_id": "2708441",
+          "reason_codes": [
+            "EXACT_DESCRIPTION_MATCH",
+            "PREPARATION_MATCH"
+          ],
+          "retry_count": 0,
+          "selected_candidate_rank": 1
+        }
+      ],
+      "summary": {
+        "post_gate": {
+          "array_position_sensitive": false,
+          "array_selected_food_ids": [
+            "169700",
+            "169700"
+          ],
+          "condition_correctness": {
+            "ARRAY_REVERSED": false,
+            "ARRAY_ROTATE_LEFT": false,
+            "CONTROL_A": false,
+            "CONTROL_B": false,
+            "CONTROL_C": false,
+            "RERANK_REVERSED": false,
+            "RERANK_ROTATE_LEFT": true
+          },
+          "control_mode_correct": false,
+          "control_mode_food_id": "169700",
+          "control_selected_food_ids": [
+            "169700",
+            "169700",
+            "169700"
+          ],
+          "control_stable": true,
+          "rank_label_sensitive": true,
+          "rerank_selected_food_ids": [
+            "169700",
+            "2708441"
+          ]
+        },
+        "raw": {
+          "array_position_sensitive": false,
+          "array_selected_food_ids": [
+            "169700",
+            "169700"
+          ],
+          "condition_correctness": {
+            "ARRAY_REVERSED": false,
+            "ARRAY_ROTATE_LEFT": false,
+            "CONTROL_A": false,
+            "CONTROL_B": false,
+            "CONTROL_C": false,
+            "RERANK_REVERSED": false,
+            "RERANK_ROTATE_LEFT": true
+          },
+          "control_mode_correct": false,
+          "control_mode_food_id": "169700",
+          "control_selected_food_ids": [
+            "169700",
+            "169700",
+            "169700"
+          ],
+          "control_stable": true,
+          "rank_label_sensitive": true,
+          "rerank_selected_food_ids": [
+            "169700",
+            "2708441"
+          ]
+        }
+      },
+      "truth_label": "couscous"
+    },
+    {
+      "acceptable_food_ids": [
+        "2707198"
+      ],
+      "base_candidates": [
+        {
+          "food_id": "169904",
+          "name": "Eggs, scrambled, frozen mixture",
+          "rank": 1
+        },
+        {
+          "food_id": "2707198",
+          "name": "Egg omelet or scrambled egg, NS as to fat",
+          "rank": 2
+        },
+        {
+          "food_id": "2707199",
+          "name": "Egg omelet or scrambled egg, made with margarine",
+          "rank": 3
+        },
+        {
+          "food_id": "2707200",
+          "name": "Egg omelet or scrambled egg, made with oil",
+          "rank": 4
+        },
+        {
+          "food_id": "2707201",
+          "name": "Egg omelet or scrambled egg, made with butter",
+          "rank": 5
+        }
+      ],
+      "case_id": "nutrition5k_dish_1559235815",
+      "expected_base_rank": 2,
+      "meal_item_position": 0,
+      "observed_name": "scrambled eggs",
+      "preparation_method": "scrambled",
+      "runs": [
+        {
+          "condition": "CONTROL_A",
+          "decision": "SELECT",
+          "input_tokens": 791,
+          "match_quality": "STRONG",
+          "output_tokens": 47,
+          "post_gate_selected_food_id": "2707198",
+          "presented_candidates": [
+            {
+              "array_position": 1,
+              "food_id": "169904",
+              "name": "Eggs, scrambled, frozen mixture",
+              "rank": 1
+            },
+            {
+              "array_position": 2,
+              "food_id": "2707198",
+              "name": "Egg omelet or scrambled egg, NS as to fat",
+              "rank": 2
+            },
+            {
+              "array_position": 3,
+              "food_id": "2707199",
+              "name": "Egg omelet or scrambled egg, made with margarine",
+              "rank": 3
+            },
+            {
+              "array_position": 4,
+              "food_id": "2707200",
+              "name": "Egg omelet or scrambled egg, made with oil",
+              "rank": 4
+            },
+            {
+              "array_position": 5,
+              "food_id": "2707201",
+              "name": "Egg omelet or scrambled egg, made with butter",
+              "rank": 5
+            }
+          ],
+          "raw_selected_food_id": "2707198",
+          "reason_codes": [
+            "FOOD_IDENTITY_MATCH",
+            "PREPARATION_MATCH",
+            "GENERIC_VARIANT_MATCH"
+          ],
+          "retry_count": 0,
+          "selected_candidate_rank": 2
+        },
+        {
+          "condition": "CONTROL_B",
+          "decision": "SELECT",
+          "input_tokens": 791,
+          "match_quality": "STRONG",
+          "output_tokens": 36,
+          "post_gate_selected_food_id": "2707198",
+          "presented_candidates": [
+            {
+              "array_position": 1,
+              "food_id": "169904",
+              "name": "Eggs, scrambled, frozen mixture",
+              "rank": 1
+            },
+            {
+              "array_position": 2,
+              "food_id": "2707198",
+              "name": "Egg omelet or scrambled egg, NS as to fat",
+              "rank": 2
+            },
+            {
+              "array_position": 3,
+              "food_id": "2707199",
+              "name": "Egg omelet or scrambled egg, made with margarine",
+              "rank": 3
+            },
+            {
+              "array_position": 4,
+              "food_id": "2707200",
+              "name": "Egg omelet or scrambled egg, made with oil",
+              "rank": 4
+            },
+            {
+              "array_position": 5,
+              "food_id": "2707201",
+              "name": "Egg omelet or scrambled egg, made with butter",
+              "rank": 5
+            }
+          ],
+          "raw_selected_food_id": "2707198",
+          "reason_codes": [
+            "GENERIC_VARIANT_MATCH"
+          ],
+          "retry_count": 0,
+          "selected_candidate_rank": 2
+        },
+        {
+          "condition": "CONTROL_C",
+          "decision": "SELECT",
+          "input_tokens": 791,
+          "match_quality": "STRONG",
+          "output_tokens": 36,
+          "post_gate_selected_food_id": "2707198",
+          "presented_candidates": [
+            {
+              "array_position": 1,
+              "food_id": "169904",
+              "name": "Eggs, scrambled, frozen mixture",
+              "rank": 1
+            },
+            {
+              "array_position": 2,
+              "food_id": "2707198",
+              "name": "Egg omelet or scrambled egg, NS as to fat",
+              "rank": 2
+            },
+            {
+              "array_position": 3,
+              "food_id": "2707199",
+              "name": "Egg omelet or scrambled egg, made with margarine",
+              "rank": 3
+            },
+            {
+              "array_position": 4,
+              "food_id": "2707200",
+              "name": "Egg omelet or scrambled egg, made with oil",
+              "rank": 4
+            },
+            {
+              "array_position": 5,
+              "food_id": "2707201",
+              "name": "Egg omelet or scrambled egg, made with butter",
+              "rank": 5
+            }
+          ],
+          "raw_selected_food_id": "2707198",
+          "reason_codes": [
+            "GENERIC_VARIANT_MATCH"
+          ],
+          "retry_count": 0,
+          "selected_candidate_rank": 2
+        },
+        {
+          "condition": "ARRAY_REVERSED",
+          "decision": "SELECT",
+          "input_tokens": 791,
+          "match_quality": "STRONG",
+          "output_tokens": 47,
+          "post_gate_selected_food_id": "2707198",
+          "presented_candidates": [
+            {
+              "array_position": 1,
+              "food_id": "2707201",
+              "name": "Egg omelet or scrambled egg, made with butter",
+              "rank": 5
+            },
+            {
+              "array_position": 2,
+              "food_id": "2707200",
+              "name": "Egg omelet or scrambled egg, made with oil",
+              "rank": 4
+            },
+            {
+              "array_position": 3,
+              "food_id": "2707199",
+              "name": "Egg omelet or scrambled egg, made with margarine",
+              "rank": 3
+            },
+            {
+              "array_position": 4,
+              "food_id": "2707198",
+              "name": "Egg omelet or scrambled egg, NS as to fat",
+              "rank": 2
+            },
+            {
+              "array_position": 5,
+              "food_id": "169904",
+              "name": "Eggs, scrambled, frozen mixture",
+              "rank": 1
+            }
+          ],
+          "raw_selected_food_id": "2707198",
+          "reason_codes": [
+            "FOOD_IDENTITY_MATCH",
+            "PREPARATION_MATCH",
+            "GENERIC_VARIANT_MATCH"
+          ],
+          "retry_count": 0,
+          "selected_candidate_rank": 2
+        },
+        {
+          "condition": "ARRAY_ROTATE_LEFT",
+          "decision": "SELECT",
+          "input_tokens": 791,
+          "match_quality": "STRONG",
+          "output_tokens": 47,
+          "post_gate_selected_food_id": "2707198",
+          "presented_candidates": [
+            {
+              "array_position": 1,
+              "food_id": "2707198",
+              "name": "Egg omelet or scrambled egg, NS as to fat",
+              "rank": 2
+            },
+            {
+              "array_position": 2,
+              "food_id": "2707199",
+              "name": "Egg omelet or scrambled egg, made with margarine",
+              "rank": 3
+            },
+            {
+              "array_position": 3,
+              "food_id": "2707200",
+              "name": "Egg omelet or scrambled egg, made with oil",
+              "rank": 4
+            },
+            {
+              "array_position": 4,
+              "food_id": "2707201",
+              "name": "Egg omelet or scrambled egg, made with butter",
+              "rank": 5
+            },
+            {
+              "array_position": 5,
+              "food_id": "169904",
+              "name": "Eggs, scrambled, frozen mixture",
+              "rank": 1
+            }
+          ],
+          "raw_selected_food_id": "2707198",
+          "reason_codes": [
+            "FOOD_IDENTITY_MATCH",
+            "PREPARATION_MATCH",
+            "GENERIC_VARIANT_MATCH"
+          ],
+          "retry_count": 0,
+          "selected_candidate_rank": 2
+        },
+        {
+          "condition": "RERANK_REVERSED",
+          "decision": "SELECT",
+          "input_tokens": 791,
+          "match_quality": "STRONG",
+          "output_tokens": 41,
+          "post_gate_selected_food_id": "2707198",
+          "presented_candidates": [
+            {
+              "array_position": 1,
+              "food_id": "2707201",
+              "name": "Egg omelet or scrambled egg, made with butter",
+              "rank": 1
+            },
+            {
+              "array_position": 2,
+              "food_id": "2707200",
+              "name": "Egg omelet or scrambled egg, made with oil",
+              "rank": 2
+            },
+            {
+              "array_position": 3,
+              "food_id": "2707199",
+              "name": "Egg omelet or scrambled egg, made with margarine",
+              "rank": 3
+            },
+            {
+              "array_position": 4,
+              "food_id": "2707198",
+              "name": "Egg omelet or scrambled egg, NS as to fat",
+              "rank": 4
+            },
+            {
+              "array_position": 5,
+              "food_id": "169904",
+              "name": "Eggs, scrambled, frozen mixture",
+              "rank": 5
+            }
+          ],
+          "raw_selected_food_id": "2707198",
+          "reason_codes": [
+            "PREPARATION_MATCH",
+            "GENERIC_VARIANT_MATCH"
+          ],
+          "retry_count": 0,
+          "selected_candidate_rank": 4
+        },
+        {
+          "condition": "RERANK_ROTATE_LEFT",
+          "decision": "SELECT",
+          "input_tokens": 791,
+          "match_quality": "EXACT",
+          "output_tokens": 35,
+          "post_gate_selected_food_id": "2707198",
+          "presented_candidates": [
+            {
+              "array_position": 1,
+              "food_id": "2707198",
+              "name": "Egg omelet or scrambled egg, NS as to fat",
+              "rank": 1
+            },
+            {
+              "array_position": 2,
+              "food_id": "2707199",
+              "name": "Egg omelet or scrambled egg, made with margarine",
+              "rank": 2
+            },
+            {
+              "array_position": 3,
+              "food_id": "2707200",
+              "name": "Egg omelet or scrambled egg, made with oil",
+              "rank": 3
+            },
+            {
+              "array_position": 4,
+              "food_id": "2707201",
+              "name": "Egg omelet or scrambled egg, made with butter",
+              "rank": 4
+            },
+            {
+              "array_position": 5,
+              "food_id": "169904",
+              "name": "Eggs, scrambled, frozen mixture",
+              "rank": 5
+            }
+          ],
+          "raw_selected_food_id": "2707198",
+          "reason_codes": [
+            "EXACT_DESCRIPTION_MATCH"
+          ],
+          "retry_count": 0,
+          "selected_candidate_rank": 1
+        }
+      ],
+      "summary": {
+        "post_gate": {
+          "array_position_sensitive": false,
+          "array_selected_food_ids": [
+            "2707198",
+            "2707198"
+          ],
+          "condition_correctness": {
+            "ARRAY_REVERSED": true,
+            "ARRAY_ROTATE_LEFT": true,
+            "CONTROL_A": true,
+            "CONTROL_B": true,
+            "CONTROL_C": true,
+            "RERANK_REVERSED": true,
+            "RERANK_ROTATE_LEFT": true
+          },
+          "control_mode_correct": true,
+          "control_mode_food_id": "2707198",
+          "control_selected_food_ids": [
+            "2707198",
+            "2707198",
+            "2707198"
+          ],
+          "control_stable": true,
+          "rank_label_sensitive": false,
+          "rerank_selected_food_ids": [
+            "2707198",
+            "2707198"
+          ]
+        },
+        "raw": {
+          "array_position_sensitive": false,
+          "array_selected_food_ids": [
+            "2707198",
+            "2707198"
+          ],
+          "condition_correctness": {
+            "ARRAY_REVERSED": true,
+            "ARRAY_ROTATE_LEFT": true,
+            "CONTROL_A": true,
+            "CONTROL_B": true,
+            "CONTROL_C": true,
+            "RERANK_REVERSED": true,
+            "RERANK_ROTATE_LEFT": true
+          },
+          "control_mode_correct": true,
+          "control_mode_food_id": "2707198",
+          "control_selected_food_ids": [
+            "2707198",
+            "2707198",
+            "2707198"
+          ],
+          "control_stable": true,
+          "rank_label_sensitive": false,
+          "rerank_selected_food_ids": [
+            "2707198",
+            "2707198"
+          ]
+        }
+      },
+      "truth_label": "scrambled eggs"
+    },
+    {
+      "acceptable_food_ids": [
+        "2709283"
+      ],
+      "base_candidates": [
+        {
+          "food_id": "2709283",
+          "name": "Strawberries, raw",
+          "rank": 1
+        },
+        {
+          "food_id": "2346409",
+          "name": "Strawberries, raw",
+          "rank": 2
+        },
+        {
+          "food_id": "167762",
+          "name": "Strawberries, raw",
+          "rank": 3
+        },
+        {
+          "food_id": "173045",
+          "name": "Guavas, strawberry, raw",
+          "rank": 4
+        },
+        {
+          "food_id": "2709284",
+          "name": "Strawberries, canned",
+          "rank": 5
+        }
+      ],
+      "case_id": "nutrition5k_dish_1559235815",
+      "expected_base_rank": 1,
+      "meal_item_position": 2,
+      "observed_name": "strawberries",
+      "preparation_method": "raw",
+      "runs": [
+        {
+          "condition": "CONTROL_A",
+          "decision": "SELECT",
+          "input_tokens": 758,
+          "match_quality": "EXACT",
+          "output_tokens": 40,
+          "post_gate_selected_food_id": "2709283",
+          "presented_candidates": [
+            {
+              "array_position": 1,
+              "food_id": "2709283",
+              "name": "Strawberries, raw",
+              "rank": 1
+            },
+            {
+              "array_position": 2,
+              "food_id": "2346409",
+              "name": "Strawberries, raw",
+              "rank": 2
+            },
+            {
+              "array_position": 3,
+              "food_id": "167762",
+              "name": "Strawberries, raw",
+              "rank": 3
+            },
+            {
+              "array_position": 4,
+              "food_id": "173045",
+              "name": "Guavas, strawberry, raw",
+              "rank": 4
+            },
+            {
+              "array_position": 5,
+              "food_id": "2709284",
+              "name": "Strawberries, canned",
+              "rank": 5
+            }
+          ],
+          "raw_selected_food_id": "2709283",
+          "reason_codes": [
+            "EXACT_DESCRIPTION_MATCH",
+            "PREPARATION_MATCH"
+          ],
+          "retry_count": 0,
+          "selected_candidate_rank": 1
+        },
+        {
+          "condition": "CONTROL_B",
+          "decision": "SELECT",
+          "input_tokens": 758,
+          "match_quality": "EXACT",
+          "output_tokens": 40,
+          "post_gate_selected_food_id": "2709283",
+          "presented_candidates": [
+            {
+              "array_position": 1,
+              "food_id": "2709283",
+              "name": "Strawberries, raw",
+              "rank": 1
+            },
+            {
+              "array_position": 2,
+              "food_id": "2346409",
+              "name": "Strawberries, raw",
+              "rank": 2
+            },
+            {
+              "array_position": 3,
+              "food_id": "167762",
+              "name": "Strawberries, raw",
+              "rank": 3
+            },
+            {
+              "array_position": 4,
+              "food_id": "173045",
+              "name": "Guavas, strawberry, raw",
+              "rank": 4
+            },
+            {
+              "array_position": 5,
+              "food_id": "2709284",
+              "name": "Strawberries, canned",
+              "rank": 5
+            }
+          ],
+          "raw_selected_food_id": "2709283",
+          "reason_codes": [
+            "EXACT_DESCRIPTION_MATCH",
+            "PREPARATION_MATCH"
+          ],
+          "retry_count": 0,
+          "selected_candidate_rank": 1
+        },
+        {
+          "condition": "CONTROL_C",
+          "decision": "SELECT",
+          "input_tokens": 758,
+          "match_quality": "EXACT",
+          "output_tokens": 40,
+          "post_gate_selected_food_id": "2709283",
+          "presented_candidates": [
+            {
+              "array_position": 1,
+              "food_id": "2709283",
+              "name": "Strawberries, raw",
+              "rank": 1
+            },
+            {
+              "array_position": 2,
+              "food_id": "2346409",
+              "name": "Strawberries, raw",
+              "rank": 2
+            },
+            {
+              "array_position": 3,
+              "food_id": "167762",
+              "name": "Strawberries, raw",
+              "rank": 3
+            },
+            {
+              "array_position": 4,
+              "food_id": "173045",
+              "name": "Guavas, strawberry, raw",
+              "rank": 4
+            },
+            {
+              "array_position": 5,
+              "food_id": "2709284",
+              "name": "Strawberries, canned",
+              "rank": 5
+            }
+          ],
+          "raw_selected_food_id": "2709283",
+          "reason_codes": [
+            "EXACT_DESCRIPTION_MATCH",
+            "PREPARATION_MATCH"
+          ],
+          "retry_count": 0,
+          "selected_candidate_rank": 1
+        },
+        {
+          "condition": "ARRAY_REVERSED",
+          "decision": "SELECT",
+          "input_tokens": 758,
+          "match_quality": "EXACT",
+          "output_tokens": 35,
+          "post_gate_selected_food_id": "2709283",
+          "presented_candidates": [
+            {
+              "array_position": 1,
+              "food_id": "2709284",
+              "name": "Strawberries, canned",
+              "rank": 5
+            },
+            {
+              "array_position": 2,
+              "food_id": "173045",
+              "name": "Guavas, strawberry, raw",
+              "rank": 4
+            },
+            {
+              "array_position": 3,
+              "food_id": "167762",
+              "name": "Strawberries, raw",
+              "rank": 3
+            },
+            {
+              "array_position": 4,
+              "food_id": "2346409",
+              "name": "Strawberries, raw",
+              "rank": 2
+            },
+            {
+              "array_position": 5,
+              "food_id": "2709283",
+              "name": "Strawberries, raw",
+              "rank": 1
+            }
+          ],
+          "raw_selected_food_id": "2709283",
+          "reason_codes": [
+            "EXACT_DESCRIPTION_MATCH"
+          ],
+          "retry_count": 0,
+          "selected_candidate_rank": 1
+        },
+        {
+          "condition": "ARRAY_ROTATE_LEFT",
+          "decision": "SELECT",
+          "input_tokens": 758,
+          "match_quality": "EXACT",
+          "output_tokens": 35,
+          "post_gate_selected_food_id": "2346409",
+          "presented_candidates": [
+            {
+              "array_position": 1,
+              "food_id": "2346409",
+              "name": "Strawberries, raw",
+              "rank": 2
+            },
+            {
+              "array_position": 2,
+              "food_id": "167762",
+              "name": "Strawberries, raw",
+              "rank": 3
+            },
+            {
+              "array_position": 3,
+              "food_id": "173045",
+              "name": "Guavas, strawberry, raw",
+              "rank": 4
+            },
+            {
+              "array_position": 4,
+              "food_id": "2709284",
+              "name": "Strawberries, canned",
+              "rank": 5
+            },
+            {
+              "array_position": 5,
+              "food_id": "2709283",
+              "name": "Strawberries, raw",
+              "rank": 1
+            }
+          ],
+          "raw_selected_food_id": "2346409",
+          "reason_codes": [
+            "EXACT_DESCRIPTION_MATCH"
+          ],
+          "retry_count": 0,
+          "selected_candidate_rank": 2
+        },
+        {
+          "condition": "RERANK_REVERSED",
+          "decision": "SELECT",
+          "input_tokens": 758,
+          "match_quality": "EXACT",
+          "output_tokens": 46,
+          "post_gate_selected_food_id": "167762",
+          "presented_candidates": [
+            {
+              "array_position": 1,
+              "food_id": "2709284",
+              "name": "Strawberries, canned",
+              "rank": 1
+            },
+            {
+              "array_position": 2,
+              "food_id": "173045",
+              "name": "Guavas, strawberry, raw",
+              "rank": 2
+            },
+            {
+              "array_position": 3,
+              "food_id": "167762",
+              "name": "Strawberries, raw",
+              "rank": 3
+            },
+            {
+              "array_position": 4,
+              "food_id": "2346409",
+              "name": "Strawberries, raw",
+              "rank": 4
+            },
+            {
+              "array_position": 5,
+              "food_id": "2709283",
+              "name": "Strawberries, raw",
+              "rank": 5
+            }
+          ],
+          "raw_selected_food_id": "167762",
+          "reason_codes": [
+            "EXACT_DESCRIPTION_MATCH",
+            "FOOD_IDENTITY_MATCH",
+            "PREPARATION_MATCH"
+          ],
+          "retry_count": 0,
+          "selected_candidate_rank": 3
+        },
+        {
+          "condition": "RERANK_ROTATE_LEFT",
+          "decision": "SELECT",
+          "input_tokens": 758,
+          "match_quality": "EXACT",
+          "output_tokens": 35,
+          "post_gate_selected_food_id": "2346409",
+          "presented_candidates": [
+            {
+              "array_position": 1,
+              "food_id": "2346409",
+              "name": "Strawberries, raw",
+              "rank": 1
+            },
+            {
+              "array_position": 2,
+              "food_id": "167762",
+              "name": "Strawberries, raw",
+              "rank": 2
+            },
+            {
+              "array_position": 3,
+              "food_id": "173045",
+              "name": "Guavas, strawberry, raw",
+              "rank": 3
+            },
+            {
+              "array_position": 4,
+              "food_id": "2709284",
+              "name": "Strawberries, canned",
+              "rank": 4
+            },
+            {
+              "array_position": 5,
+              "food_id": "2709283",
+              "name": "Strawberries, raw",
+              "rank": 5
+            }
+          ],
+          "raw_selected_food_id": "2346409",
+          "reason_codes": [
+            "EXACT_DESCRIPTION_MATCH"
+          ],
+          "retry_count": 0,
+          "selected_candidate_rank": 1
+        }
+      ],
+      "summary": {
+        "post_gate": {
+          "array_position_sensitive": true,
+          "array_selected_food_ids": [
+            "2709283",
+            "2346409"
+          ],
+          "condition_correctness": {
+            "ARRAY_REVERSED": true,
+            "ARRAY_ROTATE_LEFT": false,
+            "CONTROL_A": true,
+            "CONTROL_B": true,
+            "CONTROL_C": true,
+            "RERANK_REVERSED": false,
+            "RERANK_ROTATE_LEFT": false
+          },
+          "control_mode_correct": true,
+          "control_mode_food_id": "2709283",
+          "control_selected_food_ids": [
+            "2709283",
+            "2709283",
+            "2709283"
+          ],
+          "control_stable": true,
+          "rank_label_sensitive": true,
+          "rerank_selected_food_ids": [
+            "167762",
+            "2346409"
+          ]
+        },
+        "raw": {
+          "array_position_sensitive": true,
+          "array_selected_food_ids": [
+            "2709283",
+            "2346409"
+          ],
+          "condition_correctness": {
+            "ARRAY_REVERSED": true,
+            "ARRAY_ROTATE_LEFT": false,
+            "CONTROL_A": true,
+            "CONTROL_B": true,
+            "CONTROL_C": true,
+            "RERANK_REVERSED": false,
+            "RERANK_ROTATE_LEFT": false
+          },
+          "control_mode_correct": true,
+          "control_mode_food_id": "2709283",
+          "control_selected_food_ids": [
+            "2709283",
+            "2709283",
+            "2709283"
+          ],
+          "control_stable": true,
+          "rank_label_sensitive": true,
+          "rerank_selected_food_ids": [
+            "167762",
+            "2346409"
+          ]
+        }
+      },
+      "truth_label": "strawberries"
+    },
+    {
+      "acceptable_food_ids": [
+        "2709260"
+      ],
+      "base_candidates": [
+        {
+          "food_id": "2709260",
+          "name": "Pineapple, raw",
+          "rank": 1
+        },
+        {
+          "food_id": "2709264",
+          "name": "Pineapple, frozen",
+          "rank": 2
+        },
+        {
+          "food_id": "2709210",
+          "name": "Pineapple, dried",
+          "rank": 3
+        },
+        {
+          "food_id": "2346398",
+          "name": "Pineapple, raw",
+          "rank": 4
+        },
+        {
+          "food_id": "2708010",
+          "name": "Pie, pineapple cream",
+          "rank": 5
+        }
+      ],
+      "case_id": "nutrition5k_dish_1562173200",
+      "expected_base_rank": 1,
+      "meal_item_position": 0,
+      "observed_name": "pineapple",
+      "preparation_method": "cut into chunks",
+      "runs": [
+        {
+          "condition": "CONTROL_A",
+          "decision": "SELECT",
+          "input_tokens": 765,
+          "match_quality": "STRONG",
+          "output_tokens": 41,
+          "post_gate_selected_food_id": "2709260",
+          "presented_candidates": [
+            {
+              "array_position": 1,
+              "food_id": "2709260",
+              "name": "Pineapple, raw",
+              "rank": 1
+            },
+            {
+              "array_position": 2,
+              "food_id": "2709264",
+              "name": "Pineapple, frozen",
+              "rank": 2
+            },
+            {
+              "array_position": 3,
+              "food_id": "2709210",
+              "name": "Pineapple, dried",
+              "rank": 3
+            },
+            {
+              "array_position": 4,
+              "food_id": "2346398",
+              "name": "Pineapple, raw",
+              "rank": 4
+            },
+            {
+              "array_position": 5,
+              "food_id": "2708010",
+              "name": "Pie, pineapple cream",
+              "rank": 5
+            }
+          ],
+          "raw_selected_food_id": "2709260",
+          "reason_codes": [
+            "FOOD_IDENTITY_MATCH",
+            "PREPARATION_MATCH"
+          ],
+          "retry_count": 0,
+          "selected_candidate_rank": 1
+        },
+        {
+          "condition": "CONTROL_B",
+          "decision": "SELECT",
+          "input_tokens": 765,
+          "match_quality": "EXACT",
+          "output_tokens": 40,
+          "post_gate_selected_food_id": "2709260",
+          "presented_candidates": [
+            {
+              "array_position": 1,
+              "food_id": "2709260",
+              "name": "Pineapple, raw",
+              "rank": 1
+            },
+            {
+              "array_position": 2,
+              "food_id": "2709264",
+              "name": "Pineapple, frozen",
+              "rank": 2
+            },
+            {
+              "array_position": 3,
+              "food_id": "2709210",
+              "name": "Pineapple, dried",
+              "rank": 3
+            },
+            {
+              "array_position": 4,
+              "food_id": "2346398",
+              "name": "Pineapple, raw",
+              "rank": 4
+            },
+            {
+              "array_position": 5,
+              "food_id": "2708010",
+              "name": "Pie, pineapple cream",
+              "rank": 5
+            }
+          ],
+          "raw_selected_food_id": "2709260",
+          "reason_codes": [
+            "EXACT_DESCRIPTION_MATCH",
+            "PREPARATION_MATCH"
+          ],
+          "retry_count": 0,
+          "selected_candidate_rank": 1
+        },
+        {
+          "condition": "CONTROL_C",
+          "decision": "SELECT",
+          "input_tokens": 765,
+          "match_quality": "EXACT",
+          "output_tokens": 41,
+          "post_gate_selected_food_id": "2709260",
+          "presented_candidates": [
+            {
+              "array_position": 1,
+              "food_id": "2709260",
+              "name": "Pineapple, raw",
+              "rank": 1
+            },
+            {
+              "array_position": 2,
+              "food_id": "2709264",
+              "name": "Pineapple, frozen",
+              "rank": 2
+            },
+            {
+              "array_position": 3,
+              "food_id": "2709210",
+              "name": "Pineapple, dried",
+              "rank": 3
+            },
+            {
+              "array_position": 4,
+              "food_id": "2346398",
+              "name": "Pineapple, raw",
+              "rank": 4
+            },
+            {
+              "array_position": 5,
+              "food_id": "2708010",
+              "name": "Pie, pineapple cream",
+              "rank": 5
+            }
+          ],
+          "raw_selected_food_id": "2709260",
+          "reason_codes": [
+            "FOOD_IDENTITY_MATCH",
+            "PREPARATION_MATCH"
+          ],
+          "retry_count": 0,
+          "selected_candidate_rank": 1
+        },
+        {
+          "condition": "ARRAY_REVERSED",
+          "decision": "SELECT",
+          "input_tokens": 765,
+          "match_quality": "EXACT",
+          "output_tokens": 40,
+          "post_gate_selected_food_id": "2709260",
+          "presented_candidates": [
+            {
+              "array_position": 1,
+              "food_id": "2708010",
+              "name": "Pie, pineapple cream",
+              "rank": 5
+            },
+            {
+              "array_position": 2,
+              "food_id": "2346398",
+              "name": "Pineapple, raw",
+              "rank": 4
+            },
+            {
+              "array_position": 3,
+              "food_id": "2709210",
+              "name": "Pineapple, dried",
+              "rank": 3
+            },
+            {
+              "array_position": 4,
+              "food_id": "2709264",
+              "name": "Pineapple, frozen",
+              "rank": 2
+            },
+            {
+              "array_position": 5,
+              "food_id": "2709260",
+              "name": "Pineapple, raw",
+              "rank": 1
+            }
+          ],
+          "raw_selected_food_id": "2709260",
+          "reason_codes": [
+            "EXACT_DESCRIPTION_MATCH",
+            "PREPARATION_MATCH"
+          ],
+          "retry_count": 0,
+          "selected_candidate_rank": 1
+        },
+        {
+          "condition": "ARRAY_ROTATE_LEFT",
+          "decision": "SELECT",
+          "input_tokens": 765,
+          "match_quality": "EXACT",
+          "output_tokens": 40,
+          "post_gate_selected_food_id": "2346398",
+          "presented_candidates": [
+            {
+              "array_position": 1,
+              "food_id": "2709264",
+              "name": "Pineapple, frozen",
+              "rank": 2
+            },
+            {
+              "array_position": 2,
+              "food_id": "2709210",
+              "name": "Pineapple, dried",
+              "rank": 3
+            },
+            {
+              "array_position": 3,
+              "food_id": "2346398",
+              "name": "Pineapple, raw",
+              "rank": 4
+            },
+            {
+              "array_position": 4,
+              "food_id": "2708010",
+              "name": "Pie, pineapple cream",
+              "rank": 5
+            },
+            {
+              "array_position": 5,
+              "food_id": "2709260",
+              "name": "Pineapple, raw",
+              "rank": 1
+            }
+          ],
+          "raw_selected_food_id": "2346398",
+          "reason_codes": [
+            "EXACT_DESCRIPTION_MATCH",
+            "PREPARATION_MATCH"
+          ],
+          "retry_count": 0,
+          "selected_candidate_rank": 4
+        },
+        {
+          "condition": "RERANK_REVERSED",
+          "decision": "SELECT",
+          "input_tokens": 765,
+          "match_quality": "EXACT",
+          "output_tokens": 40,
+          "post_gate_selected_food_id": "2346398",
+          "presented_candidates": [
+            {
+              "array_position": 1,
+              "food_id": "2708010",
+              "name": "Pie, pineapple cream",
+              "rank": 1
+            },
+            {
+              "array_position": 2,
+              "food_id": "2346398",
+              "name": "Pineapple, raw",
+              "rank": 2
+            },
+            {
+              "array_position": 3,
+              "food_id": "2709210",
+              "name": "Pineapple, dried",
+              "rank": 3
+            },
+            {
+              "array_position": 4,
+              "food_id": "2709264",
+              "name": "Pineapple, frozen",
+              "rank": 4
+            },
+            {
+              "array_position": 5,
+              "food_id": "2709260",
+              "name": "Pineapple, raw",
+              "rank": 5
+            }
+          ],
+          "raw_selected_food_id": "2346398",
+          "reason_codes": [
+            "EXACT_DESCRIPTION_MATCH",
+            "PREPARATION_MATCH"
+          ],
+          "retry_count": 0,
+          "selected_candidate_rank": 2
+        },
+        {
+          "condition": "RERANK_ROTATE_LEFT",
+          "decision": "SELECT",
+          "input_tokens": 765,
+          "match_quality": "EXACT",
+          "output_tokens": 40,
+          "post_gate_selected_food_id": "2346398",
+          "presented_candidates": [
+            {
+              "array_position": 1,
+              "food_id": "2709264",
+              "name": "Pineapple, frozen",
+              "rank": 1
+            },
+            {
+              "array_position": 2,
+              "food_id": "2709210",
+              "name": "Pineapple, dried",
+              "rank": 2
+            },
+            {
+              "array_position": 3,
+              "food_id": "2346398",
+              "name": "Pineapple, raw",
+              "rank": 3
+            },
+            {
+              "array_position": 4,
+              "food_id": "2708010",
+              "name": "Pie, pineapple cream",
+              "rank": 4
+            },
+            {
+              "array_position": 5,
+              "food_id": "2709260",
+              "name": "Pineapple, raw",
+              "rank": 5
+            }
+          ],
+          "raw_selected_food_id": "2346398",
+          "reason_codes": [
+            "EXACT_DESCRIPTION_MATCH",
+            "PREPARATION_MATCH"
+          ],
+          "retry_count": 0,
+          "selected_candidate_rank": 3
+        }
+      ],
+      "summary": {
+        "post_gate": {
+          "array_position_sensitive": true,
+          "array_selected_food_ids": [
+            "2709260",
+            "2346398"
+          ],
+          "condition_correctness": {
+            "ARRAY_REVERSED": true,
+            "ARRAY_ROTATE_LEFT": false,
+            "CONTROL_A": true,
+            "CONTROL_B": true,
+            "CONTROL_C": true,
+            "RERANK_REVERSED": false,
+            "RERANK_ROTATE_LEFT": false
+          },
+          "control_mode_correct": true,
+          "control_mode_food_id": "2709260",
+          "control_selected_food_ids": [
+            "2709260",
+            "2709260",
+            "2709260"
+          ],
+          "control_stable": true,
+          "rank_label_sensitive": true,
+          "rerank_selected_food_ids": [
+            "2346398",
+            "2346398"
+          ]
+        },
+        "raw": {
+          "array_position_sensitive": true,
+          "array_selected_food_ids": [
+            "2709260",
+            "2346398"
+          ],
+          "condition_correctness": {
+            "ARRAY_REVERSED": true,
+            "ARRAY_ROTATE_LEFT": false,
+            "CONTROL_A": true,
+            "CONTROL_B": true,
+            "CONTROL_C": true,
+            "RERANK_REVERSED": false,
+            "RERANK_ROTATE_LEFT": false
+          },
+          "control_mode_correct": true,
+          "control_mode_food_id": "2709260",
+          "control_selected_food_ids": [
+            "2709260",
+            "2709260",
+            "2709260"
+          ],
+          "control_stable": true,
+          "rank_label_sensitive": true,
+          "rerank_selected_food_ids": [
+            "2346398",
+            "2346398"
+          ]
+        }
+      },
+      "truth_label": "pineapple"
+    },
+    {
+      "acceptable_food_ids": [
+        "2707198"
+      ],
+      "base_candidates": [
+        {
+          "food_id": "169904",
+          "name": "Eggs, scrambled, frozen mixture",
+          "rank": 1
+        },
+        {
+          "food_id": "2707198",
+          "name": "Egg omelet or scrambled egg, NS as to fat",
+          "rank": 2
+        },
+        {
+          "food_id": "2707199",
+          "name": "Egg omelet or scrambled egg, made with margarine",
+          "rank": 3
+        },
+        {
+          "food_id": "2707200",
+          "name": "Egg omelet or scrambled egg, made with oil",
+          "rank": 4
+        },
+        {
+          "food_id": "2707201",
+          "name": "Egg omelet or scrambled egg, made with butter",
+          "rank": 5
+        }
+      ],
+      "case_id": "nutrition5k_dish_1565370004",
+      "expected_base_rank": 2,
+      "meal_item_position": 0,
+      "observed_name": "scrambled eggs",
+      "preparation_method": "scrambled",
+      "runs": [
+        {
+          "condition": "CONTROL_A",
+          "decision": "SELECT",
+          "input_tokens": 791,
+          "match_quality": "STRONG",
+          "output_tokens": 41,
+          "post_gate_selected_food_id": "2707198",
+          "presented_candidates": [
+            {
+              "array_position": 1,
+              "food_id": "169904",
+              "name": "Eggs, scrambled, frozen mixture",
+              "rank": 1
+            },
+            {
+              "array_position": 2,
+              "food_id": "2707198",
+              "name": "Egg omelet or scrambled egg, NS as to fat",
+              "rank": 2
+            },
+            {
+              "array_position": 3,
+              "food_id": "2707199",
+              "name": "Egg omelet or scrambled egg, made with margarine",
+              "rank": 3
+            },
+            {
+              "array_position": 4,
+              "food_id": "2707200",
+              "name": "Egg omelet or scrambled egg, made with oil",
+              "rank": 4
+            },
+            {
+              "array_position": 5,
+              "food_id": "2707201",
+              "name": "Egg omelet or scrambled egg, made with butter",
+              "rank": 5
+            }
+          ],
+          "raw_selected_food_id": "2707198",
+          "reason_codes": [
+            "PREPARATION_MATCH",
+            "GENERIC_VARIANT_MATCH"
+          ],
+          "retry_count": 0,
+          "selected_candidate_rank": 2
+        },
+        {
+          "condition": "CONTROL_B",
+          "decision": "SELECT",
+          "input_tokens": 791,
+          "match_quality": "STRONG",
+          "output_tokens": 47,
+          "post_gate_selected_food_id": "2707198",
+          "presented_candidates": [
+            {
+              "array_position": 1,
+              "food_id": "169904",
+              "name": "Eggs, scrambled, frozen mixture",
+              "rank": 1
+            },
+            {
+              "array_position": 2,
+              "food_id": "2707198",
+              "name": "Egg omelet or scrambled egg, NS as to fat",
+              "rank": 2
+            },
+            {
+              "array_position": 3,
+              "food_id": "2707199",
+              "name": "Egg omelet or scrambled egg, made with margarine",
+              "rank": 3
+            },
+            {
+              "array_position": 4,
+              "food_id": "2707200",
+              "name": "Egg omelet or scrambled egg, made with oil",
+              "rank": 4
+            },
+            {
+              "array_position": 5,
+              "food_id": "2707201",
+              "name": "Egg omelet or scrambled egg, made with butter",
+              "rank": 5
+            }
+          ],
+          "raw_selected_food_id": "2707198",
+          "reason_codes": [
+            "FOOD_IDENTITY_MATCH",
+            "PREPARATION_MATCH",
+            "GENERIC_VARIANT_MATCH"
+          ],
+          "retry_count": 0,
+          "selected_candidate_rank": 2
+        },
+        {
+          "condition": "CONTROL_C",
+          "decision": "SELECT",
+          "input_tokens": 791,
+          "match_quality": "STRONG",
+          "output_tokens": 41,
+          "post_gate_selected_food_id": "2707198",
+          "presented_candidates": [
+            {
+              "array_position": 1,
+              "food_id": "169904",
+              "name": "Eggs, scrambled, frozen mixture",
+              "rank": 1
+            },
+            {
+              "array_position": 2,
+              "food_id": "2707198",
+              "name": "Egg omelet or scrambled egg, NS as to fat",
+              "rank": 2
+            },
+            {
+              "array_position": 3,
+              "food_id": "2707199",
+              "name": "Egg omelet or scrambled egg, made with margarine",
+              "rank": 3
+            },
+            {
+              "array_position": 4,
+              "food_id": "2707200",
+              "name": "Egg omelet or scrambled egg, made with oil",
+              "rank": 4
+            },
+            {
+              "array_position": 5,
+              "food_id": "2707201",
+              "name": "Egg omelet or scrambled egg, made with butter",
+              "rank": 5
+            }
+          ],
+          "raw_selected_food_id": "2707198",
+          "reason_codes": [
+            "PREPARATION_MATCH",
+            "GENERIC_VARIANT_MATCH"
+          ],
+          "retry_count": 0,
+          "selected_candidate_rank": 2
+        },
+        {
+          "condition": "ARRAY_REVERSED",
+          "decision": "SELECT",
+          "input_tokens": 791,
+          "match_quality": "STRONG",
+          "output_tokens": 41,
+          "post_gate_selected_food_id": "2707198",
+          "presented_candidates": [
+            {
+              "array_position": 1,
+              "food_id": "2707201",
+              "name": "Egg omelet or scrambled egg, made with butter",
+              "rank": 5
+            },
+            {
+              "array_position": 2,
+              "food_id": "2707200",
+              "name": "Egg omelet or scrambled egg, made with oil",
+              "rank": 4
+            },
+            {
+              "array_position": 3,
+              "food_id": "2707199",
+              "name": "Egg omelet or scrambled egg, made with margarine",
+              "rank": 3
+            },
+            {
+              "array_position": 4,
+              "food_id": "2707198",
+              "name": "Egg omelet or scrambled egg, NS as to fat",
+              "rank": 2
+            },
+            {
+              "array_position": 5,
+              "food_id": "169904",
+              "name": "Eggs, scrambled, frozen mixture",
+              "rank": 1
+            }
+          ],
+          "raw_selected_food_id": "2707198",
+          "reason_codes": [
+            "PREPARATION_MATCH",
+            "GENERIC_VARIANT_MATCH"
+          ],
+          "retry_count": 0,
+          "selected_candidate_rank": 2
+        },
+        {
+          "condition": "ARRAY_ROTATE_LEFT",
+          "decision": "SELECT",
+          "input_tokens": 791,
+          "match_quality": "STRONG",
+          "output_tokens": 47,
+          "post_gate_selected_food_id": "2707198",
+          "presented_candidates": [
+            {
+              "array_position": 1,
+              "food_id": "2707198",
+              "name": "Egg omelet or scrambled egg, NS as to fat",
+              "rank": 2
+            },
+            {
+              "array_position": 2,
+              "food_id": "2707199",
+              "name": "Egg omelet or scrambled egg, made with margarine",
+              "rank": 3
+            },
+            {
+              "array_position": 3,
+              "food_id": "2707200",
+              "name": "Egg omelet or scrambled egg, made with oil",
+              "rank": 4
+            },
+            {
+              "array_position": 4,
+              "food_id": "2707201",
+              "name": "Egg omelet or scrambled egg, made with butter",
+              "rank": 5
+            },
+            {
+              "array_position": 5,
+              "food_id": "169904",
+              "name": "Eggs, scrambled, frozen mixture",
+              "rank": 1
+            }
+          ],
+          "raw_selected_food_id": "2707198",
+          "reason_codes": [
+            "FOOD_IDENTITY_MATCH",
+            "PREPARATION_MATCH",
+            "GENERIC_VARIANT_MATCH"
+          ],
+          "retry_count": 0,
+          "selected_candidate_rank": 2
+        },
+        {
+          "condition": "RERANK_REVERSED",
+          "decision": "SELECT",
+          "input_tokens": 791,
+          "match_quality": "STRONG",
+          "output_tokens": 41,
+          "post_gate_selected_food_id": "2707198",
+          "presented_candidates": [
+            {
+              "array_position": 1,
+              "food_id": "2707201",
+              "name": "Egg omelet or scrambled egg, made with butter",
+              "rank": 1
+            },
+            {
+              "array_position": 2,
+              "food_id": "2707200",
+              "name": "Egg omelet or scrambled egg, made with oil",
+              "rank": 2
+            },
+            {
+              "array_position": 3,
+              "food_id": "2707199",
+              "name": "Egg omelet or scrambled egg, made with margarine",
+              "rank": 3
+            },
+            {
+              "array_position": 4,
+              "food_id": "2707198",
+              "name": "Egg omelet or scrambled egg, NS as to fat",
+              "rank": 4
+            },
+            {
+              "array_position": 5,
+              "food_id": "169904",
+              "name": "Eggs, scrambled, frozen mixture",
+              "rank": 5
+            }
+          ],
+          "raw_selected_food_id": "2707198",
+          "reason_codes": [
+            "PREPARATION_MATCH",
+            "GENERIC_VARIANT_MATCH"
+          ],
+          "retry_count": 0,
+          "selected_candidate_rank": 4
+        },
+        {
+          "condition": "RERANK_ROTATE_LEFT",
+          "decision": "SELECT",
+          "input_tokens": 791,
+          "match_quality": "EXACT",
+          "output_tokens": 35,
+          "post_gate_selected_food_id": "2707198",
+          "presented_candidates": [
+            {
+              "array_position": 1,
+              "food_id": "2707198",
+              "name": "Egg omelet or scrambled egg, NS as to fat",
+              "rank": 1
+            },
+            {
+              "array_position": 2,
+              "food_id": "2707199",
+              "name": "Egg omelet or scrambled egg, made with margarine",
+              "rank": 2
+            },
+            {
+              "array_position": 3,
+              "food_id": "2707200",
+              "name": "Egg omelet or scrambled egg, made with oil",
+              "rank": 3
+            },
+            {
+              "array_position": 4,
+              "food_id": "2707201",
+              "name": "Egg omelet or scrambled egg, made with butter",
+              "rank": 4
+            },
+            {
+              "array_position": 5,
+              "food_id": "169904",
+              "name": "Eggs, scrambled, frozen mixture",
+              "rank": 5
+            }
+          ],
+          "raw_selected_food_id": "2707198",
+          "reason_codes": [
+            "EXACT_DESCRIPTION_MATCH"
+          ],
+          "retry_count": 0,
+          "selected_candidate_rank": 1
+        }
+      ],
+      "summary": {
+        "post_gate": {
+          "array_position_sensitive": false,
+          "array_selected_food_ids": [
+            "2707198",
+            "2707198"
+          ],
+          "condition_correctness": {
+            "ARRAY_REVERSED": true,
+            "ARRAY_ROTATE_LEFT": true,
+            "CONTROL_A": true,
+            "CONTROL_B": true,
+            "CONTROL_C": true,
+            "RERANK_REVERSED": true,
+            "RERANK_ROTATE_LEFT": true
+          },
+          "control_mode_correct": true,
+          "control_mode_food_id": "2707198",
+          "control_selected_food_ids": [
+            "2707198",
+            "2707198",
+            "2707198"
+          ],
+          "control_stable": true,
+          "rank_label_sensitive": false,
+          "rerank_selected_food_ids": [
+            "2707198",
+            "2707198"
+          ]
+        },
+        "raw": {
+          "array_position_sensitive": false,
+          "array_selected_food_ids": [
+            "2707198",
+            "2707198"
+          ],
+          "condition_correctness": {
+            "ARRAY_REVERSED": true,
+            "ARRAY_ROTATE_LEFT": true,
+            "CONTROL_A": true,
+            "CONTROL_B": true,
+            "CONTROL_C": true,
+            "RERANK_REVERSED": true,
+            "RERANK_ROTATE_LEFT": true
+          },
+          "control_mode_correct": true,
+          "control_mode_food_id": "2707198",
+          "control_selected_food_ids": [
+            "2707198",
+            "2707198",
+            "2707198"
+          ],
+          "control_stable": true,
+          "rank_label_sensitive": false,
+          "rerank_selected_food_ids": [
+            "2707198",
+            "2707198"
+          ]
+        }
+      },
+      "truth_label": "scrambled eggs"
+    },
+    {
+      "acceptable_food_ids": [
+        "2710803"
+      ],
+      "base_candidates": [
+        {
+          "food_id": "2710803",
+          "name": "Green beans, cooked, as ingredient",
+          "rank": 1
+        },
+        {
+          "food_id": "2710041",
+          "name": "Green beans, cooked, Szechuan-style",
+          "rank": 2
+        },
+        {
+          "food_id": "2709851",
+          "name": "Green beans, cooked, from restaurant",
+          "rank": 3
+        },
+        {
+          "food_id": "2709855",
+          "name": "Green beans, NS as to form, cooked",
+          "rank": 4
+        },
+        {
+          "food_id": "2709859",
+          "name": "Green beans, fresh, cooked with oil",
+          "rank": 5
+        }
+      ],
+      "case_id": "nutrition5k_dish_1565370004",
+      "expected_base_rank": 1,
+      "meal_item_position": 1,
+      "observed_name": "green beans",
+      "preparation_method": "cooked",
+      "runs": [
+        {
+          "condition": "CONTROL_A",
+          "decision": "SELECT",
+          "input_tokens": 785,
+          "match_quality": "STRONG",
+          "output_tokens": 36,
+          "post_gate_selected_food_id": "2709855",
+          "presented_candidates": [
+            {
+              "array_position": 1,
+              "food_id": "2710803",
+              "name": "Green beans, cooked, as ingredient",
+              "rank": 1
+            },
+            {
+              "array_position": 2,
+              "food_id": "2710041",
+              "name": "Green beans, cooked, Szechuan-style",
+              "rank": 2
+            },
+            {
+              "array_position": 3,
+              "food_id": "2709851",
+              "name": "Green beans, cooked, from restaurant",
+              "rank": 3
+            },
+            {
+              "array_position": 4,
+              "food_id": "2709855",
+              "name": "Green beans, NS as to form, cooked",
+              "rank": 4
+            },
+            {
+              "array_position": 5,
+              "food_id": "2709859",
+              "name": "Green beans, fresh, cooked with oil",
+              "rank": 5
+            }
+          ],
+          "raw_selected_food_id": "2709855",
+          "reason_codes": [
+            "GENERIC_VARIANT_MATCH"
+          ],
+          "retry_count": 0,
+          "selected_candidate_rank": 4
+        },
+        {
+          "condition": "CONTROL_B",
+          "decision": "SELECT",
+          "input_tokens": 785,
+          "match_quality": "STRONG",
+          "output_tokens": 36,
+          "post_gate_selected_food_id": "2709855",
+          "presented_candidates": [
+            {
+              "array_position": 1,
+              "food_id": "2710803",
+              "name": "Green beans, cooked, as ingredient",
+              "rank": 1
+            },
+            {
+              "array_position": 2,
+              "food_id": "2710041",
+              "name": "Green beans, cooked, Szechuan-style",
+              "rank": 2
+            },
+            {
+              "array_position": 3,
+              "food_id": "2709851",
+              "name": "Green beans, cooked, from restaurant",
+              "rank": 3
+            },
+            {
+              "array_position": 4,
+              "food_id": "2709855",
+              "name": "Green beans, NS as to form, cooked",
+              "rank": 4
+            },
+            {
+              "array_position": 5,
+              "food_id": "2709859",
+              "name": "Green beans, fresh, cooked with oil",
+              "rank": 5
+            }
+          ],
+          "raw_selected_food_id": "2709855",
+          "reason_codes": [
+            "GENERIC_VARIANT_MATCH"
+          ],
+          "retry_count": 0,
+          "selected_candidate_rank": 4
+        },
+        {
+          "condition": "CONTROL_C",
+          "decision": "SELECT",
+          "input_tokens": 785,
+          "match_quality": "STRONG",
+          "output_tokens": 36,
+          "post_gate_selected_food_id": "2709855",
+          "presented_candidates": [
+            {
+              "array_position": 1,
+              "food_id": "2710803",
+              "name": "Green beans, cooked, as ingredient",
+              "rank": 1
+            },
+            {
+              "array_position": 2,
+              "food_id": "2710041",
+              "name": "Green beans, cooked, Szechuan-style",
+              "rank": 2
+            },
+            {
+              "array_position": 3,
+              "food_id": "2709851",
+              "name": "Green beans, cooked, from restaurant",
+              "rank": 3
+            },
+            {
+              "array_position": 4,
+              "food_id": "2709855",
+              "name": "Green beans, NS as to form, cooked",
+              "rank": 4
+            },
+            {
+              "array_position": 5,
+              "food_id": "2709859",
+              "name": "Green beans, fresh, cooked with oil",
+              "rank": 5
+            }
+          ],
+          "raw_selected_food_id": "2709855",
+          "reason_codes": [
+            "GENERIC_VARIANT_MATCH"
+          ],
+          "retry_count": 0,
+          "selected_candidate_rank": 4
+        },
+        {
+          "condition": "ARRAY_REVERSED",
+          "decision": "SELECT",
+          "input_tokens": 785,
+          "match_quality": "EXACT",
+          "output_tokens": 35,
+          "post_gate_selected_food_id": "2709855",
+          "presented_candidates": [
+            {
+              "array_position": 1,
+              "food_id": "2709859",
+              "name": "Green beans, fresh, cooked with oil",
+              "rank": 5
+            },
+            {
+              "array_position": 2,
+              "food_id": "2709855",
+              "name": "Green beans, NS as to form, cooked",
+              "rank": 4
+            },
+            {
+              "array_position": 3,
+              "food_id": "2709851",
+              "name": "Green beans, cooked, from restaurant",
+              "rank": 3
+            },
+            {
+              "array_position": 4,
+              "food_id": "2710041",
+              "name": "Green beans, cooked, Szechuan-style",
+              "rank": 2
+            },
+            {
+              "array_position": 5,
+              "food_id": "2710803",
+              "name": "Green beans, cooked, as ingredient",
+              "rank": 1
+            }
+          ],
+          "raw_selected_food_id": "2709855",
+          "reason_codes": [
+            "EXACT_DESCRIPTION_MATCH"
+          ],
+          "retry_count": 0,
+          "selected_candidate_rank": 4
+        },
+        {
+          "condition": "ARRAY_ROTATE_LEFT",
+          "decision": "SELECT",
+          "input_tokens": 785,
+          "match_quality": "STRONG",
+          "output_tokens": 36,
+          "post_gate_selected_food_id": "2709855",
+          "presented_candidates": [
+            {
+              "array_position": 1,
+              "food_id": "2710041",
+              "name": "Green beans, cooked, Szechuan-style",
+              "rank": 2
+            },
+            {
+              "array_position": 2,
+              "food_id": "2709851",
+              "name": "Green beans, cooked, from restaurant",
+              "rank": 3
+            },
+            {
+              "array_position": 3,
+              "food_id": "2709855",
+              "name": "Green beans, NS as to form, cooked",
+              "rank": 4
+            },
+            {
+              "array_position": 4,
+              "food_id": "2709859",
+              "name": "Green beans, fresh, cooked with oil",
+              "rank": 5
+            },
+            {
+              "array_position": 5,
+              "food_id": "2710803",
+              "name": "Green beans, cooked, as ingredient",
+              "rank": 1
+            }
+          ],
+          "raw_selected_food_id": "2709855",
+          "reason_codes": [
+            "GENERIC_VARIANT_MATCH"
+          ],
+          "retry_count": 0,
+          "selected_candidate_rank": 4
+        },
+        {
+          "condition": "RERANK_REVERSED",
+          "decision": "SELECT",
+          "input_tokens": 785,
+          "match_quality": "EXACT",
+          "output_tokens": 46,
+          "post_gate_selected_food_id": "2709855",
+          "presented_candidates": [
+            {
+              "array_position": 1,
+              "food_id": "2709859",
+              "name": "Green beans, fresh, cooked with oil",
+              "rank": 1
+            },
+            {
+              "array_position": 2,
+              "food_id": "2709855",
+              "name": "Green beans, NS as to form, cooked",
+              "rank": 2
+            },
+            {
+              "array_position": 3,
+              "food_id": "2709851",
+              "name": "Green beans, cooked, from restaurant",
+              "rank": 3
+            },
+            {
+              "array_position": 4,
+              "food_id": "2710041",
+              "name": "Green beans, cooked, Szechuan-style",
+              "rank": 4
+            },
+            {
+              "array_position": 5,
+              "food_id": "2710803",
+              "name": "Green beans, cooked, as ingredient",
+              "rank": 5
+            }
+          ],
+          "raw_selected_food_id": "2709855",
+          "reason_codes": [
+            "EXACT_DESCRIPTION_MATCH",
+            "PREPARATION_MATCH",
+            "GENERIC_VARIANT_MATCH"
+          ],
+          "retry_count": 0,
+          "selected_candidate_rank": 2
+        },
+        {
+          "condition": "RERANK_ROTATE_LEFT",
+          "decision": "SELECT",
+          "input_tokens": 785,
+          "match_quality": "STRONG",
+          "output_tokens": 36,
+          "post_gate_selected_food_id": "2709855",
+          "presented_candidates": [
+            {
+              "array_position": 1,
+              "food_id": "2710041",
+              "name": "Green beans, cooked, Szechuan-style",
+              "rank": 1
+            },
+            {
+              "array_position": 2,
+              "food_id": "2709851",
+              "name": "Green beans, cooked, from restaurant",
+              "rank": 2
+            },
+            {
+              "array_position": 3,
+              "food_id": "2709855",
+              "name": "Green beans, NS as to form, cooked",
+              "rank": 3
+            },
+            {
+              "array_position": 4,
+              "food_id": "2709859",
+              "name": "Green beans, fresh, cooked with oil",
+              "rank": 4
+            },
+            {
+              "array_position": 5,
+              "food_id": "2710803",
+              "name": "Green beans, cooked, as ingredient",
+              "rank": 5
+            }
+          ],
+          "raw_selected_food_id": "2709855",
+          "reason_codes": [
+            "GENERIC_VARIANT_MATCH"
+          ],
+          "retry_count": 0,
+          "selected_candidate_rank": 3
+        }
+      ],
+      "summary": {
+        "post_gate": {
+          "array_position_sensitive": false,
+          "array_selected_food_ids": [
+            "2709855",
+            "2709855"
+          ],
+          "condition_correctness": {
+            "ARRAY_REVERSED": false,
+            "ARRAY_ROTATE_LEFT": false,
+            "CONTROL_A": false,
+            "CONTROL_B": false,
+            "CONTROL_C": false,
+            "RERANK_REVERSED": false,
+            "RERANK_ROTATE_LEFT": false
+          },
+          "control_mode_correct": false,
+          "control_mode_food_id": "2709855",
+          "control_selected_food_ids": [
+            "2709855",
+            "2709855",
+            "2709855"
+          ],
+          "control_stable": true,
+          "rank_label_sensitive": false,
+          "rerank_selected_food_ids": [
+            "2709855",
+            "2709855"
+          ]
+        },
+        "raw": {
+          "array_position_sensitive": false,
+          "array_selected_food_ids": [
+            "2709855",
+            "2709855"
+          ],
+          "condition_correctness": {
+            "ARRAY_REVERSED": false,
+            "ARRAY_ROTATE_LEFT": false,
+            "CONTROL_A": false,
+            "CONTROL_B": false,
+            "CONTROL_C": false,
+            "RERANK_REVERSED": false,
+            "RERANK_ROTATE_LEFT": false
+          },
+          "control_mode_correct": false,
+          "control_mode_food_id": "2709855",
+          "control_selected_food_ids": [
+            "2709855",
+            "2709855",
+            "2709855"
+          ],
+          "control_stable": true,
+          "rank_label_sensitive": false,
+          "rerank_selected_food_ids": [
+            "2709855",
+            "2709855"
+          ]
+        }
+      },
+      "truth_label": "green beans"
+    }
+  ],
+  "latency_ms": 118287,
+  "metrics": {
+    "eligible_item_count": 8,
+    "gate_effects": {
+      "correct_selection_blocked": {
+        "denominator": 56,
+        "numerator": 0,
+        "unit": "ratio",
+        "value": 0.0
+      },
+      "selection_changed_by_gate": {
+        "denominator": 56,
+        "numerator": 0,
+        "unit": "ratio",
+        "value": 0.0
+      },
+      "wrong_selection_blocked": {
+        "denominator": 56,
+        "numerator": 0,
+        "unit": "ratio",
+        "value": 0.0
+      }
+    },
+    "post_gate": {
+      "array_position_sensitivity": {
+        "denominator": 8,
+        "numerator": 2,
+        "unit": "ratio",
+        "value": 0.25
+      },
+      "array_position_sensitivity_control_stable": {
+        "denominator": 8,
+        "numerator": 2,
+        "unit": "ratio",
+        "value": 0.25
+      },
+      "condition_accuracy": {
+        "ARRAY_REVERSED": {
+          "denominator": 8,
+          "numerator": 6,
+          "unit": "ratio",
+          "value": 0.75
+        },
+        "ARRAY_ROTATE_LEFT": {
+          "denominator": 8,
+          "numerator": 4,
+          "unit": "ratio",
+          "value": 0.5
+        },
+        "CONTROL_A": {
+          "denominator": 8,
+          "numerator": 6,
+          "unit": "ratio",
+          "value": 0.75
+        },
+        "CONTROL_B": {
+          "denominator": 8,
+          "numerator": 6,
+          "unit": "ratio",
+          "value": 0.75
+        },
+        "CONTROL_C": {
+          "denominator": 8,
+          "numerator": 6,
+          "unit": "ratio",
+          "value": 0.75
+        },
+        "RERANK_REVERSED": {
+          "denominator": 8,
+          "numerator": 4,
+          "unit": "ratio",
+          "value": 0.5
+        },
+        "RERANK_ROTATE_LEFT": {
+          "denominator": 8,
+          "numerator": 5,
+          "unit": "ratio",
+          "value": 0.625
+        }
+      },
+      "control_mode_accuracy": {
+        "denominator": 8,
+        "numerator": 6,
+        "unit": "ratio",
+        "value": 0.75
+      },
+      "control_repeat_instability": {
+        "denominator": 8,
+        "numerator": 0,
+        "unit": "ratio",
+        "value": 0.0
+      },
+      "control_stable_item_count": 8,
+      "rank_label_sensitivity": {
+        "denominator": 8,
+        "numerator": 3,
+        "unit": "ratio",
+        "value": 0.375
+      },
+      "rank_label_sensitivity_control_stable": {
+        "denominator": 8,
+        "numerator": 3,
+        "unit": "ratio",
+        "value": 0.375
+      }
+    },
+    "raw": {
+      "array_position_sensitivity": {
+        "denominator": 8,
+        "numerator": 2,
+        "unit": "ratio",
+        "value": 0.25
+      },
+      "array_position_sensitivity_control_stable": {
+        "denominator": 8,
+        "numerator": 2,
+        "unit": "ratio",
+        "value": 0.25
+      },
+      "condition_accuracy": {
+        "ARRAY_REVERSED": {
+          "denominator": 8,
+          "numerator": 6,
+          "unit": "ratio",
+          "value": 0.75
+        },
+        "ARRAY_ROTATE_LEFT": {
+          "denominator": 8,
+          "numerator": 4,
+          "unit": "ratio",
+          "value": 0.5
+        },
+        "CONTROL_A": {
+          "denominator": 8,
+          "numerator": 6,
+          "unit": "ratio",
+          "value": 0.75
+        },
+        "CONTROL_B": {
+          "denominator": 8,
+          "numerator": 6,
+          "unit": "ratio",
+          "value": 0.75
+        },
+        "CONTROL_C": {
+          "denominator": 8,
+          "numerator": 6,
+          "unit": "ratio",
+          "value": 0.75
+        },
+        "RERANK_REVERSED": {
+          "denominator": 8,
+          "numerator": 4,
+          "unit": "ratio",
+          "value": 0.5
+        },
+        "RERANK_ROTATE_LEFT": {
+          "denominator": 8,
+          "numerator": 5,
+          "unit": "ratio",
+          "value": 0.625
+        }
+      },
+      "control_mode_accuracy": {
+        "denominator": 8,
+        "numerator": 6,
+        "unit": "ratio",
+        "value": 0.75
+      },
+      "control_repeat_instability": {
+        "denominator": 8,
+        "numerator": 0,
+        "unit": "ratio",
+        "value": 0.0
+      },
+      "control_stable_item_count": 8,
+      "rank_label_sensitivity": {
+        "denominator": 8,
+        "numerator": 3,
+        "unit": "ratio",
+        "value": 0.375
+      },
+      "rank_label_sensitivity_control_stable": {
+        "denominator": 8,
+        "numerator": 3,
+        "unit": "ratio",
+        "value": 0.375
+      }
+    }
+  },
+  "provider_calls": 56,
+  "recognition_fixture_sha256": "fb363a5d5005c182d9beb9b81261930a418927f52715bc98d2267423899396cb",
+  "recognition_input_mode": "FROZEN",
+  "retrieval_ranker": "score-first-pr-b",
+  "scope": "development-only selector permutation robustness",
+  "skipped_items": [
+    {
+      "acceptable_food_ids": [
+        "169094"
+      ],
+      "base_candidates": [
+        {
+          "food_id": "2710092",
+          "name": "Olive tapenade",
+          "rank": 1
+        },
+        {
+          "food_id": "2710088",
+          "name": "Olives, NFS",
+          "rank": 2
+        },
+        {
+          "food_id": "2710089",
+          "name": "Olives, green",
+          "rank": 3
+        },
+        {
+          "food_id": "2710090",
+          "name": "Olives, black",
+          "rank": 4
+        },
+        {
+          "food_id": "2710091",
+          "name": "Olives, stuffed",
+          "rank": 5
+        }
+      ],
+      "case_id": "nutrition5k_dish_1556572657",
+      "meal_item_position": 0,
+      "observed_name": "olives",
+      "preparation_method": null,
+      "reason": "TRUTH_NOT_IN_TOP5"
+    },
+    {
+      "acceptable_food_ids": [
+        "2705887"
+      ],
+      "base_candidates": [
+        {
+          "food_id": "2705856",
+          "name": "Beef, bacon, cooked",
+          "rank": 1
+        },
+        {
+          "food_id": "2706135",
+          "name": "Turkey bacon, cooked",
+          "rank": 2
+        },
+        {
+          "food_id": "2705884",
+          "name": "Canadian bacon, cooked",
+          "rank": 3
+        },
+        {
+          "food_id": "168324",
+          "name": "Pork, bacon, rendered fat, cooked",
+          "rank": 4
+        },
+        {
+          "food_id": "2705857",
+          "name": "Beef, bacon, reduced sodium, cooked",
+          "rank": 5
+        }
+      ],
+      "case_id": "nutrition5k_dish_1558116001",
+      "meal_item_position": 0,
+      "observed_name": "bacon",
+      "preparation_method": "cooked",
+      "reason": "TRUTH_NOT_IN_TOP5"
+    },
+    {
+      "base_candidates": [
+        {
+          "food_id": "173871",
+          "name": "Sausage, turkey, fresh, cooked",
+          "rank": 1
+        },
+        {
+          "food_id": "174618",
+          "name": "Sausage, beef, fresh, cooked",
+          "rank": 2
+        },
+        {
+          "food_id": "746779",
+          "name": "Sausage, breakfast sausage, beef, pre-cooked, unprepared",
+          "rank": 3
+        },
+        {
+          "food_id": "174616",
+          "name": "Sausage, breakfast sausage, beef, pre-cooked, unprepared",
+          "rank": 4
+        },
+        {
+          "food_id": "170606",
+          "name": "Sausage, beef, cured, cooked, smoked",
+          "rank": 5
+        }
+      ],
+      "case_id": "nutrition5k_dish_1558116001",
+      "meal_item_position": 1,
+      "observed_name": "sausage",
+      "preparation_method": "cooked",
+      "reason": "UNVERIFIED_CANONICAL_TRUTH"
+    },
+    {
+      "base_candidates": [
+        {
+          "food_id": "2709260",
+          "name": "Pineapple, raw",
+          "rank": 1
+        },
+        {
+          "food_id": "2709264",
+          "name": "Pineapple, frozen",
+          "rank": 2
+        },
+        {
+          "food_id": "2709210",
+          "name": "Pineapple, dried",
+          "rank": 3
+        },
+        {
+          "food_id": "2346398",
+          "name": "Pineapple, raw",
+          "rank": 4
+        },
+        {
+          "food_id": "2708010",
+          "name": "Pie, pineapple cream",
+          "rank": 5
+        }
+      ],
+      "case_id": "nutrition5k_dish_1558116001",
+      "meal_item_position": 2,
+      "observed_name": "pineapple",
+      "preparation_method": null,
+      "reason": "UNMATCHED_RECOGNITION"
+    },
+    {
+      "acceptable_food_ids": [
+        "2346393"
+      ],
+      "base_candidates": [
+        {
+          "food_id": "2707485",
+          "name": "Almonds, NFS",
+          "rank": 1
+        },
+        {
+          "food_id": "2707486",
+          "name": "Almonds, unroasted",
+          "rank": 2
+        },
+        {
+          "food_id": "2707487",
+          "name": "Almonds, salted",
+          "rank": 3
+        },
+        {
+          "food_id": "2707489",
+          "name": "Almonds, unsalted",
+          "rank": 4
+        },
+        {
+          "food_id": "2707490",
+          "name": "Almonds, flavored",
+          "rank": 5
+        }
+      ],
+      "case_id": "nutrition5k_dish_1558116001",
+      "meal_item_position": 4,
+      "observed_name": "almonds",
+      "preparation_method": null,
+      "reason": "TRUTH_NOT_IN_TOP5"
+    },
+    {
+      "acceptable_food_ids": [
+        "2706090"
+      ],
+      "base_candidates": [
+        {
+          "food_id": "172957",
+          "name": "Bratwurst, chicken, cooked",
+          "rank": 1
+        },
+        {
+          "food_id": "171513",
+          "name": "Chicken patty, frozen, cooked",
+          "rank": 2
+        },
+        {
+          "food_id": "172397",
+          "name": "Chicken, roasting, giblets, cooked, simmered",
+          "rank": 3
+        },
+        {
+          "food_id": "173642",
+          "name": "Chicken, stewing, giblets, cooked, simmered",
+          "rank": 4
+        },
+        {
+          "food_id": "174466",
+          "name": "Chicken, capons, giblets, cooked, simmered",
+          "rank": 5
+        }
+      ],
+      "case_id": "nutrition5k_dish_1559590202",
+      "meal_item_position": 0,
+      "observed_name": "chicken",
+      "preparation_method": "cooked, chopped",
+      "reason": "TRUTH_NOT_IN_TOP5"
+    },
+    {
+      "base_candidates": [
+        {
+          "food_id": "2710803",
+          "name": "Green beans, cooked, as ingredient",
+          "rank": 1
+        },
+        {
+          "food_id": "2710041",
+          "name": "Green beans, cooked, Szechuan-style",
+          "rank": 2
+        },
+        {
+          "food_id": "2709851",
+          "name": "Green beans, cooked, from restaurant",
+          "rank": 3
+        },
+        {
+          "food_id": "2709855",
+          "name": "Green beans, NS as to form, cooked",
+          "rank": 4
+        },
+        {
+          "food_id": "2709859",
+          "name": "Green beans, fresh, cooked with oil",
+          "rank": 5
+        }
+      ],
+      "case_id": "nutrition5k_dish_1559590202",
+      "meal_item_position": 2,
+      "observed_name": "green beans",
+      "preparation_method": "cooked",
+      "reason": "UNMATCHED_RECOGNITION"
+    },
+    {
+      "base_candidates": [
+        {
+          "food_id": "2709822",
+          "name": "Lettuce, salad with assorted vegetables including tomatoes and/or carrots, no dressing",
+          "rank": 1
+        },
+        {
+          "food_id": "2709823",
+          "name": "Lettuce, salad with assorted vegetables excluding tomatoes and carrots, no dressing",
+          "rank": 2
+        },
+        {
+          "food_id": "2709824",
+          "name": "Lettuce, salad with avocado, tomato, and/or carrots, with or without other vegetables, no dressing",
+          "rank": 3
+        },
+        {
+          "food_id": "2709825",
+          "name": "Lettuce, salad with cheese, tomato and/or carrots, with or without other vegetables, no dressing",
+          "rank": 4
+        },
+        {
+          "food_id": "2709826",
+          "name": "Lettuce, salad with egg, tomato, and/or carrots, with or without other vegetables, no dressing",
+          "rank": 5
+        }
+      ],
+      "case_id": "nutrition5k_dish_1559590202",
+      "meal_item_position": 3,
+      "observed_name": "lettuce salad",
+      "preparation_method": null,
+      "reason": "UNMATCHED_RECOGNITION"
+    },
+    {
+      "base_candidates": [
+        {
+          "food_id": "2709792",
+          "name": "Mixed salad greens, raw",
+          "rank": 1
+        },
+        {
+          "food_id": "2709661",
+          "name": "Carrots, raw, salad",
+          "rank": 2
+        },
+        {
+          "food_id": "2709662",
+          "name": "Carrots, raw, salad with apples",
+          "rank": 3
+        },
+        {
+          "food_id": "2709570",
+          "name": "Beet greens, raw",
+          "rank": 4
+        },
+        {
+          "food_id": "2709588",
+          "name": "Dandelion greens, raw",
+          "rank": 5
+        }
+      ],
+      "case_id": "nutrition5k_dish_1565637123",
+      "meal_item_position": 0,
+      "observed_name": "mixed salad greens",
+      "preparation_method": "raw",
+      "reason": "UNMATCHED_RECOGNITION"
+    },
+    {
+      "base_candidates": [
+        {
+          "food_id": "2709660",
+          "name": "Carrots, raw",
+          "rank": 1
+        },
+        {
+          "food_id": "170393",
+          "name": "Carrots, raw",
+          "rank": 2
+        },
+        {
+          "food_id": "2709661",
+          "name": "Carrots, raw, salad",
+          "rank": 3
+        },
+        {
+          "food_id": "2258586",
+          "name": "Carrots, mature, raw",
+          "rank": 4
+        },
+        {
+          "food_id": "2258587",
+          "name": "Carrots, baby, raw",
+          "rank": 5
+        }
+      ],
+      "case_id": "nutrition5k_dish_1565637123",
+      "meal_item_position": 1,
+      "observed_name": "shredded carrots",
+      "preparation_method": "raw",
+      "reason": "UNMATCHED_RECOGNITION"
+    },
+    {
+      "base_candidates": [
+        {
+          "food_id": "2710504",
+          "name": "Corn beverage",
+          "rank": 1
+        },
+        {
+          "food_id": "2710183",
+          "name": "Corn oil",
+          "rank": 2
+        },
+        {
+          "food_id": "2708195",
+          "name": "Corn nuts",
+          "rank": 3
+        },
+        {
+          "food_id": "2709783",
+          "name": "Corn, raw",
+          "rank": 4
+        },
+        {
+          "food_id": "2709923",
+          "name": "Corn, creamed",
+          "rank": 5
+        }
+      ],
+      "case_id": "nutrition5k_dish_1565637123",
+      "meal_item_position": 2,
+      "observed_name": "corn",
+      "preparation_method": null,
+      "reason": "UNMATCHED_RECOGNITION"
+    },
+    {
+      "base_candidates": [
+        {
+          "food_id": "2708357",
+          "name": "Pasta, cooked",
+          "rank": 1
+        },
+        {
+          "food_id": "2708930",
+          "name": "Flavored pasta",
+          "rank": 2
+        },
+        {
+          "food_id": "2708351",
+          "name": "Pasta, vegetable, cooked",
+          "rank": 3
+        },
+        {
+          "food_id": "2708359",
+          "name": "Pasta, gluten free",
+          "rank": 4
+        },
+        {
+          "food_id": "2706520",
+          "name": "Stew, pork, with pasta",
+          "rank": 5
+        }
+      ],
+      "case_id": "nutrition5k_dish_1565637123",
+      "meal_item_position": 3,
+      "observed_name": "pasta",
+      "preparation_method": null,
+      "reason": "UNVERIFIED_CANONICAL_TRUTH"
+    },
+    {
+      "base_candidates": [
+        {
+          "food_id": "2709719",
+          "name": "Tomatoes, raw",
+          "rank": 1
+        },
+        {
+          "food_id": "321360",
+          "name": "Tomatoes, grape, raw",
+          "rank": 2
+        },
+        {
+          "food_id": "170096",
+          "name": "Tomatoes, yellow, raw",
+          "rank": 3
+        },
+        {
+          "food_id": "170456",
+          "name": "Tomatoes, green, raw",
+          "rank": 4
+        },
+        {
+          "food_id": "170502",
+          "name": "Tomatoes, orange, raw",
+          "rank": 5
+        }
+      ],
+      "case_id": "nutrition5k_dish_1565637123",
+      "meal_item_position": 4,
+      "observed_name": "tomato",
+      "preparation_method": "raw",
+      "reason": "UNMATCHED_RECOGNITION"
+    },
+    {
+      "base_candidates": [
+        {
+          "food_id": "2707684",
+          "name": "Bagel",
+          "rank": 1
+        },
+        {
+          "food_id": "2707685",
+          "name": "Bagel, with raisins",
+          "rank": 2
+        },
+        {
+          "food_id": "2707732",
+          "name": "Bagel, wheat",
+          "rank": 3
+        },
+        {
+          "food_id": "2707785",
+          "name": "Bagel, multigrain",
+          "rank": 4
+        },
+        {
+          "food_id": "2707762",
+          "name": "Bagel, pumpernickel",
+          "rank": 5
+        }
+      ],
+      "case_id": "nutrition5k_dish_1559235815",
+      "meal_item_position": 1,
+      "observed_name": "bagel with cream cheese",
+      "preparation_method": null,
+      "reason": "UNMATCHED_RECOGNITION"
+    },
+    {
+      "base_candidates": [
+        {
+          "food_id": "2707590",
+          "name": "Chia seeds",
+          "rank": 1
+        },
+        {
+          "food_id": "2705680",
+          "name": "Pudding, bread",
+          "rank": 2
+        },
+        {
+          "food_id": "2705685",
+          "name": "Pudding, rice",
+          "rank": 3
+        },
+        {
+          "food_id": "2705697",
+          "name": "Banana pudding",
+          "rank": 4
+        },
+        {
+          "food_id": "2708949",
+          "name": "Noodle pudding",
+          "rank": 5
+        }
+      ],
+      "case_id": "nutrition5k_dish_1562173200",
+      "meal_item_position": 1,
+      "observed_name": "chia pudding",
+      "preparation_method": null,
+      "reason": "UNMATCHED_RECOGNITION"
+    },
+    {
+      "base_candidates": [
+        {
+          "food_id": "169946",
+          "name": "Pineapple, frozen, chunks, sweetened",
+          "rank": 1
+        },
+        {
+          "food_id": "174265",
+          "name": "Peanut butter, chunk style, with salt",
+          "rank": 2
+        },
+        {
+          "food_id": "2705514",
+          "name": "Fruit smoothie, with whole fruit and dairy",
+          "rank": 3
+        },
+        {
+          "food_id": "2709334",
+          "name": "Fruit smoothie, with whole fruit, no dairy",
+          "rank": 4
+        },
+        {
+          "food_id": "2710286",
+          "name": "Topping, fruit",
+          "rank": 5
+        }
+      ],
+      "case_id": "nutrition5k_dish_1562173200",
+      "meal_item_position": 2,
+      "observed_name": "pale fruit chunks",
+      "preparation_method": "cut into chunks",
+      "reason": "UNMATCHED_RECOGNITION"
+    },
+    {
+      "base_candidates": [
+        {
+          "food_id": "2708356",
+          "name": "Rice noodles, cooked",
+          "rank": 1
+        },
+        {
+          "food_id": "2708402",
+          "name": "Rice, cooked, NFS",
+          "rank": 2
+        },
+        {
+          "food_id": "2708416",
+          "name": "Rice, cooked, with milk",
+          "rank": 3
+        },
+        {
+          "food_id": "168897",
+          "name": "Wild rice, cooked",
+          "rank": 4
+        },
+        {
+          "food_id": "168914",
+          "name": "Rice noodles, cooked",
+          "rank": 5
+        }
+      ],
+      "case_id": "nutrition5k_dish_1559332418",
+      "meal_item_position": 0,
+      "observed_name": "cooked rice",
+      "preparation_method": null,
+      "reason": "UNMATCHED_RECOGNITION"
+    },
+    {
+      "base_candidates": [
+        {
+          "food_id": "2706287",
+          "name": "Fish, salmon, grilled",
+          "rank": 1
+        },
+        {
+          "food_id": "173722",
+          "name": "Salmon nuggets, cooked as purchased, unheated",
+          "rank": 2
+        },
+        {
+          "food_id": "171999",
+          "name": "Fish, salmon, chinook, cooked, dry heat",
+          "rank": 3
+        },
+        {
+          "food_id": "172000",
+          "name": "Fish, salmon, chum, cooked, dry heat",
+          "rank": 4
+        },
+        {
+          "food_id": "172001",
+          "name": "Fish, salmon, pink, cooked, dry heat",
+          "rank": 5
+        }
+      ],
+      "case_id": "nutrition5k_dish_1559332418",
+      "meal_item_position": 1,
+      "observed_name": "cooked salmon",
+      "preparation_method": "browned or grilled",
+      "reason": "UNMATCHED_RECOGNITION"
+    },
+    {
+      "base_candidates": [
+        {
+          "food_id": "2706587",
+          "name": "Beef, potatoes, and vegetables including carrots, broccoli, and/or dark-green leafy; no sauce",
+          "rank": 1
+        },
+        {
+          "food_id": "2706588",
+          "name": "Beef, potatoes, and vegetables, excluding carrots, broccoli, and dark-green leafy; no sauce",
+          "rank": 2
+        },
+        {
+          "food_id": "2706595",
+          "name": "Beef, potatoes, and vegetables including carrots, broccoli, and/or dark-green leafy; gravy",
+          "rank": 3
+        },
+        {
+          "food_id": "2706596",
+          "name": "Beef, potatoes, and vegetables excluding carrots, broccoli, and dark-green leafy; gravy",
+          "rank": 4
+        },
+        {
+          "food_id": "2706605",
+          "name": "Beef, noodles, and vegetables including carrots, broccoli, and/or dark-green leafy; no sauce",
+          "rank": 5
+        }
+      ],
+      "case_id": "nutrition5k_dish_1559332418",
+      "meal_item_position": 2,
+      "observed_name": "leafy greens",
+      "preparation_method": "cooked",
+      "reason": "UNMATCHED_RECOGNITION"
+    },
+    {
+      "base_candidates": [
+        {
+          "food_id": "2258590",
+          "name": "Peppers, bell, red, raw",
+          "rank": 1
+        },
+        {
+          "food_id": "2709977",
+          "name": "Peppers, red, cooked",
+          "rank": 2
+        },
+        {
+          "food_id": "2710799",
+          "name": "Red pepper, cooked, as ingredient",
+          "rank": 3
+        },
+        {
+          "food_id": "2258588",
+          "name": "Peppers, bell, green, raw",
+          "rank": 4
+        },
+        {
+          "food_id": "2258589",
+          "name": "Peppers, bell, yellow, raw",
+          "rank": 5
+        }
+      ],
+      "case_id": "nutrition5k_dish_1559332418",
+      "meal_item_position": 3,
+      "observed_name": "red bell pepper",
+      "preparation_method": "cooked",
+      "reason": "UNMATCHED_RECOGNITION"
+    },
+    {
+      "acceptable_food_ids": [
+        "2705887"
+      ],
+      "base_candidates": [
+        {
+          "food_id": "2705856",
+          "name": "Beef, bacon, cooked",
+          "rank": 1
+        },
+        {
+          "food_id": "2706135",
+          "name": "Turkey bacon, cooked",
+          "rank": 2
+        },
+        {
+          "food_id": "2705884",
+          "name": "Canadian bacon, cooked",
+          "rank": 3
+        },
+        {
+          "food_id": "168324",
+          "name": "Pork, bacon, rendered fat, cooked",
+          "rank": 4
+        },
+        {
+          "food_id": "2705857",
+          "name": "Beef, bacon, reduced sodium, cooked",
+          "rank": 5
+        }
+      ],
+      "case_id": "nutrition5k_dish_1565370004",
+      "meal_item_position": 2,
+      "observed_name": "bacon",
+      "preparation_method": "cooked",
+      "reason": "TRUTH_NOT_IN_TOP5"
+    }
+  ],
+  "split": "development",
+  "status": "measured",
+  "token_usage": {
+    "input": 43561,
+    "output": 2214
+  }
+}
