@@ -37,7 +37,7 @@ def test_candidate_label_exposes_provenance_without_implying_validation() -> Non
     assert "USDA survey food" not in label
 
 
-def test_canonical_clarification_always_has_manual_recovery_path() -> None:
+def test_canonical_clarification_has_manual_and_remove_recovery_paths() -> None:
     meal, item = _meal_and_item()
     item.candidates = [
         CanonicalFoodCandidate(
@@ -55,8 +55,12 @@ def test_canonical_clarification_always_has_manual_recovery_path() -> None:
 
     clarification = meal.clarifications[-1]
     assert clarification.type == "CANONICAL_SELECTION"
-    assert clarification.options[-1]["id"] == "manual-search"
-    assert clarification.options[-1]["value"] == {"action": "MANUAL_SEARCH"}
+    actions = {
+        option["value"].get("action")
+        for option in clarification.options
+        if isinstance(option.get("value"), dict) and "action" in option["value"]
+    }
+    assert actions == {"MANUAL_SEARCH", "REMOVE_ITEM"}
     assert "best describes" in clarification.question
 
 
