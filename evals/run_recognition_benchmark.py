@@ -14,6 +14,7 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "backend"))
 sys.path.insert(0, str(ROOT))
 
+from app.ai.providers.openai_vision import PROMPT_VERSION as VISION_PROMPT_VERSION
 from app.infrastructure.config import Settings
 from app.main import create_app
 from evals.benchmark_metrics import latency_metrics, recognition_metric_values
@@ -151,7 +152,7 @@ def main() -> int:
             vision_configuration=VisionConfiguration(
                 provider=settings.vision_provider,
                 model=settings.openai_model,
-                prompt_version="meal_recognition_v2",
+                prompt_version=VISION_PROMPT_VERSION,
                 image_detail=settings.openai_image_detail,
                 reasoning_effort=settings.openai_reasoning_effort,
             ),
@@ -168,7 +169,7 @@ def main() -> int:
         "configuration": {
             "provider": settings.vision_provider,
             "model": settings.openai_model,
-            "prompt_version": "meal_recognition_v2",
+            "prompt_version": VISION_PROMPT_VERSION,
             "image_detail": settings.openai_image_detail,
             "reasoning_effort": settings.openai_reasoning_effort,
         },

@@ -40,10 +40,12 @@ This reduces plausible-recipe hallucinations and preserves evaluation clarity.
 
 ## Prompt and injection boundary
 
-The immutable runtime prompt version is `meal_recognition_v1`. It treats the image and optional user
+The immutable runtime prompt version is `meal_recognition_v4`. It treats the image and optional user
 context as untrusted evidence and instructs the model never to follow embedded directions. User context
 is limited to 1000 characters by the API schema and is not written to routine recognition logs; only a
-presence boolean is logged. Prompt behavior changes require a new versioned file.
+presence boolean is logged. Prompt behavior changes require a new versioned file. Every published
+Nutrition5k and SNAPMe result was measured under `meal_recognition_v2`; see
+[measured evaluation](measured-evaluation.md) for the resulting evidence-version mismatch.
 
 ## Private images and reliability
 

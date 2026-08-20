@@ -39,6 +39,12 @@ The frozen final configuration uses `gpt-5.6-terra` for vision and selection, `h
 `low` reasoning effort, `meal_recognition_v2`, `canonicalization_v1`, USDA search limit 15 with
 normalized multi-query top-five retrieval, and the 100 kcal / 20% P6 limits.
 
+The runtime recognition prompt shipped on this branch is `meal_recognition_v4`, not the
+`meal_recognition_v2` used to produce every number in this document. Because `PROMPT_VERSION` is
+global, this mismatch applies to `NUTRITION_PROVIDER=usda` as well as `ai`: the shipped configuration
+no longer matches the benchmarked one for any provider, and none of the results below should be read
+as describing current runtime behavior.
+
 ## One development iteration
 
 The first nine-dish run attributed 18 misses and 17 hallucinations to recognition. Descriptions such

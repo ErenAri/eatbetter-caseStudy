@@ -3,6 +3,7 @@ from pathlib import Path
 import pytest
 from pydantic import SecretStr
 
+from app.ai.providers.openai_vision import PROMPT_VERSION as VISION_PROMPT_VERSION
 from app.infrastructure.config import Settings
 from evals.configuration import BenchmarkConfigurationError, ConfigurationName, snapshot, validate_real_providers
 from evals.dataset import DatasetManifest
@@ -35,6 +36,17 @@ def test_configuration_snapshot_has_reproducibility_fields_and_no_secrets():
         "semantic/generic local rerank; top-5 after dedupe; authoritative detail after selection"
     )
     assert "api_key" not in " ".join(value)
+
+
+def test_unfrozen_snapshot_records_the_live_vision_prompt_version():
+    """Guards against the snapshot hardcoding a stale prompt version literal.
+
+    A non-frozen snapshot must reflect whatever prompt the live vision provider
+    actually runs, so a report or fixture can never assert a prompt version
+    that was not used to produce it.
+    """
+    value = snapshot(real_settings(), configuration=ConfigurationName.HYBRID_AUTO, dataset_version="v1", split="development", seed=7).to_dict()
+    assert value["vision_prompt_version"] == VISION_PROMPT_VERSION
 
 
 def test_frozen_recognition_snapshot_uses_fixture_vision_provenance():

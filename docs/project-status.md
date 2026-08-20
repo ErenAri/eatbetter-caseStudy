@@ -47,6 +47,10 @@ are measured; product-specific owned-capture accuracy is not.
 - `AINutritionProvider` has unit tests but no accuracy measurement. Every published Nutrition5k and
   SNAPMe result in this repository was produced with USDA grounding under `meal_recognition_v2`.
   Those numbers do not describe the AI nutrition path and must not be cited as evidence for it.
+- The runtime recognition prompt is now `meal_recognition_v4`, but `PROMPT_VERSION` is global, so this
+  also applies to `NUTRITION_PROVIDER=usda`. Every published result was measured under
+  `meal_recognition_v2`. The shipped configuration therefore no longer matches the benchmarked one for
+  any provider.
 
 ## Exploratory QA status
 

@@ -4,6 +4,8 @@ from dataclasses import asdict, dataclass
 from datetime import datetime, timezone
 from enum import StrEnum
 
+from app.ai.providers.openai_vision import PROMPT_VERSION as VISION_PROMPT_VERSION
+
 
 class ConfigurationName(StrEnum):
     BASELINE_TOP1 = "BASELINE_TOP1"
@@ -76,7 +78,7 @@ def snapshot(
     vision = frozen_vision_configuration or {
         "provider": settings.vision_provider,
         "model": settings.openai_model,
-        "prompt_version": "meal_recognition_v2",
+        "prompt_version": VISION_PROMPT_VERSION,
         "image_detail": settings.openai_image_detail,
         "reasoning_effort": settings.openai_reasoning_effort,
     }
