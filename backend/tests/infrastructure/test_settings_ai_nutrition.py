@@ -13,6 +13,13 @@ def test_sample_count_defaults_to_three() -> None:
     assert Settings(_env_file=None).ai_nutrition_sample_count == 3
 
 
+def test_sample_count_of_one_is_rejected() -> None:
+    """A single sample yields spread 0, so one unverified guess would report
+    maximum confidence. The floor of 2 prevents that."""
+    with pytest.raises(ValueError):
+        Settings(_env_file=None, ai_nutrition_sample_count=1)
+
+
 def _production_kwargs(**overrides: object) -> dict:
     kwargs: dict = {
         "_env_file": None,

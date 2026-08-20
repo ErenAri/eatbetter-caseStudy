@@ -48,7 +48,7 @@ class Settings(BaseSettings):
     usda_search_limit: int = Field(default=15, ge=5, le=100)
     usda_max_attempts: int = Field(default=3, ge=1, le=5)
     ai_nutrition_model: str = "gpt-5.6-terra"
-    ai_nutrition_sample_count: int = Field(default=3, ge=1, le=5)
+    ai_nutrition_sample_count: int = Field(default=3, ge=2, le=5)
     sentry_dsn: SecretStr | None = None
     max_upload_bytes: int = Field(default=8 * 1024 * 1024, gt=0)
     allowed_mime_types: tuple[str, ...] = ("image/jpeg", "image/png", "image/webp")

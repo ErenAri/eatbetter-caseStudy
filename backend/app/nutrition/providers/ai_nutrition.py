@@ -3,7 +3,10 @@
 No external food database is consulted. Because there is no provenance to point
 at, the provider samples the model several times for the same food and treats
 disagreement between samples as uncertainty. Results are cached per normalized
-food name so a food logged twice yields identical nutrition.
+food name, so a food logged twice within the same process yields identical
+nutrition. The cache has no in-flight coordination: two concurrent first-lookups
+of the same food may each sample independently and diverge before either result
+is cached.
 """
 
 from __future__ import annotations
@@ -206,4 +209,18 @@ class AINutritionProvider:
             name=normalized,
             nutrition_per_100g=nutrition,
             data=dict(data),
+        )
+
+
+class UnconfiguredAINutritionProvider:
+    """Boot-safe local adapter that fails explicitly instead of impersonating USDA."""
+
+    async def search_foods(self, query: str, *, meal_item_id: UUID, limit: int = 5):
+        raise AINutritionConfigurationError(
+            "AI nutrition is selected but OPENAI_API_KEY is not configured."
+        )
+
+    async def get_food(self, source_food_id: str):
+        raise AINutritionConfigurationError(
+            "AI nutrition is selected but OPENAI_API_KEY is not configured."
         )

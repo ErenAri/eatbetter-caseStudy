@@ -31,6 +31,7 @@ from app.nutrition.providers import (
     AINutritionProvider,
     DemoNutritionProvider,
     USDAFoodDataCentralProvider,
+    UnconfiguredAINutritionProvider,
     UnconfiguredNutritionProvider,
 )
 
@@ -52,7 +53,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         nutrition_provider = DemoNutritionProvider()
     elif application_settings.nutrition_provider == "ai":
         if application_settings.openai_api_key is None:
-            nutrition_provider = UnconfiguredNutritionProvider()
+            nutrition_provider = UnconfiguredAINutritionProvider()
         else:
             nutrition_provider = AINutritionProvider(
                 api_key=application_settings.openai_api_key.get_secret_value(),

@@ -103,8 +103,15 @@ the final snapshot without detail retrieval.
 `NutritionProvider` now has three implementations selected by `NUTRITION_PROVIDER`: `demo`, `usda`
 (FoodData Central), and `ai` (`AINutritionProvider`, source `AI_ESTIMATE`). The AI provider samples
 the model several times per food, takes the per-field median, and turns calorie-sample disagreement into
-a confidence value instead of external provenance. All three satisfy the same two-method protocol, so
-they are interchangeable at the seam above without caller changes.
+a confidence value instead of external provenance. That confidence value is recorded in the candidate's
+audit record only; it does not currently gate review or auto-accept. All three satisfy the same
+two-method protocol, so they are interchangeable at the seam above without caller changes — but they are
+not equally verified. On the AI path, `search_foods` returns exactly one candidate whose name is the
+query itself, and `get_food` is a cache read of the object that same call already produced, not an
+independent detail lookup. Because the candidate's name is self-referential, the SELECT-or-ABSTAIN
+deterministic gate below always sees perfect identity overlap and passes unconditionally: canonical
+selection and the detail-retrieval step carry no independent verification on this path, and the
+`FOOD_IDENTITY` clarification layer does not engage.
 
 `MealRecognitionService` owns recognition and its AI run. `MealCanonicalizationService` separately
 retrieves candidates and makes one bounded selector call per active item. `MealContractService` keeps
