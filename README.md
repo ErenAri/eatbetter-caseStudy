@@ -11,10 +11,11 @@ It demonstrates the architecture, native workflow, safety policy, provider bound
 harness. It includes a small measured public secondary benchmark and a licensed external phone-photo
 development benchmark, but not product-specific owned-capture accuracy evidence.
 
-Nutrition can be resolved in one of two ways, selected by `NUTRITION_PROVIDER`. With `usda`, values
-come from FoodData Central and every number traces to an FDC ID. With `ai`, values are model
-estimates: the model is sampled several times per food and agreement between the calorie estimates
-becomes the confidence signal, since no external provenance exists. That confidence is recorded in the
+Nutrition can be resolved in one of three ways, selected by `NUTRITION_PROVIDER`: `demo` (the
+default, fixture data for local development), `usda`, and `ai`. With `usda`, values come from
+FoodData Central and every number traces to an FDC ID. With `ai`, values are model estimates: the
+model is sampled several times per food and agreement between the calorie estimates becomes the
+confidence signal, since no external provenance exists. That confidence is recorded in the
 candidate's audit record; it does not currently gate review or auto-accept. AI-estimated nutrition is
 marked `AI_ESTIMATE` and is not database-verified.
 
