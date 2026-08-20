@@ -177,14 +177,69 @@ SNAPMe amounts and nutrients are ASA24 dietary-record outputs rather than weighe
 hidden-ingredient, nutrition, USDA retrieval, canonical selection, and preparation metrics remain
 unmeasured. These are licensed external phone photos, not owned product captures.
 
+## Out-of-distribution qualitative probe (n=5, 2026-08-20)
+
+This is **not a measurement**. It is a five-photo exploratory probe against live
+`OpenAIVisionProvider`, `OpenAICanonicalizationProvider`, and `USDAFoodDataCentralProvider`,
+run once, on stock food photography rather than phone capture, with no ground-truth portions
+and no scoring. It generates hypotheses; it settles nothing. No metric below should be compared
+with the Nutrition5k or SNAPMe results, and none belongs in a summary table.
+
+Two of the five dishes (lahmacun, Adana kebab) are Turkish and absent from both benchmark
+datasets, which is why the probe was run: neither dataset tests cuisine outside a USDA-centred
+Western distribution.
+
+| Photo | Recognition | Candidate list offered | Result |
+|---|---|---|---|
+| Lahmacun | topped flatbread, mixed fresh herbs, tomato, red onion, lemon wedge | flatbread → 5 pizza entries; herbs → `Fish, bass, fresh water, mixed species, raw` rank 1 | 0 kcal, blocked |
+| Adana kebab | ground meat kebabs + 5 others | `Meat, ground, NFS` then deer, bison, elk, deer | 0 kcal, 4 questions |
+| Pan pizza | pizza, baked | 5 × DIGIORNO frozen | 0 kcal, blocked |
+| Bacon cheeseburger | bacon cheeseburger, seasoned French fries, ketchup | run A: `Cheeseburger, NFS` rank 1; run B: 5 bacon products, no burger | 0 kcal, 2 questions |
+| Wok plate | stir-fried noodles, breaded fried chicken pieces, beef with broccoli | noodles → mushroom and lentil entries; `Beef and broccoli` correct at rank 1 | 0 kcal, 2 questions |
+
+Recognition held up on unseen cuisine. Tomato, red onion, lemon, ketchup, French fries, and
+breaded fried chicken all grounded correctly, and `ground meat kebabs` is a defensible reading of
+Adana. The failures were concentrated downstream:
+
+1. **Retrieval matched on modifiers rather than head nouns.** "mixed fresh herbs" retrieved a
+   fish entry; "stir-fried noodles" retrieved mushrooms and lentils; "ground meat kebabs"
+   retrieved four game meats. The observed phrase is sent whole, so qualifiers dominate the
+   lexical match.
+2. **The selector abstained on a correct rank-1 candidate.** On the wok plate, `Beef and broccoli`
+   (FNDDS) was rank 1 and still produced a blocking question. Holdout selector accuracy of 1.000
+   rests on n=1 and should not be read as characteristic.
+3. **No hidden-ingredient question fired on any of the five**, despite deep-fried potatoes, fried
+   battered chicken, pizza dough oil, and roughly 20% fat lamb. The deterministic demo provider
+   raises the cooking-oil question reliably; the live path did not raise it once.
+4. **0/5 meals produced nutrition.** Every meal blocked on identity, reproducing the 0% auto-accept
+   coverage already recorded on the three-dish holdout, on data the system had never seen.
+5. **Run-to-run variance is material.** The same burger photo produced a usable `Cheeseburger, NFS`
+   candidate list in one run and five bacon products in another. Single-run results on n=5 cannot
+   distinguish a systematic failure from a sampled one.
+
+Ordering compounds the retrieval problem: "Search for another food" sits below five plausible
+wrong options, so the interface steers toward the error. Choosing the top option for the bacon
+run would log roughly 40 kcal against a true value above 800.
+
+Vision-to-review latency was 11.1–16.5 s across the runs that completed via the API.
+
 ## Next improvements and limitations
 
 1. Improve and diagnose USDA retrieval: Recall@5 was 0.333 on three verified holdout matches and
-   retrieval misses were the largest next downstream development failure.
+   retrieval misses were the largest next downstream development failure. The n=5 probe suggests a
+   specific mechanism to test first — the full observed phrase is sent as the query, so modifiers
+   outweigh head nouns. Retrieving on the head noun and re-ranking candidates against the full
+   phrase is the cheapest hypothesis available, and it is measurable on the existing development
+   split.
 2. Diagnose multi-component recognition errors on new development data; do not tune or relabel against
    the now-inspected SNAPMe holdout.
 3. Make clarification options resolvable: 0/5 holdout questions could be answered from ground truth,
-   so oracle assistance could not complete a meal.
+   so oracle assistance could not complete a meal. Portion questions currently offer only gram
+   values, while `USER_HOUSEHOLD_UNIT` and the USDA `foodPortions` gram weights needed to populate
+   household options are already retrieved and then discarded before reaching the item. Asking
+   "one whole / half" instead of "about 180 g" is the likeliest route to answerable portions.
+4. Gate the candidate list on relevance. When no candidate clears a relevance floor, lead with
+   manual search instead of ranking five wrong options above it.
 
 The evidence is limited by 12 rig-captured dishes, only three measured holdout meals, one 30-case
 licensed phone-photo development run, one 10-case licensed phone-photo recognition holdout, completed
