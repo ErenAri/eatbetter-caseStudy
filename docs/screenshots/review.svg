@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="390" height="820" viewBox="0 0 390 820">
+  <rect width="390" height="820" rx="36" fill="#182019"/>
+  <rect x="10" y="10" width="370" height="800" rx="30" fill="#F7F5EF"/>
+  <text x="28" y="58" font-family="Arial, sans-serif" font-size="15" font-weight="700" fill="#286544">‹ Today</text>
+  <text x="28" y="104" font-family="Arial, sans-serif" font-size="30" font-weight="700" fill="#182019">Review meal</text>
+  <text x="28" y="130" font-family="Arial, sans-serif" font-size="14" fill="#667069">3 foods found</text>
+  <text x="360" y="104" text-anchor="end" font-family="Arial, sans-serif" font-size="13" font-weight="700" fill="#9A5C17">1 quick check</text>
+  <rect x="28" y="158" width="334" height="202" rx="18" fill="#FFF3E1" stroke="#E8C99D"/>
+  <text x="46" y="190" font-family="Arial, sans-serif" font-size="13" font-weight="700" fill="#9A5C17">CHECK FOOD IDENTITY</text>
+  <text x="46" y="222" font-family="Arial, sans-serif" font-size="17" font-weight="700" fill="#182019">Which food is this?</text>
+  <rect x="46" y="242" width="298" height="38" rx="11" fill="#FFFFFF" stroke="#DDE2DC"/>
+  <text x="60" y="267" font-family="Arial, sans-serif" font-size="13" fill="#182019">Chicken breast, roasted</text>
+  <rect x="46" y="288" width="298" height="38" rx="11" fill="#FFFFFF" stroke="#DDE2DC"/>
+  <text x="60" y="313" font-family="Arial, sans-serif" font-size="13" fill="#286544">Search for another food</text>
+  <rect x="46" y="334" width="298" height="38" rx="11" fill="#FFFFFF" stroke="#DDE2DC"/>
+  <text x="60" y="359" font-family="Arial, sans-serif" font-size="13" fill="#A13A32">This food is not in my meal</text>
+  <text x="28" y="406" font-family="Arial, sans-serif" font-size="20" font-weight="700" fill="#182019">Foods</text>
+  <rect x="28" y="426" width="334" height="84" rx="16" fill="#FFFFFF" stroke="#DDE2DC"/>
+  <text x="46" y="458" font-family="Arial, sans-serif" font-size="16" font-weight="700" fill="#182019">Chicken breast</text>
+  <text x="46" y="486" font-family="Arial, sans-serif" font-size="13" fill="#667069">140 g · USDA grounded</text>
+  <rect x="28" y="520" width="334" height="84" rx="16" fill="#FFFFFF" stroke="#DDE2DC"/>
+  <text x="46" y="552" font-family="Arial, sans-serif" font-size="16" font-weight="700" fill="#182019">White rice</text>
+  <text x="46" y="580" font-family="Arial, sans-serif" font-size="13" fill="#667069">180 g · USDA grounded</text>
+  <rect x="28" y="676" width="334" height="56" rx="16" fill="#DDE2DC"/>
+  <text x="195" y="711" text-anchor="middle" font-family="Arial, sans-serif" font-size="15" font-weight="700" fill="#667069">Review 1 item to continue</text>
+  <text x="195" y="786" text-anchor="middle" font-family="Arial, sans-serif" font-size="11" fill="#667069">Illustrative UI preview — live app shown in Loom</text>
+</svg>
