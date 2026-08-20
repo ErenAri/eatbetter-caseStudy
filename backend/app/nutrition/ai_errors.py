@@ -8,6 +8,7 @@ class AINutritionProviderError(ApplicationError):
 
 class AINutritionConfigurationError(AINutritionProviderError):
     code = "AI_NUTRITION_CONFIGURATION"
+    status_code = 503
 
 
 class AINutritionInvalidResponseError(AINutritionProviderError):
