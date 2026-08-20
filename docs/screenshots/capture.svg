@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="390" height="820" viewBox="0 0 390 820">
+  <rect width="390" height="820" rx="36" fill="#182019"/>
+  <rect x="10" y="10" width="370" height="800" rx="30" fill="#F7F5EF"/>
+  <text x="28" y="58" font-family="Arial, sans-serif" font-size="15" font-weight="700" fill="#286544">‹ Today</text>
+  <text x="28" y="102" font-family="Arial, sans-serif" font-size="32" font-weight="700" fill="#182019">Log a meal</text>
+  <text x="28" y="132" font-family="Arial, sans-serif" font-size="14" fill="#667069">Take a clear photo, then add anything</text>
+  <text x="28" y="152" font-family="Arial, sans-serif" font-size="14" fill="#667069">the camera cannot see.</text>
+  <rect x="28" y="182" width="334" height="238" rx="24" fill="#E6E8E2"/>
+  <circle cx="195" cy="276" r="38" fill="#E3EFE7"/>
+  <path d="M174 285 L190 265 L204 279 L218 260 L238 293 L174 293 Z" fill="#286544" opacity="0.75"/>
+  <text x="195" y="340" text-anchor="middle" font-family="Arial, sans-serif" font-size="14" font-weight="700" fill="#667069">Meal photo preview</text>
+  <rect x="28" y="444" width="160" height="50" rx="14" fill="#FFFFFF" stroke="#DDE2DC"/>
+  <text x="108" y="476" text-anchor="middle" font-family="Arial, sans-serif" font-size="14" font-weight="700" fill="#286544">Retake</text>
+  <rect x="202" y="444" width="160" height="50" rx="14" fill="#FFFFFF" stroke="#DDE2DC"/>
+  <text x="282" y="476" text-anchor="middle" font-family="Arial, sans-serif" font-size="14" font-weight="700" fill="#286544">Choose another</text>
+  <text x="28" y="538" font-family="Arial, sans-serif" font-size="14" font-weight="700" fill="#182019">Add context <tspan fill="#667069" font-weight="400">(optional)</tspan></text>
+  <rect x="28" y="554" width="334" height="98" rx="16" fill="#FFFFFF" stroke="#DDE2DC"/>
+  <text x="44" y="586" font-family="Arial, sans-serif" font-size="13" fill="#667069">e.g. Chicken was cooked with olive oil</text>
+  <rect x="28" y="676" width="334" height="56" rx="16" fill="#286544"/>
+  <text x="195" y="711" text-anchor="middle" font-family="Arial, sans-serif" font-size="16" font-weight="700" fill="#FFFFFF">Analyze meal</text>
+  <text x="195" y="786" text-anchor="middle" font-family="Arial, sans-serif" font-size="11" fill="#667069">Illustrative UI preview — live app shown in Loom</text>
+</svg>
