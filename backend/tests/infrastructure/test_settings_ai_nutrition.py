@@ -39,3 +39,13 @@ def test_production_accepts_ai_nutrition_provider_without_usda_key() -> None:
 def test_production_still_rejects_demo_nutrition_provider() -> None:
     with pytest.raises(ValueError, match="NUTRITION_PROVIDER=usda or ai"):
         Settings(**_production_kwargs(nutrition_provider="demo"))
+
+
+def test_production_usda_provider_requires_usda_api_key() -> None:
+    with pytest.raises(ValueError, match="USDA_API_KEY"):
+        Settings(**_production_kwargs(nutrition_provider="usda", usda_api_key=None))
+
+
+def test_production_ai_provider_requires_openai_api_key() -> None:
+    with pytest.raises(ValueError, match="OPENAI_API_KEY"):
+        Settings(**_production_kwargs(nutrition_provider="ai", openai_api_key=None))

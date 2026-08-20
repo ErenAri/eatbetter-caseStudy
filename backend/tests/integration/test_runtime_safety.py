@@ -2,6 +2,7 @@ import pytest
 
 from app.infrastructure.config import AppEnvironment, Settings
 from app.main import create_app
+from app.nutrition.providers import AINutritionProvider
 
 
 def production_settings() -> Settings:
@@ -37,3 +38,17 @@ def test_nonlocal_runtime_fails_closed_without_production_adapters(
 def test_local_and_test_runtime_composition_remains_available() -> None:
     assert create_app(Settings(_env_file=None, app_env=AppEnvironment.LOCAL))
     assert create_app(Settings(_env_file=None, app_env=AppEnvironment.TEST))
+
+
+def test_local_ai_nutrition_provider_wiring_is_live() -> None:
+    settings = Settings(
+        _env_file=None,
+        app_env=AppEnvironment.LOCAL,
+        nutrition_provider="ai",
+        openai_api_key="test-openai-key",
+    )
+
+    application = create_app(settings)
+
+    assert isinstance(application.state.nutrition_provider, AINutritionProvider)
+    assert application.state.provider_mode == "live"
