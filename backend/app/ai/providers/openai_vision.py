@@ -25,7 +25,7 @@ from app.domain.entities import MealImage, VisionAnalysisResult
 from .bounded_retry import run_with_bounded_retry
 
 
-PROMPT_VERSION = "meal_recognition_v2"
+PROMPT_VERSION = "meal_recognition_v4"
 PROMPT_PATH = Path(__file__).parents[1] / "prompts" / f"{PROMPT_VERSION}.md"
 
 
