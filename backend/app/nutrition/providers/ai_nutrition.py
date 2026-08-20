@@ -185,7 +185,7 @@ class AINutritionProvider:
                 source=self.source,
                 source_food_id=normalized,
                 name=normalized,
-                data=data,
+                data=dict(data),
                 nutrition_per_100g=nutrition,
             )
         ]
@@ -198,8 +198,11 @@ class AINutritionProvider:
         nutrition, data = cached
         return CanonicalFood(
             source=self.source,
-            source_food_id=source_food_id,
+            # The source_food_id is the normalized food name itself: search_foods
+            # mints it from the same normalization, so a food resolved via search
+            # and then looked up via get_food must agree on this identifier.
+            source_food_id=normalized,
             name=normalized,
             nutrition_per_100g=nutrition,
-            data=data,
+            data=dict(data),
         )

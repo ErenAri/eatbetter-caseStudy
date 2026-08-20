@@ -1,6 +1,8 @@
 from decimal import Decimal
 from uuid import uuid4
 
+import httpx
+import openai
 import pytest
 
 from app.nutrition.ai_errors import AINutritionInvalidResponseError
@@ -116,10 +118,15 @@ async def test_get_food_returns_the_cached_entry_by_normalized_name() -> None:
     provider = _provider([_payload("200")])
     candidates = await provider.search_foods("grilled chicken", meal_item_id=uuid4())
 
-    food = await provider.get_food(candidates[0].source_food_id)
+    # source_food_id is the normalized food name itself: search_foods and get_food
+    # must mint the identical identifier for the same food, even when the caller's
+    # raw string differs in case/spacing from what search_foods originally saw.
+    food = await provider.get_food("Grilled  Chicken")
 
     assert food is not None
     assert food.nutrition_per_100g.calories_kcal == Decimal("200")
+    assert food.source_food_id == candidates[0].source_food_id
+    assert food.name == candidates[0].source_food_id
 
 
 @pytest.mark.asyncio
@@ -149,3 +156,67 @@ async def test_an_empty_food_name_returns_no_candidates_without_calling_the_mode
 
     assert await provider.search_foods("   ", meal_item_id=uuid4()) == []
     assert provider._client.calls == 0
+
+
+@pytest.mark.asyncio
+async def test_mutating_returned_data_does_not_corrupt_the_cache() -> None:
+    """CanonicalFood(Candidate).data must be a copy, not the cached dict by reference."""
+    provider = _provider([_payload("200")])
+    item = uuid4()
+
+    first = await provider.search_foods("grilled chicken", meal_item_id=item)
+    first[0].data["confidence"] = "corrupted"
+
+    second = await provider.search_foods("grilled chicken", meal_item_id=item)
+    food = await provider.get_food("grilled chicken")
+
+    assert second[0].data["confidence"] != "corrupted"
+    assert food is not None
+    assert food.data["confidence"] != "corrupted"
+
+
+class RetryingClient:
+    """Mirrors the AsyncOpenAI surface but raises once before succeeding.
+
+    Used to verify the `_sample_once` -> `run_with_bounded_retry` wiring actually
+    retries retryable errors (here, `openai.RateLimitError`) instead of merely
+    being asserted by inspection.
+    """
+
+    def __init__(self, error: Exception, payload: dict) -> None:
+        self._error = error
+        self._payload = payload
+        self.calls = 0
+        self.responses = self
+
+    async def parse(self, **kwargs):
+        self.calls += 1
+        if self.calls == 1:
+            raise self._error
+        return FakeResponse(self._payload)
+
+
+@pytest.mark.asyncio
+async def test_rate_limit_error_is_retried_via_bounded_retry_and_then_succeeds() -> None:
+    request = httpx.Request("POST", "https://api.openai.com/v1/responses")
+    response = httpx.Response(429, request=request)
+    rate_limit_error = openai.RateLimitError("rate limited", response=response, body=None)
+    client = RetryingClient(rate_limit_error, _payload("200"))
+
+    async def no_sleep(_delay: float) -> None:
+        return None
+
+    provider = AINutritionProvider(
+        api_key="test-key",
+        sample_count=1,
+        client=client,
+        prompt="test prompt",
+        sleep=no_sleep,
+        jitter=lambda _start, _end: 0,
+    )
+
+    candidates = await provider.search_foods("grilled chicken", meal_item_id=uuid4())
+
+    assert client.calls == 2
+    assert len(candidates) == 1
+    assert candidates[0].nutrition_per_100g.calories_kcal == Decimal("200")
