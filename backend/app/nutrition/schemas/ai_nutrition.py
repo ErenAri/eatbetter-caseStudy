@@ -16,7 +16,9 @@ class AINutritionOutput(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
     basis: Literal["per_100g"]
-    calories_kcal: Decimal = Field(ge=0, le=900)
-    protein_g: Decimal = Field(ge=0, le=100)
-    carbs_g: Decimal = Field(ge=0, le=100)
-    fat_g: Decimal = Field(ge=0, le=100)
+    recognized: bool
+    familiarity: Literal["high", "medium", "low"]
+    calories_kcal: Decimal | None = Field(default=None, ge=0, le=900)
+    protein_g: Decimal | None = Field(default=None, ge=0, le=100)
+    carbs_g: Decimal | None = Field(default=None, ge=0, le=100)
+    fat_g: Decimal | None = Field(default=None, ge=0, le=100)
