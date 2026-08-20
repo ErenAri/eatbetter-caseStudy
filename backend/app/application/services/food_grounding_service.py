@@ -85,5 +85,6 @@ class FoodGroundingService:
         meal_item.canonical_food_name = canonical.name
         meal_item.nutrition_snapshot = canonical.nutrition_per_100g
         meal_item.nutrition_retrieved_at = canonical.retrieved_at
+        meal_item.nutrition_familiarity = (canonical.data or {}).get("familiarity")
         meal_item.recalculate()
         return canonical

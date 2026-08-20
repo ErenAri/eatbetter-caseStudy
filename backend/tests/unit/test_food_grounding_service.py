@@ -131,3 +131,60 @@ async def test_embedded_demo_candidate_is_provider_independent() -> None:
     assert item.canonical_food_name == "Cream sauce"
     assert item.final_nutrition is not None
     assert item.final_nutrition.calories_kcal == Decimal("95")
+
+
+class FamiliarityReportingProvider:
+    source = "AI_ESTIMATE"
+
+    async def search_foods(self, query: str, *, meal_item_id: UUID, limit: int = 5):
+        return [
+            CanonicalFoodCandidate(
+                meal_item_id=meal_item_id,
+                rank=1,
+                source=self.source,
+                source_food_id="ai-food",
+                name="AI food",
+                data={"familiarity": "LOW"},
+                nutrition_per_100g=NutritionPer100g(200, 20, 10, 5),
+            )
+        ]
+
+    async def get_food(self, source_food_id: str):
+        return CanonicalFood(
+            source=self.source,
+            source_food_id=source_food_id,
+            name="AI food",
+            nutrition_per_100g=NutritionPer100g(200, 20, 10, 5),
+            data={"familiarity": "LOW"},
+        )
+
+
+@pytest.mark.asyncio
+async def test_grounding_sets_nutrition_familiarity_from_canonical_data() -> None:
+    service = FoodGroundingService(FamiliarityReportingProvider())
+    item = MealItem(meal_id=UUID(int=1), position=0, observed_name="mystery dish")
+
+    candidates = await service.retrieve_candidates(item)
+    await service.ground_selected_candidate(item, candidates[0].rank)
+
+    assert item.nutrition_familiarity == "LOW"
+
+
+@pytest.mark.asyncio
+async def test_grounding_leaves_nutrition_familiarity_none_for_providers_without_it() -> None:
+    """The demo and USDA providers do not supply familiarity in `data`, so
+    behaviour must be unchanged: the field stays None.
+    """
+    provider = DetailAuthoritativeProvider()
+    service = FoodGroundingService(provider)
+    item = MealItem(
+        meal_id=UUID(int=1),
+        position=0,
+        observed_name="  Grilled Chicken Breast  ",
+        confirmed_portion_g=Decimal("50"),
+    )
+
+    candidates = await service.retrieve_candidates(item)
+    await service.ground_selected_candidate(item, candidates[0].rank)
+
+    assert item.nutrition_familiarity is None

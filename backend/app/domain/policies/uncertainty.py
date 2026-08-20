@@ -21,6 +21,7 @@ class UncertaintyReason(StrEnum):
     ABSOLUTE_CALORIE_UNCERTAINTY = "ABSOLUTE_CALORIE_UNCERTAINTY"
     RELATIVE_CALORIE_UNCERTAINTY = "RELATIVE_CALORIE_UNCERTAINTY"
     LOW_OBSERVATION_CERTAINTY = "LOW_OBSERVATION_CERTAINTY"
+    LOW_NUTRITION_FAMILIARITY = "LOW_NUTRITION_FAMILIARITY"
     MATERIAL_HIDDEN_INGREDIENT = "MATERIAL_HIDDEN_INGREDIENT"
     UNKNOWN_HIDDEN_INGREDIENT = "UNKNOWN_HIDDEN_INGREDIENT"
     INVALID_PORTION_RANGE = "INVALID_PORTION_RANGE"
@@ -93,6 +94,8 @@ class UncertaintyPolicy:
             reasons.append(UncertaintyReason.MISSING_NUTRITION_SNAPSHOT)
         if item.observation_certainty == "LOW":
             reasons.append(UncertaintyReason.LOW_OBSERVATION_CERTAINTY)
+        if item.nutrition_familiarity == "LOW":
+            reasons.append(UncertaintyReason.LOW_NUTRITION_FAMILIARITY)
         for impact in hidden_impacts:
             if impact == "MATERIAL":
                 reasons.append(UncertaintyReason.MATERIAL_HIDDEN_INGREDIENT)

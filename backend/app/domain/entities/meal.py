@@ -56,6 +56,7 @@ class MealItem:
     confirmed_portion_g: Decimal | None = None
     portion_resolution_source: PortionResolutionSource | None = None
     observation_certainty: str | None = None
+    nutrition_familiarity: str | None = None
     canonical_confidence: Decimal | None = None
     requires_clarification: bool = False
     clarification_resolved: bool = False

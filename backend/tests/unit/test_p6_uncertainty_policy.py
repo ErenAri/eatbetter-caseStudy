@@ -14,12 +14,14 @@ def item(
     calories: Decimal | None = Decimal("100"),
     canonical: bool = True,
     certainty: str = "HIGH",
+    familiarity: str | None = None,
 ) -> MealItem:
     value = MealItem(
         uuid4(), 0, "food",
         canonical_food_id="food-1" if canonical else None,
         portion_estimate=PortionEstimate(minimum, maximum),
         observation_certainty=certainty,
+        nutrition_familiarity=familiarity,
     )
     if calories is not None:
         value.nutrition_snapshot = NutritionPer100g(calories, 0, 0, 0)
@@ -77,3 +79,26 @@ def test_same_gram_range_is_decided_by_nutrition_impact():
     low_calorie = policy.assess_portion(item(Decimal("5"), Decimal("25"), calories=Decimal("35")))
     assert UncertaintyReason.ABSOLUTE_CALORIE_UNCERTAINTY in oil.reasons
     assert UncertaintyReason.ABSOLUTE_CALORIE_UNCERTAINTY not in low_calorie.reasons
+
+
+def test_low_nutrition_familiarity_is_flagged_and_blocks_auto_accept():
+    policy = UncertaintyPolicy()
+    low_familiarity = item(Decimal("90"), Decimal("110"), familiarity="LOW")
+
+    assessment = policy.assess_item(low_familiarity)
+
+    assert UncertaintyReason.LOW_NUTRITION_FAMILIARITY in assessment.reasons
+    assert assessment.level == RiskLevel.HIGH
+    assert assessment.auto_accept_eligible is False
+
+
+def test_missing_nutrition_familiarity_is_not_flagged():
+    """The demo and USDA providers never set nutrition_familiarity, so None must
+    not be mistaken for LOW and must not add a reason.
+    """
+    policy = UncertaintyPolicy()
+    no_familiarity = item(Decimal("90"), Decimal("110"), familiarity=None)
+
+    assessment = policy.assess_item(no_familiarity)
+
+    assert UncertaintyReason.LOW_NUTRITION_FAMILIARITY not in assessment.reasons
