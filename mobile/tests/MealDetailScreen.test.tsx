@@ -2,7 +2,7 @@ import { fireEvent, render } from "@testing-library/react-native";
 import { Alert } from "react-native";
 
 import { MealDetailScreen } from "../features/meal-history/MealDetailScreen";
-import { baseMeal } from "./fixtures";
+import { baseMeal, readyItem } from "./fixtures";
 
 
 test("discarding an incomplete meal requires destructive confirmation", async () => {
@@ -36,4 +36,18 @@ test("discarding an incomplete meal requires destructive confirmation", async ()
   buttons?.find((button) => button.text === "Discard")?.onPress?.();
   expect(onDiscard).toHaveBeenCalledTimes(1);
   alert.mockRestore();
+});
+
+test("an AI_ESTIMATE meal renders the AI label and never claims to be verified", async () => {
+  const meal = {
+    ...baseMeal,
+    items: [{ ...readyItem, canonical: { source: "AI_ESTIMATE", food_id: "grilled chicken breast", name: "grilled chicken breast" } }],
+  };
+  const view = await render(
+    <MealDetailScreen meal={meal} busy={false} error={null} onBack={jest.fn()} />,
+  );
+
+  expect(view.getByText("Nutrition data: AI estimate — not database-verified")).toBeTruthy();
+  expect(view.queryByText("Nutrition data: verified sources")).toBeNull();
+  expect(view.queryByText(/verified sources/i)).toBeNull();
 });

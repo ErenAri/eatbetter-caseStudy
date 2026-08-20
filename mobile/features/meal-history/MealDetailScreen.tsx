@@ -8,7 +8,7 @@ export function MealDetailScreen({ meal, busy, error, onResume, onDiscard, onBac
   const adjustments = meal.corrections.length;
   const confirmed = meal.status === "CONFIRMED";
   const sources = new Set(meal.items.filter((item) => !item.is_removed).map((item) => item.canonical?.source).filter(Boolean));
-  const nutritionSource = sources.size === 1 && sources.has("TEST_DEMO_DATA") ? "Test/demo nutrition data" : sources.size === 1 && sources.has("USDA_FDC") ? "Nutrition data: USDA FoodData Central" : "Nutrition data: verified sources";
+  const nutritionSource = sources.size === 1 && sources.has("TEST_DEMO_DATA") ? "Test/demo nutrition data" : sources.size === 1 && sources.has("USDA_FDC") ? "Nutrition data: USDA FoodData Central" : sources.size === 1 && sources.has("AI_ESTIMATE") ? "Nutrition data: AI estimate — not database-verified" : "Nutrition data: mixed sources";
   const statusText = meal.status === "UPLOADED" ? (meal.image_attached ? "Photo uploaded; analysis not finished." : "This attempt still needs a photo.") : meal.status === "ANALYZING" ? "Analysis was interrupted and can be resumed." : meal.status === "FAILED_RETRYABLE" ? "Analysis failed temporarily and can be retried." : meal.status === "FAILED_PERMANENT" ? "This photo could not be analyzed." : "This meal still needs review.";
   const confirmDiscard = () => Alert.alert(
     "Discard this meal?",

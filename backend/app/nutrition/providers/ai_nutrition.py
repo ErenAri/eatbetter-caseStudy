@@ -160,6 +160,7 @@ class AINutritionProvider:
             "model": self.model,
             "prompt_version": self.prompt_version,
             "estimated": True,
+            "data_type": "AI ESTIMATE — NOT A DATABASE RECORD",
         }
         log_event(
             "ai_nutrition_resolved",

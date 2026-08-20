@@ -3,7 +3,7 @@ import { StyleSheet, Text, View } from "react-native";
 import { Button, ErrorState, LoadingState, Screen } from "../../components/Primitives";
 import { colors, spacing } from "../../theme/tokens";
 
-const messages = ["Identifying visible foods", "Matching verified nutrition", "Checking uncertain portions"];
+const messages = ["Identifying visible foods", "Matching nutrition data", "Checking uncertain portions"];
 export type AnalysisPhase = "uploading" | "analyzing";
 export function AnalysisScreen({ phase = "analyzing", error, onRetry, onChooseAnother, onCancel }: { phase?: AnalysisPhase; error: string | null; onRetry: () => void; onChooseAnother: () => void; onCancel: () => void }) {
   const [message, setMessage] = useState(0);
