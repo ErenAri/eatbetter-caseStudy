@@ -10,7 +10,7 @@ Nutrition5k provides a small measured secondary end-to-end diagnostic set. The c
 
 The main product trade-off is selective friction: high-impact uncertainty asks a targeted question instead of silently saving a confident guess. A controlled v3 vision-prompt experiment was rejected after all three paired F1 repeats regressed, and later artifact-only traces led to a direct `REMOVE_ITEM` recovery for hallucinated candidate-bearing foods rather than benchmark-specific relabeling.
 
-Latest local verification: backend 156 passed, mobile 28/28 passed, and TypeScript is clean. Submission CI also runs backend, evaluation, mobile, and typecheck suites on GitHub.
+Latest local verification: backend 236 passed, mobile 35/35 passed, and TypeScript is clean. Submission CI also runs backend, evaluation, mobile, and typecheck suites on GitHub.
 
 Supabase runtime persistence, production JWT verification, production object storage/deployment/monitoring, and an owned/consented weighed phone-photo benchmark remain deferred.
 

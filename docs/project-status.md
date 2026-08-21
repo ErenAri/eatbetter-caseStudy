@@ -24,10 +24,11 @@ This is a public, time-boxed engineering case study. The repository is runnable 
 
 ## Current verification
 
-Latest locally verified state after the canonical remove-recovery change:
+Latest locally verified state after the AI nutrition provider, familiarity/consensus gates, and the
+relative-uncertainty floor:
 
-- Backend: **156 passed**
-- Mobile: **28/28 passed** across 7 suites
+- Backend: **236 passed**
+- Mobile: **35/35 passed**
 - TypeScript: **clean**
 
 The historical QA closeout keeps the test counts recorded on 2026-08-19 rather than being rewritten retroactively.

@@ -19,12 +19,13 @@ This is a seven-day engineering case study, not a production, clinical, or compe
 | Alternative nutrition path | `NUTRITION_PROVIDER` selects `demo`, `usda`, or `ai`. The `ai` path resolves nutrition from the model alone, refuses foods it does not recognize, and marks results `AI_ESTIMATE`. It has unit tests but **no accuracy measurement**, and no number in this repository describes it |
 | Production boundary | Persistent runtime repository/storage, production JWT verification, deployment, and monitoring sink are intentionally deferred and staging/production startup fails closed |
 
-### Current verification — 2026-08-20
+### Current verification — 2026-08-21
 
-Latest locally verified state after the canonical `REMOVE_ITEM` recovery work:
+Latest locally verified state after the AI nutrition provider, the familiarity/consensus gates, and
+the relative-uncertainty floor:
 
-- Backend: **156 passed**
-- Mobile: **28/28 passed** across 7 suites
+- Backend: **236 passed**
+- Mobile: **35/35 passed**
 - TypeScript: **clean** (`tsc --noEmit`)
 - GitHub Actions: submission CI added in this cleanup to run backend, evaluation, mobile tests, and mobile typecheck on pushes/PRs
 
