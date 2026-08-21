@@ -12,6 +12,8 @@ The main product trade-off is selective friction: high-impact uncertainty asks a
 
 The repository also contains a second, selectable nutrition path (`NUTRITION_PROVIDER=ai`) that resolves nutrition from the model alone, refuses foods it does not recognise rather than inventing a value, and marks its output `AI_ESTIMATE`. It exists because USDA has no entry for regional dishes such as lahmacun or Adana kebab. It has unit tests and **no accuracy measurement**, and none of the numbers above describe it.
 
+Against EatBetter specifically: the improvement I claim is that this design refuses rather than guesses, and interrupts in proportion to calorie impact rather than model doubt. I have run no head-to-head benchmark and claim no numerical comparison. The README section “Compared to EatBetter” states the position, the protocol that would settle it (weighed photos through both apps, primary metric being unsafe auto-accept rate), and the failure cases from my own runs that motivate it.
+
 Latest local verification: backend 236 passed, mobile 35/35 passed, and TypeScript is clean. Submission CI also runs backend, evaluation, mobile, and typecheck suites on GitHub.
 
 Supabase runtime persistence, production JWT verification, production object storage/deployment/monitoring, and an owned/consented weighed phone-photo benchmark remain deferred.
@@ -23,7 +25,7 @@ Next steps, in the order I would take them:
 3. Measure the AI nutrition path against Nutrition5k development, so the choice between it and USDA becomes a measured decision rather than an assumed one.
 
 Repository: https://github.com/ErenAri/eatbetter-caseStudy
-Walkthrough: https://www.loom.com/share/03a11c090d424d32980b4673335393b8
+Walkthrough: https://www.loom.com/share/1bf1d0fa97f74efaaf380602d4f33d55
 
 I used two AI assistants and both are disclosed in the README: OpenAI Codex for scaffolding, tests, documentation, and evaluation tooling across the bulk of the build, and Claude in a later session for the AI nutrition path, the uncertainty gates, and several mobile fixes. Human review remained authoritative for visible-food labels, uncertainty exclusions, semantic adjudication, scope decisions, and final submission claims. No published number was produced by an assistant grading its own output.
 
