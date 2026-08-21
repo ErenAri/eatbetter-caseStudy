@@ -220,7 +220,13 @@ See [project status](docs/project-status.md), [QA closeout](docs/qa-closeout-202
 
 ## AI-tool disclosure
 
-OpenAI Codex was used as an implementation and analysis assistant for scaffolding, code, tests, documentation, and evaluation tooling. Human review remained authoritative for visible-food labels, uncertainty exclusions, semantic adjudication, scope decisions, and final claims. Generated work was validated through deterministic tests, frozen configurations, manual review, and explicit evidence boundaries.
+Two AI assistants were used, and both are disclosed here because the brief permits AI tools on the condition that their use is explicit.
+
+**OpenAI Codex** was used for repository scaffolding, code, tests, documentation, research workflow, and evaluation tooling across the bulk of the build.
+
+**Claude** was used in a later session for the AI nutrition provider and its recognition/familiarity gating, the sampled-consensus gate, the absolute floor on the relative uncertainty arm, several mobile review-screen fixes, and the accompanying documentation corrections. It also ran the exploratory probes recorded in `docs/measured-evaluation.md` — the out-of-distribution photo set and the fabricated-food refusal checks — and found the defects those probes exposed, including a user-facing warning string that was reaching the constrained selector and causing it to abstain.
+
+Human review remained authoritative for visible-food labels, uncertainty exclusions, semantic adjudication, scope decisions, and final claims. Generated work was validated through deterministic tests, frozen configurations, manual review, and explicit evidence boundaries. No measured result in this repository was produced by an assistant grading its own output: every published number comes from the frozen evaluation harness against reviewed labels.
 
 ## Submission
 
