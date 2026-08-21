@@ -124,7 +124,77 @@ Historical three-dish secondary holdout results include food F1 **0.353**, USDA 
 
 Detailed denominators, latency, threshold simulation, limitations, and the historical evidence boundary are in [measured evaluation](docs/measured-evaluation.md). The reproducible protocol is in [`evals/README.md`](evals/README.md).
 
-No clinical, production-level, or numerical “better than EatBetter” claim is made.
+No clinical or production-level accuracy claim is made, and no head-to-head benchmark against EatBetter
+has been run — see the comparison section immediately below for what is and is not being asserted.
+
+## Compared to EatBetter
+
+The brief asks for an explicit improvement position, so here is one, together with the boundary around it.
+
+**What I have not done:** I have not run EatBetter's app against a shared test set. There is no measured
+numerical comparison anywhere in this repository, and I am not claiming one. What follows is a design
+position on the problem *as EatBetter stated it* — "convert messy input into correct canonical foods +
+portions + nutrition with high confidence, and make the system robust to ambiguity" — plus the protocol
+that would settle it empirically.
+
+### What is better, and why
+
+**1. The system is allowed to say "I don't know."**
+A photo logger's worst output is not a missing meal, it is a confidently wrong number that the user
+trusts and never revisits. This design can refuse: the selector returns `ABSTAIN` rather than forcing a
+match, and the AI nutrition path returns no candidate for a food it does not recognise. In a small
+probe, **three invented dish names were refused on all 15 sampled responses** rather than assigned a
+plausible weight — and notably, before an explicit refusal path existed, one of them returned a stable
+250 g with zero sample disagreement, which is exactly the confidently-wrong failure this design targets.
+
+**2. Interruption is proportional to calorie impact, not to model doubt.**
+Uncertainty becomes a question only when it can materially move the logged result — evaluated on
+calorie impact, not gram spread. A 20 g range on oil is worth a question; the same range on parsley is
+not. This is what makes selective friction tolerable rather than nagging.
+
+**3. Every number is traceable.**
+Confirmed items store the canonical nutrition used, so history never depends on a later API call.
+Nutrition either traces to an FDC ID or is labelled `AI ESTIMATE — NOT A DATABASE RECORD` at the point
+of choice. The user can always see what a number rests on.
+
+**4. Uncertainty is structured data, not a vibe.**
+Twelve stable reason codes explain every interruption, and they are logged. That makes the friction
+tunable and auditable rather than a black box — a threshold can be swept and the safety/friction
+trade-off measured.
+
+### How I would measure the improvement
+
+The comparison is only meaningful with weighed ground truth, because otherwise two estimates are being
+compared with no referee. The protocol I would run:
+
+- **Set:** 100+ owned or consented phone photos of ordinary meals, deliberately including composite,
+  regional, and hidden-fat dishes. Portions weighed on a kitchen scale before eating.
+- **Procedure:** the same photos through both apps, same day, pre-registered metrics, no post-hoc
+  relabeling.
+- **Primary metric — unsafe auto-accept rate:** the share of meals a system accepts *without asking*
+  that are materially wrong (>20% calorie error). This is the number that matters, because it counts
+  silent errors the user never learns about.
+- **Secondary:** calorie MAE and share of meals within ±20%; completion rate; questions per meal;
+  share of logged calories traceable to a source.
+
+The honest expectation: this design should win on unsafe auto-accept and traceability, and may well
+*lose* on completion rate and questions per meal. That is the trade-off being made deliberately, and
+naming which metric each side wins is more useful than a single headline number.
+
+### Failure cases that show the difference
+
+These come from this system's own measured runs, not from speculation about anyone else's:
+
+- **Regional food breaks USDA-shaped retrieval.** On an Adana kebab photo, USDA retrieval offered
+  `Meat, ground, NFS`, then deer, bison and elk. On lahmacun it offered five pizza entries. Across five
+  photos, **0/5 meals produced any nutrition.** A system that must return a number would have picked one
+  of those. This one asked instead — and it is why the AI nutrition path exists.
+- **Low calorie error can still mean a wrong meal.** On the Nutrition5k holdout, the naive top-1
+  baseline produced 20.177 kcal MAE — but both accepted meals were materially wrong, because required
+  verified foods were missing. A headline MAE would have looked good and been misleading.
+- **Percentage uncertainty is not calorie uncertainty.** A relative threshold alone interrupted the user
+  about a 7 kcal herb garnish. Requiring the absolute swing to clear a floor cut portion questions on a
+  real photo from six to three without touching the two items carrying 93% of the meal's calories.
 
 ## Reliability and observability
 
