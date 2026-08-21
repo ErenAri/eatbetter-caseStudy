@@ -7,6 +7,7 @@ class DemoNutritionProvider:
     """TEST/DEMO DATA — NOT USDA RESULTS."""
 
     source = "TEST_DEMO_DATA"
+    uses_lexical_search = True
     _foods = {
         "fixture-chicken": ("Chicken breast, grilled", NutritionPer100g(165, 31, 0, 3.6)),
         "fixture-rice": ("Rice, white, cooked", NutritionPer100g(130, 2.7, 28.2, 0.3)),
@@ -32,7 +33,7 @@ class DemoNutritionProvider:
                 source=self.source,
                 source_food_id=source_id,
                 name=name,
-                data={"data_type": "TEST/DEMO DATA — NOT USDA RESULTS"},
+                data={"provenance_note": "TEST/DEMO DATA — NOT USDA RESULTS"},
                 nutrition_per_100g=nutrition,
             )
             for rank, (source_id, name, nutrition) in enumerate(matches, start=1)
@@ -48,5 +49,5 @@ class DemoNutritionProvider:
             source_food_id=source_food_id,
             name=name,
             nutrition_per_100g=nutrition,
-            data={"data_type": "TEST/DEMO DATA — NOT USDA RESULTS"},
+            data={"provenance_note": "TEST/DEMO DATA — NOT USDA RESULTS"},
         )

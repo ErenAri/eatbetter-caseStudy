@@ -156,7 +156,7 @@ export default function App() {
   };
 
   const openMeal = async (selected: Meal) => {
-    setMeal(selected); setError(null); setRoute(selected.status === "NEEDS_REVIEW" ? "review" : "detail");
+    setMeal(selected); setImage(null); setError(null); setRoute(selected.status === "NEEDS_REVIEW" ? "review" : "detail");
     if (selected.status === "NEEDS_REVIEW") { track("meal_review_opened", { mealId: selected.id }); try { setMeal(await getMeal(selected.id)); } catch { /* preserve list snapshot */ } }
   };
   const resumeIncomplete = async () => {
@@ -188,7 +188,7 @@ export default function App() {
     {route === "today" ? <TodayScreen meals={meals} totals={totals} loading={todayLoading} error={todayError} health={health} onRetry={() => void refreshToday()} onLog={beginCapture} onOpen={(selected) => void openMeal(selected)} /> : null}
     {route === "capture" ? <CaptureScreen image={image} context={context} busy={busyKey !== null} error={error} onImage={updateCaptureImage} onContext={updateCaptureContext} onAnalyze={() => void submitAnalysis()} onDemo={() => void demo()} onCanonicalDemo={() => void demo(true)} onBack={abandonCapture} /> : null}
     {route === "analysis" ? <AnalysisScreen phase={analysisPhase} error={error} onRetry={() => void submitAnalysis()} onChooseAnother={chooseAnother} onCancel={cancelAnalysis} /> : null}
-    {route === "review" && meal ? <ReviewScreen meal={meal} busyKey={busyKey} error={error} onAnswer={answer} onUpdate={update} onRemove={remove} onAdd={add} onReplace={replace} onConfirm={() => void confirm()} onBack={home} /> : null}
+    {route === "review" && meal ? <ReviewScreen meal={meal} image={image} busyKey={busyKey} error={error} onAnswer={answer} onUpdate={update} onRemove={remove} onAdd={add} onReplace={replace} onConfirm={() => void confirm()} onBack={home} /> : null}
     {route === "detail" && meal ? <MealDetailScreen meal={meal} busy={busyKey !== null} error={error} onResume={meal.status !== "CONFIRMED" && meal.status !== "FAILED_PERMANENT" && meal.image_attached ? () => void resumeIncomplete() : undefined} onDiscard={meal.status !== "CONFIRMED" ? () => void discardIncomplete() : undefined} onBack={home} /> : null}
   </>;
 }

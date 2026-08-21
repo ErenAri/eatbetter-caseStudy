@@ -38,6 +38,11 @@ class CanonicalFoodCandidate:
         details: list[str] = []
         brand = data.get("brand_owner")
         data_type = data.get("data_type")
+        # Distinct from data_type: data_type is a real database field forwarded
+        # to the canonicalization selector, while provenance_note is a
+        # human-facing label (e.g. the AI-estimate disclaimer) that must never
+        # reach the selector. See AINutritionProvider.
+        provenance_note = data.get("provenance_note")
         serving = data.get("household_serving_full_text")
         if brand:
             details.append(str(brand))
@@ -49,6 +54,8 @@ class CanonicalFoodCandidate:
                 "branded": "FoodData Central · Branded",
             }
             details.append(friendly_types.get(str(data_type).lower(), str(data_type)))
+        elif provenance_note:
+            details.append(str(provenance_note))
         if serving:
             details.append(str(serving))
         return self.name if not details else f"{self.name} · {' · '.join(details)}"

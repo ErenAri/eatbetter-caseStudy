@@ -50,6 +50,13 @@ The frozen product configuration uses `gpt-5.6-terra`, high image detail, low re
 
 Ground truth is loaded only by the grader. It is never sent into recognition, retrieval, selection, or clarification generation.
 
+**Shipped configuration no longer matches the benchmarked one.** The runtime recognition prompt is now
+`meal_recognition_v4`, while every number in this document was produced under `meal_recognition_v2`.
+Because `PROMPT_VERSION` is global, this applies to `NUTRITION_PROVIDER=usda` as well as `ai`. The
+results below remain valid as a record of what that frozen configuration produced; they should not be
+read as describing current runtime behaviour. `meal_recognition_v2.md` itself is unchanged and
+hash-guarded against the SNAPMe configuration lock.
+
 ## Primary Nutrition5k development iteration
 
 The first nine-dish run exposed recognition as the largest early failure source. The single primary prompt iteration created `meal_recognition_v2`: concise common identities, duplicate merging, separation of clearly visible nutritionally meaningful components, and less confident identity from shape/color alone.
@@ -99,6 +106,20 @@ The 100 kcal / 20% P6 limits were retained after a seven-item conditional simula
 | 200 kcal / 60% | 1.000 | 0.000 | 0.857 |
 
 This is a conservative small-sample engineering choice, not calibration.
+
+### Absolute floor added to the relative arm
+
+The two limits above were independent, so **any** item whose calorie range varied by more than 20%
+raised a blocking question regardless of how few calories were involved. On a real six-item photo,
+four of six questions concerned garnishes totalling 38 kcal of uncertainty on a ~790 kcal meal —
+including fresh herbs at 7 kcal. That contradicted this repository's own stated rationale, which uses
+parsley as the example of something that should *not* interrupt.
+
+The relative arm is now gated behind a minimum absolute swing (`MIN_RELATIVE_TRIGGER_KCAL`, default
+25 kcal). On the same photo this reduced portion questions from six to three, leaving the two items
+carrying 93% of the meal's calories plus one the model flagged as low-familiarity. The floor is an
+engineering hypothesis on the same footing as the 100 kcal / 20% limits — it has not been swept
+against the threshold table above.
 
 ## Historical Nutrition5k three-dish secondary holdout
 
@@ -226,6 +247,40 @@ No new prompt iteration was performed on this development result.
 
 SNAPMe amounts/nutrients are ASA24 dietary-record outputs rather than weighed truth. This result therefore supports **visible-food recognition only** and does not measure portion, hidden ingredients, nutrition, USDA grounding, canonical selection, preparation, or owned-product captures.
 
+## Out-of-distribution qualitative probe (n=5, 2026-08-20)
+
+This is **not a measurement**. Five photos, one run each, live providers, stock food photography
+rather than phone capture, no ground-truth portions, no scoring. It generates hypotheses; it settles
+nothing, and none of it belongs in a summary table beside the results above.
+
+Two of the five dishes are Turkish and absent from both benchmark datasets, which is why the probe
+was run: neither Nutrition5k nor SNAPMe tests cuisine outside a USDA-centred Western distribution.
+
+| Photo | Recognition | Candidates offered | Result |
+|---|---|---|---|
+| Lahmacun | topped flatbread, mixed fresh herbs, tomato, red onion, lemon wedge | herbs → `Fish, bass, fresh water, mixed species, raw` at rank 1 | 0 kcal, blocked |
+| Adana kebab | ground meat kebabs + 5 others | `Meat, ground, NFS`, then deer, bison, elk | 0 kcal, blocked |
+| Pan pizza | pizza, baked | 5 × DIGIORNO frozen | 0 kcal, blocked |
+| Bacon cheeseburger | bacon cheeseburger, seasoned French fries, ketchup | run A: `Cheeseburger, NFS`; run B: 5 bacon products, no burger | 0 kcal, blocked |
+| Wok plate | stir-fried noodles, breaded fried chicken, beef with broccoli | noodles → mushroom and lentil entries | 0 kcal, blocked |
+
+Recognition held up on unseen cuisine — tomato, red onion, lemon, ketchup, French fries and breaded
+fried chicken all grounded correctly. The failures concentrated downstream:
+
+1. **Retrieval matched on modifiers rather than head nouns.** The full observed phrase is sent as the
+   query, so qualifiers dominate the lexical match.
+2. **The selector abstained on a correct rank-1 candidate** (`Beef and broccoli`, FNDDS). Holdout
+   selector accuracy of 1.000 rests on n=1 and should not be read as characteristic.
+3. **No hidden-ingredient question fired on any of the five**, despite deep-fried potatoes, battered
+   chicken, pizza dough oil, and ~20% fat lamb.
+4. **0/5 meals produced nutrition**, reproducing the 0% auto-accept coverage recorded on the
+   historical holdout, on data the system had never seen.
+5. **Run-to-run variance is material.** The same burger photo produced a usable candidate list in one
+   run and five bacon products in another.
+
+Ordering compounded the problem: "Search for another food" sat below five plausible wrong options, so
+the interface steered toward the error.
+
 ## Final interpretation
 
 The evidence supports the following case-study conclusions:
@@ -241,8 +296,11 @@ The evidence supports the following case-study conclusions:
 
 1. Collect owned or explicitly consented ordinary phone meals with kitchen-scale portions and measured oil/sauce.
 2. Create a genuinely unseen final holdout; do not reuse the already-inspected Nutrition5k historical holdout IDs as untouched evidence.
-3. Improve USDA retrieval on new development evidence without adding benchmark-specific acceptable FDC IDs post hoc.
-4. Measure clarification completion, user burden, and unsafe auto-accept on a larger representative product set.
-5. Add production JWT/persistence/storage/monitoring before deployment.
+3. Improve USDA retrieval on new development evidence without adding benchmark-specific acceptable FDC IDs post hoc. The n=5 probe suggests a specific mechanism to test first: the full observed phrase is sent as the query, so modifiers outweigh head nouns. Retrieving on the head noun and re-ranking against the full phrase is the cheapest hypothesis available.
+4. Make portion questions answerable in the units a person can actually produce. `USER_HOUSEHOLD_UNIT` exists and the USDA `foodPortions` gram weights are retrieved and then discarded before reaching the item; asking "one whole / half" instead of "about 180 g" is the likeliest route to resolvable portions, and 0/5 historical holdout questions were oracle-resolvable.
+5. Gate the candidate list on relevance. When no candidate clears a floor, lead with manual search rather than ranking five wrong options above it.
+6. Measure clarification completion, user burden, and unsafe auto-accept on a larger representative product set.
+7. Add production JWT/persistence/storage/monitoring before deployment.
+8. Measure the `ai` nutrition path. It currently has unit tests and zero accuracy evidence; the Nutrition5k development split with measured portions is the correct first target.
 
 The repository deliberately keeps these limitations visible instead of turning incomplete denominators into a single headline “accuracy” percentage.

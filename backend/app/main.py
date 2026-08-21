@@ -28,8 +28,10 @@ from app.observability.logging import configure_logging
 from app.observability.middleware import RequestContextMiddleware
 from app.repositories import InMemoryMealRepository
 from app.nutrition.providers import (
+    AINutritionProvider,
     DemoNutritionProvider,
     USDAFoodDataCentralProvider,
+    UnconfiguredAINutritionProvider,
     UnconfiguredNutritionProvider,
 )
 
@@ -49,6 +51,18 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     storage = InMemoryPrivateStorage()
     if application_settings.nutrition_provider == "demo":
         nutrition_provider = DemoNutritionProvider()
+    elif application_settings.nutrition_provider == "ai":
+        if application_settings.openai_api_key is None:
+            nutrition_provider = UnconfiguredAINutritionProvider()
+        else:
+            nutrition_provider = AINutritionProvider(
+                api_key=application_settings.openai_api_key.get_secret_value(),
+                model=application_settings.ai_nutrition_model,
+                sample_count=application_settings.ai_nutrition_sample_count,
+                reasoning_effort=application_settings.openai_reasoning_effort,
+                timeout_seconds=application_settings.openai_timeout_seconds,
+                max_attempts=application_settings.openai_max_attempts,
+            )
     elif application_settings.usda_api_key is None:
         nutrition_provider = UnconfiguredNutritionProvider()
     else:
@@ -100,6 +114,12 @@ def create_app(settings: Settings | None = None) -> FastAPI:
             max_relative_calorie_uncertainty=Decimal(
                 str(application_settings.max_auto_accept_relative_uncertainty)
             ),
+            min_relative_trigger_kcal=Decimal(
+                str(application_settings.min_relative_trigger_kcal)
+            ),
+            max_nutrition_consensus_spread=Decimal(
+                str(application_settings.max_nutrition_consensus_spread)
+            ),
         ),
     )
     meal_service = MealContractService(
@@ -117,7 +137,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     async def lifespan(_: FastAPI):
         configure_logging()
         yield
-        if isinstance(nutrition_provider, USDAFoodDataCentralProvider):
+        if isinstance(nutrition_provider, (USDAFoodDataCentralProvider, AINutritionProvider)):
             await nutrition_provider.aclose()
         if isinstance(vision_provider, OpenAIVisionProvider):
             await vision_provider.aclose()
@@ -152,6 +172,9 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     ) or (
         application_settings.nutrition_provider == "usda"
         and application_settings.usda_api_key is None
+    ) or (
+        application_settings.nutrition_provider == "ai"
+        and application_settings.openai_api_key is None
     )
     application.state.provider_mode = (
         "unconfigured"

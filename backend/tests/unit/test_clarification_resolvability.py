@@ -37,6 +37,25 @@ def test_candidate_label_exposes_provenance_without_implying_validation() -> Non
     assert "USDA survey food" not in label
 
 
+def test_ai_estimate_candidate_label_keeps_provenance_note_unchanged() -> None:
+    """The user-facing AI-estimate provenance string must stay byte-identical
+    even though it is no longer carried under the `data_type` key (that key is
+    reserved for what gets sent to the canonicalization selector)."""
+    _meal, item = _meal_and_item()
+    candidate = CanonicalFoodCandidate(
+        meal_item_id=item.id,
+        rank=1,
+        source="AI_ESTIMATE",
+        source_food_id="grilled chicken breast",
+        name="grilled chicken breast",
+        data={"provenance_note": "AI ESTIMATE — NOT A DATABASE RECORD"},
+    )
+
+    label = candidate.display_name()
+
+    assert label == "grilled chicken breast · AI ESTIMATE — NOT A DATABASE RECORD"
+
+
 def test_canonical_clarification_has_manual_and_remove_recovery_paths() -> None:
     meal, item = _meal_and_item()
     item.candidates = [

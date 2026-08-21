@@ -42,6 +42,13 @@ def test_portion_confidence_and_candidate_constraints():
         CanonicalFoodCandidate(uuid4(), 0, "USDA", "id", "Rice")
 
 
+def test_nutrition_consensus_spread_rejects_negative_and_coerces_strings():
+    item = MealItem(uuid4(), 0, "cabbage salad", nutrition_consensus_spread="1.4")
+    assert item.nutrition_consensus_spread == Decimal("1.4")
+    with pytest.raises(ValueError, match="cannot be negative"):
+        MealItem(uuid4(), 0, "rice", nutrition_consensus_spread=Decimal("-0.1"))
+
+
 def test_canonicalization_rank_must_reference_supplied_candidate():
     output = CanonicalizationOutput(
         decision="SELECT",

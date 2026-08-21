@@ -30,6 +30,18 @@ test("stable USDA errors receive actionable client copy", async () => {
   );
 });
 
+test("AI nutrition errors receive actionable client copy", async () => {
+  globalThis.fetch = jest.fn().mockResolvedValue({
+    ok: false,
+    status: 503,
+    json: async () => ({ error: { code: "AI_NUTRITION_TIMEOUT" } }),
+  }) as unknown as typeof fetch;
+
+  await expect(getMeal("meal-123")).rejects.toEqual(
+    expect.objectContaining({ code: "AI_NUTRITION_TIMEOUT", message: "Nutrition estimation took too long. Please try again." }),
+  );
+});
+
 test("image upload appends an Expo File for standards-compliant multipart fetch", async () => {
   const fetchMock = jest.fn().mockResolvedValue({
     ok: true,

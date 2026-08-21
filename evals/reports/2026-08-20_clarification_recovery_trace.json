@@ -1,0 +1,241 @@
+{
+  "classification_counts": {
+    "NO_TRUTH_ASSOCIATION_REMOVE_MISSING": 5,
+    "OBSERVED_NAME_ASSOCIATION_GAP_CORRECT_FDC_OFFERED": 2,
+    "RETRIEVAL_OPTION_MISS": 3,
+    "UNMAPPABLE_TRUTH_REQUIRES_MANUAL_RECOVERY": 1
+  },
+  "configuration": "HYBRID_AUTO",
+  "dataset_version": "nutrition5k-public-secondary-v2",
+  "guardrails": [
+    "no provider/model calls",
+    "no manifest, truth, alias, or FDC mutation",
+    "manual search is reported separately from strict static resolvability",
+    "candidate-FDC evidence is used only by the evaluator trace and is never supplied to a model",
+    "holdout rejected"
+  ],
+  "notes": [
+    "This trace diagnoses unresolved generated identity/canonical questions only.",
+    "A correct FDC option can reveal evaluator association undercount without changing primary recognition metrics.",
+    "Manual-search availability is a recovery path but does not convert strict clarification_resolvability into a hit.",
+    "No semantic aliases or post-hoc acceptable FDC IDs are introduced."
+  ],
+  "scope": "development-only unresolved clarification recovery trace",
+  "source_cases_jsonl_sha256": "73b724f6442c7fa6dca1f1ef9f199bb4c8ccede72138980a7f124f40982782a5",
+  "source_manifest_sha256": "3a684d23800e5c85e8e603dd8eb27356c916066988125d57858eefbc64826d57",
+  "split": "development",
+  "status": "measured",
+  "traces": [
+    {
+      "candidate_truth_item_ids": [],
+      "case_id": "nutrition5k_dish_1558116001",
+      "classification": "RETRIEVAL_OPTION_MISS",
+      "manual_search_available": true,
+      "observed_name": "bacon",
+      "observed_truth_item_ids": [
+        "item_04_bacon"
+      ],
+      "option_food_ids": [
+        "168324",
+        "2705856",
+        "2705857",
+        "2705884",
+        "2706135"
+      ],
+      "remove_item_available": false,
+      "resolvable": false,
+      "type": "CANONICAL_SELECTION"
+    },
+    {
+      "candidate_truth_item_ids": [],
+      "case_id": "nutrition5k_dish_1558116001",
+      "classification": "UNMAPPABLE_TRUTH_REQUIRES_MANUAL_RECOVERY",
+      "manual_search_available": true,
+      "observed_name": "sausage",
+      "observed_truth_item_ids": [
+        "item_03_sausage"
+      ],
+      "option_food_ids": [
+        "170606",
+        "173871",
+        "174616",
+        "174618",
+        "746779"
+      ],
+      "remove_item_available": false,
+      "resolvable": false,
+      "type": "CANONICAL_SELECTION"
+    },
+    {
+      "candidate_truth_item_ids": [],
+      "case_id": "nutrition5k_dish_1559590202",
+      "classification": "RETRIEVAL_OPTION_MISS",
+      "manual_search_available": true,
+      "observed_name": "chicken",
+      "observed_truth_item_ids": [
+        "item_03_chicken"
+      ],
+      "option_food_ids": [
+        "171513",
+        "172397",
+        "172957",
+        "173642",
+        "174466"
+      ],
+      "remove_item_available": false,
+      "resolvable": false,
+      "type": "CANONICAL_SELECTION"
+    },
+    {
+      "candidate_truth_item_ids": [],
+      "case_id": "nutrition5k_dish_1559590202",
+      "classification": "NO_TRUTH_ASSOCIATION_REMOVE_MISSING",
+      "manual_search_available": true,
+      "observed_name": "lettuce salad",
+      "observed_truth_item_ids": [],
+      "option_food_ids": [
+        "2709822",
+        "2709823",
+        "2709824",
+        "2709825",
+        "2709826"
+      ],
+      "remove_item_available": false,
+      "resolvable": false,
+      "type": "CANONICAL_SELECTION"
+    },
+    {
+      "candidate_truth_item_ids": [
+        "item_02_bagel"
+      ],
+      "case_id": "nutrition5k_dish_1559235815",
+      "classification": "OBSERVED_NAME_ASSOCIATION_GAP_CORRECT_FDC_OFFERED",
+      "manual_search_available": true,
+      "observed_name": "bagel with cream cheese",
+      "observed_truth_item_ids": [],
+      "option_food_ids": [
+        "2707684",
+        "2707685",
+        "2707732",
+        "2707762",
+        "2707785"
+      ],
+      "remove_item_available": false,
+      "resolvable": false,
+      "type": "CANONICAL_SELECTION"
+    },
+    {
+      "candidate_truth_item_ids": [
+        "item_03_chia_seeds"
+      ],
+      "case_id": "nutrition5k_dish_1562173200",
+      "classification": "OBSERVED_NAME_ASSOCIATION_GAP_CORRECT_FDC_OFFERED",
+      "manual_search_available": true,
+      "observed_name": "chia pudding",
+      "observed_truth_item_ids": [],
+      "option_food_ids": [
+        "2705680",
+        "2705685",
+        "2705697",
+        "2707590",
+        "2708949"
+      ],
+      "remove_item_available": false,
+      "resolvable": false,
+      "type": "CANONICAL_SELECTION"
+    },
+    {
+      "candidate_truth_item_ids": [],
+      "case_id": "nutrition5k_dish_1562173200",
+      "classification": "NO_TRUTH_ASSOCIATION_REMOVE_MISSING",
+      "manual_search_available": true,
+      "observed_name": "pale fruit chunks",
+      "observed_truth_item_ids": [],
+      "option_food_ids": [
+        "169946",
+        "174265",
+        "2705514",
+        "2709334",
+        "2710286"
+      ],
+      "remove_item_available": false,
+      "resolvable": false,
+      "type": "CANONICAL_SELECTION"
+    },
+    {
+      "candidate_truth_item_ids": [],
+      "case_id": "nutrition5k_dish_1559332418",
+      "classification": "NO_TRUTH_ASSOCIATION_REMOVE_MISSING",
+      "manual_search_available": true,
+      "observed_name": "cooked salmon",
+      "observed_truth_item_ids": [],
+      "option_food_ids": [
+        "171999",
+        "172000",
+        "172001",
+        "173722",
+        "2706287"
+      ],
+      "remove_item_available": false,
+      "resolvable": false,
+      "type": "CANONICAL_SELECTION"
+    },
+    {
+      "candidate_truth_item_ids": [],
+      "case_id": "nutrition5k_dish_1559332418",
+      "classification": "NO_TRUTH_ASSOCIATION_REMOVE_MISSING",
+      "manual_search_available": true,
+      "observed_name": "leafy greens",
+      "observed_truth_item_ids": [],
+      "option_food_ids": [
+        "2706587",
+        "2706588",
+        "2706595",
+        "2706596",
+        "2706605"
+      ],
+      "remove_item_available": false,
+      "resolvable": false,
+      "type": "CANONICAL_SELECTION"
+    },
+    {
+      "candidate_truth_item_ids": [],
+      "case_id": "nutrition5k_dish_1559332418",
+      "classification": "NO_TRUTH_ASSOCIATION_REMOVE_MISSING",
+      "manual_search_available": true,
+      "observed_name": "red bell pepper",
+      "observed_truth_item_ids": [],
+      "option_food_ids": [
+        "2258588",
+        "2258589",
+        "2258590",
+        "2709977",
+        "2710799"
+      ],
+      "remove_item_available": false,
+      "resolvable": false,
+      "type": "CANONICAL_SELECTION"
+    },
+    {
+      "candidate_truth_item_ids": [],
+      "case_id": "nutrition5k_dish_1565370004",
+      "classification": "RETRIEVAL_OPTION_MISS",
+      "manual_search_available": true,
+      "observed_name": "bacon",
+      "observed_truth_item_ids": [
+        "item_01_bacon"
+      ],
+      "option_food_ids": [
+        "168324",
+        "2705856",
+        "2705857",
+        "2705884",
+        "2706135"
+      ],
+      "remove_item_available": false,
+      "resolvable": false,
+      "type": "CANONICAL_SELECTION"
+    }
+  ],
+  "unresolved_identity_or_canonical_question_count": 11
+}

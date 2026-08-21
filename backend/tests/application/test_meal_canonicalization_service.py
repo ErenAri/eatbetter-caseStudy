@@ -204,6 +204,49 @@ async def test_abstain_preserves_candidates_and_is_idempotent() -> None:
     assert meal.ai_runs[0].structured_output["decision"] == "ABSTAIN"
 
 
+def test_ai_estimate_candidate_yields_no_data_type_for_selector() -> None:
+    """Regression guard: AINutritionProvider's user-facing provenance_note must
+    not leak into the selector's data_type field. That leak previously caused
+    the constrained selector to see "AI ESTIMATE — NOT A DATABASE RECORD" as a
+    data_type and abstain on nearly every AI-estimated candidate."""
+    candidate = CanonicalFoodCandidate(
+        meal_item_id=UUID(int=9),
+        rank=1,
+        source="AI_ESTIMATE",
+        source_food_id="grilled chicken breast",
+        name="grilled chicken breast",
+        data={
+            "estimated": True,
+            "provenance_note": "AI ESTIMATE — NOT A DATABASE RECORD",
+        },
+    )
+
+    selector_input = MealCanonicalizationService._candidate_input(candidate)
+
+    assert selector_input.data_type is None
+
+
+def test_usda_candidate_data_type_still_passes_to_selector_unchanged() -> None:
+    candidate = CanonicalFoodCandidate(
+        meal_item_id=UUID(int=9),
+        rank=1,
+        source="USDA_FDC",
+        source_food_id="123",
+        name="Rice, white, cooked",
+        data={
+            "data_type": "Foundation",
+            "brand_owner": "Acme",
+            "household_serving_full_text": "1 cup",
+        },
+    )
+
+    selector_input = MealCanonicalizationService._candidate_input(candidate)
+
+    assert selector_input.data_type == "Foundation"
+    assert selector_input.brand_owner == "Acme"
+    assert selector_input.household_serving_full_text == "1 cup"
+
+
 @pytest.mark.asyncio
 async def test_zero_candidates_skips_selector_and_records_deterministic_abstain() -> None:
     selector = FakeSelector([select()])

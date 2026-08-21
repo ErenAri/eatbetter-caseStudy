@@ -38,6 +38,9 @@ The historical QA closeout keeps the test counts recorded on 2026-08-19 rather t
 - The real-provider product benchmark still requires owned/consented phone photos and independently measured labels under `evals/private/`.
 - The 100 kcal / 20% auto-accept limits survived a seven-item conditional development simulation but are not calibrated for a product population.
 - SNAPMe supports visible-food recognition evidence only; it does not validate weighed portion, hidden-ingredient, nutrition, USDA-selection, or end-to-end product accuracy.
+- `AINutritionProvider` (`NUTRITION_PROVIDER=ai`) resolves nutrition from the model alone with no external database. It has unit tests but **no accuracy measurement**. Every published Nutrition5k and SNAPMe number was produced with USDA grounding under `meal_recognition_v2`; none of them describes the AI path, and none may be cited as evidence for it.
+- The runtime recognition prompt is now `meal_recognition_v4`. Because `PROMPT_VERSION` is global, the shipped configuration no longer matches the benchmarked one for any provider. `meal_recognition_v2.md` is unchanged and hash-guarded against the SNAPMe configuration lock.
+- The production validator now accepts `NUTRITION_PROVIDER=usda` or `ai` and requires `USDA_API_KEY` only when `usda` is selected. `demo` is still rejected and staging/production startup otherwise remains fail-closed.
 
 ## Exploratory QA status
 

@@ -1,0 +1,115 @@
+{
+  "configuration": "HYBRID_AUTO",
+  "dataset_version": "nutrition5k-public-secondary-v2",
+  "guardrails": [
+    "no provider/model calls",
+    "no manifest or hidden-truth mutation",
+    "no semantic ingredient equivalence or post-hoc aliases",
+    "risk-surface coverage is reported separately from exact ingredient identity",
+    "false-positive question burden is reported alongside coverage",
+    "holdout is rejected while metric definitions are under development"
+  ],
+  "metric_policy": {
+    "identity": "Exact normalized ingredient-name matching remains the identity metric. No semantic or benchmark-specific ingredient aliases are introduced.",
+    "negative_burden": "False-positive rates use only hidden_truth_complete meals with no present hidden ingredients, so absence is treated as a negative label only when explicitly complete.",
+    "risk_surface": "A hidden-positive meal is risk-surfaced when the system emits any hidden-risk signal or HIDDEN_INGREDIENT question. This does not claim the ingredient identity is correct."
+  },
+  "metrics": {
+    "exact_question_calorie_weighted_coverage": {
+      "denominator": 95.44665033000001,
+      "exclusion": "hidden ingredients without calorie truth are excluded from the kcal denominator",
+      "numerator": 0.0,
+      "unit": "ratio",
+      "value": 0.0
+    },
+    "exact_question_recall": {
+      "denominator": 5,
+      "exclusion": "only exact normalized ingredient names in generated HIDDEN_INGREDIENT questions count",
+      "numerator": 0,
+      "unit": "ratio",
+      "value": 0.0
+    },
+    "exact_recognition_calorie_weighted_coverage": {
+      "denominator": 95.44665033000001,
+      "exclusion": "hidden ingredients without calorie truth are excluded from the kcal denominator",
+      "numerator": 0.0,
+      "unit": "ratio",
+      "value": 0.0
+    },
+    "exact_recognition_recall": {
+      "denominator": 5,
+      "exclusion": "only ground-truth hidden ingredients marked present are evaluated",
+      "numerator": 0,
+      "unit": "ratio",
+      "value": 0.0
+    },
+    "mean_hidden_questions_per_complete_negative_meal": {
+      "denominator": 7,
+      "exclusion": "only hidden_truth_complete meals with no present hidden ingredients are valid negatives",
+      "numerator": 3,
+      "unit": "questions/meal",
+      "value": 0.42857142857142855
+    },
+    "mean_hidden_questions_per_positive_meal": {
+      "denominator": 2,
+      "exclusion": "completed meals with at least one present hidden ingredient",
+      "numerator": 0,
+      "unit": "questions/meal",
+      "value": 0.0
+    },
+    "question_risk_surface_calorie_weighted_case_coverage": {
+      "denominator": 95.44665033000001,
+      "exclusion": "weights hidden-positive meals by their measured hidden kcal; any hidden question surfaces risk but not identity",
+      "numerator": 0.0,
+      "unit": "ratio",
+      "value": 0.0
+    },
+    "question_risk_surface_case_recall": {
+      "denominator": 2,
+      "exclusion": "identity need not match; metric means some hidden risk reached a user question",
+      "numerator": 0,
+      "unit": "ratio",
+      "value": 0.0
+    },
+    "question_risk_surface_false_positive_rate": {
+      "denominator": 7,
+      "exclusion": "only hidden_truth_complete meals with no present hidden ingredients are valid negatives",
+      "numerator": 2,
+      "unit": "ratio",
+      "value": 0.2857142857142857
+    },
+    "recognition_risk_surface_calorie_weighted_case_coverage": {
+      "denominator": 95.44665033000001,
+      "exclusion": "weights hidden-positive meals by their measured hidden kcal; does not claim ingredient identity",
+      "numerator": 95.44665033000001,
+      "unit": "ratio",
+      "value": 1.0
+    },
+    "recognition_risk_surface_case_recall": {
+      "denominator": 2,
+      "exclusion": "denominator is completed meals with at least one ground-truth hidden ingredient",
+      "numerator": 2,
+      "unit": "ratio",
+      "value": 1.0
+    },
+    "recognition_risk_surface_false_positive_rate": {
+      "denominator": 7,
+      "exclusion": "only hidden_truth_complete meals with no present hidden ingredients are valid negatives",
+      "numerator": 5,
+      "unit": "ratio",
+      "value": 0.7142857142857143
+    },
+    "silent_hidden_risk_case_rate": {
+      "denominator": 2,
+      "exclusion": "hidden-positive meals with no generated HIDDEN_INGREDIENT question",
+      "numerator": 2,
+      "unit": "ratio",
+      "value": 1.0
+    }
+  },
+  "scope": "development-only hidden ingredient identity and risk-surfacing analysis",
+  "source_cases_jsonl_sha256": "73b724f6442c7fa6dca1f1ef9f199bb4c8ccede72138980a7f124f40982782a5",
+  "source_manifest_sha256": "3a684d23800e5c85e8e603dd8eb27356c916066988125d57858eefbc64826d57",
+  "split": "development",
+  "status": "measured"
+}

@@ -67,6 +67,11 @@ USDA failures are sanitized into stable server-side categories such as `USDA_TIM
 `USDA_AUTHENTICATION_FAILED`, and `USDA_INCOMPLETE_NUTRITION`. Raw URLs, API keys, and provider
 response bodies are not returned.
 
+AI nutrition failures are sanitized the same way, into categories such as
+`AI_NUTRITION_CONFIGURATION`, `AI_NUTRITION_TIMEOUT`, `AI_NUTRITION_RATE_LIMITED`,
+`AI_NUTRITION_UNAVAILABLE`, and `AI_NUTRITION_INVALID_RESPONSE`. Raw prompts, API keys, and model
+response bodies are not returned.
+
 `GET /health` returns `status`, `mode`, and a `providers` object. `mode` is `demo`, `live`, or
 `unconfigured`; it is derived from the selected adapters and whether their required credentials are
 present. It does not expose credentials or imply that a provider request has succeeded.

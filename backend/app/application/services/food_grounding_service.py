@@ -1,9 +1,23 @@
 from dataclasses import replace
+from decimal import Decimal, InvalidOperation
 
 from app.application.errors import CanonicalFoodNotFoundError
 from app.domain.entities import CanonicalFood, CanonicalFoodCandidate, MealItem
 from app.domain.ports import NutritionProvider
 from app.nutrition.normalization import build_grounding_query
+
+
+def _parse_consensus_spread(raw: object) -> Decimal | None:
+    """Defensively parse the AI provider's `spread` value. A missing, null, or
+    unparseable value must leave the field `None` rather than raise -- this
+    runs on every grounding call, including providers that never set it.
+    """
+    if raw is None:
+        return None
+    try:
+        return Decimal(str(raw))
+    except (InvalidOperation, ValueError):
+        return None
 
 
 class FoodGroundingService:
@@ -13,10 +27,19 @@ class FoodGroundingService:
     async def retrieve_candidates(
         self, meal_item: MealItem, *, limit: int = 5
     ) -> list[CanonicalFoodCandidate]:
-        query = build_grounding_query(
-            meal_item.normalized_name or meal_item.observed_name,
-            meal_item.preparation_method,
-        )
+        # Lexical-search normalization (USDA search-index aliases, preparation
+        # reordering) only helps providers that do lexical search against an
+        # external index. A provider that reasons over free text (the AI path)
+        # should see the item's own readable words -- both as model input and
+        # as the display name the user sees -- not a mangled search string.
+        uses_lexical_search = getattr(self.provider, "uses_lexical_search", True)
+        if uses_lexical_search:
+            query = build_grounding_query(
+                meal_item.normalized_name or meal_item.observed_name,
+                meal_item.preparation_method,
+            )
+        else:
+            query = meal_item.observed_name or meal_item.normalized_name or ""
         retrieved = await self.provider.search_foods(
             query, meal_item_id=meal_item.id, limit=max(limit * 3, limit)
         )
@@ -85,5 +108,9 @@ class FoodGroundingService:
         meal_item.canonical_food_name = canonical.name
         meal_item.nutrition_snapshot = canonical.nutrition_per_100g
         meal_item.nutrition_retrieved_at = canonical.retrieved_at
+        meal_item.nutrition_familiarity = (canonical.data or {}).get("familiarity")
+        meal_item.nutrition_consensus_spread = _parse_consensus_spread(
+            (canonical.data or {}).get("spread")
+        )
         meal_item.recalculate()
         return canonical

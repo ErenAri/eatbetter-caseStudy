@@ -16,6 +16,7 @@ This is a seven-day engineering case study, not a production, clinical, or compe
 | Important limitation | SNAPMe measures visible-food recognition only. It does not validate weighed portions, hidden ingredients, USDA selection, or end-to-end nutrition |
 | End-to-end secondary evidence | Nutrition5k exposes unresolved retrieval/clarification limits; its three v2 secondary holdout IDs were already observed under v1 and are retained only for historical comparison—not claimed as a newly untouched holdout |
 | Safety trade-off | Prefer selective friction over confidently wrong auto-accept when identity/portion uncertainty can materially change the result |
+| Alternative nutrition path | `NUTRITION_PROVIDER` selects `demo`, `usda`, or `ai`. The `ai` path resolves nutrition from the model alone, refuses foods it does not recognize, and marks results `AI_ESTIMATE`. It has unit tests but **no accuracy measurement**, and no number in this repository describes it |
 | Production boundary | Persistent runtime repository/storage, production JWT verification, deployment, and monitoring sink are intentionally deferred and staging/production startup fails closed |
 
 ### Current verification — 2026-08-20
@@ -145,7 +146,7 @@ backend/app/api/           FastAPI transport contracts
 backend/app/application/   meal lifecycle orchestration
 backend/app/ai/            strict schemas, providers, versioned prompts
 backend/app/domain/        entities, Decimal nutrition, uncertainty policy
-backend/app/nutrition/     USDA provider, parser, normalization, ranking
+backend/app/nutrition/     USDA and AI nutrition providers, parser, normalization, ranking
 backend/app/observability/ correlation IDs and structured logging
 backend/tests/             unit/integration/provider/contract tests
 supabase/migrations/       authoritative PostgreSQL schema and RLS
